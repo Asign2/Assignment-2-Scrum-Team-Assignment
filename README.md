@@ -2,6 +2,13 @@ This Temperature Sensor App is an [IoT](https://en.wikipedia.org/wiki/Internet_o
 
 ## Features
 
+This app provides the following features:
+	Role Based Access Control,
+	Login Authentication,
+	Data Storage,
+	User report,
+	User management.
+
 ### Login and Role-Based Access
 
 The app supports Administrator and User roles, password login authentication and encryption of user credentials.
