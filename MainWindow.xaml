@@ -6,12 +6,13 @@
 
         <!-- LOGIN SCREEN -->
         <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
+            <!-- Login inputs fields -->
             <TextBlock Text="Login" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
             <TextBox x:Name="UsernameBox" Height="25" Margin="0,0,0,10"/>
             <PasswordBox x:Name="PasswordBox" Height="25" Margin="0,0,0,15"/>
             <Button Content="Sign In" Height="30" Click="LoginButton_Click"/>
         </StackPanel>
-
+        <!--  -->
         <!-- ADMIN VIEW -->
         <Grid x:Name="AdminScreen" Visibility="Collapsed" Margin="20">
             <Grid.RowDefinitions>
@@ -19,7 +20,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
+            <!-- The user list display -->
             <DataGrid x:Name="UsersGrid"
                       Grid.Row="0"
                       AutoGenerateColumns="False"
@@ -27,13 +28,15 @@
                       SelectionChanged="UsersGrid_SelectionChanged"
                       IsReadOnly="True"
                       Margin="0,0,0,10">
+                <!-- Collumns that will be on the user list display. -->
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
                     <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
                     <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
                 </DataGrid.Columns>
             </DataGrid>
-<!--The rest of the admin stuff is AI cause Xaml hates me though should be simple to change-->
+            <!--The rest of the admin stuff is AI cause Xaml hates me though should be simple to change-->
+            <!-- Ill leave uncommented since this is AI, come to me if you want this commented properly.-->
             <StackPanel Grid.Row="1" Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                     <TextBlock Text="Username:" Width="80" VerticalAlignment="Center" />
@@ -66,6 +69,7 @@
 
         <!-- NEW USER VIEW -->
         <StackPanel x:Name="NewUserScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <!-- New user input fields -->
             <TextBlock Text="Create User Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
             <TextBox x:Name="NewUsername" Height="25" Margin="0,0,0,10"/>
             <PasswordBox x:Name="NewPassword" Height="25" Margin="0,0,0,10"/>

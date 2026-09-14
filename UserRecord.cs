@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Assign_2
 {
     /// <summary>
-    /// For the table in admin view
+    /// The Columns that are in the Users table of the database are represented by this class.
     /// </summary>
     public class UserRecord
     {

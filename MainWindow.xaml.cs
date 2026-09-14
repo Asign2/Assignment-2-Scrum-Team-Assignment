@@ -23,7 +23,7 @@ namespace Assign_2
             }
         }
         /// <summary>
-        /// Compares users account input to the database accountcredentials.
+        /// Compares users account input to the database account credentials.
         /// If matches then sends user to their account role's screen.
         /// </summary>
         /// <param name="sender">The login button that was Clicked</param>
@@ -79,7 +79,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// grabs the values from the box clicked to input it into the edit account input boxes.
+        /// Grabs the values from the box clicked to input it into the edit account input boxes.
         /// </summary>
         /// <param name="sender">The box on the grid that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -105,7 +105,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// commit the changes that were in the edit/update account input boxes.
+        /// Commit the changes that were in the edit/update account input boxes.
         /// </summary>
         /// <param name="sender">The save changes button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -140,7 +140,7 @@ namespace Assign_2
             }
         }
         /// <summary>
-        /// updates the database with the password from the input box.
+        /// Updates the database with the password from the input box.
         /// </summary>
         /// <param name="sender">The reset password button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -164,7 +164,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// deletes a user from the database. 
+        /// Deletes the selected user from the database. 
         /// </summary>
         /// <param name="sender">The delete user button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -187,8 +187,9 @@ namespace Assign_2
                 RefreshUserList();
             }
         }
+
         /// <summary>
-        /// 
+        /// Swaps the Display to the new user registration screen. 
         /// </summary>
         /// <param name="sender">The show new user button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -197,7 +198,7 @@ namespace Assign_2
             ShowScreen(NewUserScreen);
         }
         /// <summary>
-        /// 
+        /// Registers a new user to the database with the inputted values from the new user registration screen.
         /// </summary>
         /// <param name="sender">The register new user button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -230,7 +231,7 @@ namespace Assign_2
             }
         }
         /// <summary>
-        /// 
+        /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
         /// <param name="sender">The retunr button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -239,7 +240,7 @@ namespace Assign_2
             OpenAdminScreen();
         }
         /// <summary>
-        /// 
+        /// Returns the display to the login screen from any other screen and clears the input boxes.
         /// </summary>
         /// <param name="sender">The logout button that was Clicked</param>
         /// <param name="e">The event data.</param>
@@ -251,9 +252,9 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// 
+        /// Handles the visibility of the screens, hiding all other screens and showing the one passed in.
         /// </summary>
-        /// <param name="screenToShow"></param>
+        /// <param name="screenToShow">The screen that will be shown.</param>
         private void ShowScreen(UIElement screenToShow)
         {
             LoginScreen.Visibility = Visibility.Collapsed;
