@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
 
-        <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250" av:IsHidden="True">
+        <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
             <!-- Login inputs fields -->
             <TextBlock Text="Login" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=UsernameBox}">
@@ -51,7 +51,7 @@
                     <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
                         <AccessText Text="_Username:"/>
                     </Label>
-                    <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" />
+                    <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" IsReadOnly="true" />
 
                     <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
                         <AccessText Text="_Role:"/>
