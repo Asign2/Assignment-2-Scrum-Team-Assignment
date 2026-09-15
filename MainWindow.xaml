@@ -1,24 +1,27 @@
-﻿<Window x:Class="Assign_2.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:av="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        mc:Ignorable="av" 
+        x:Class="Assign_2.MainWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
 
-        <!-- LOGIN SCREEN -->
-        <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
+        <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250" av:IsHidden="True">
             <!-- Login inputs fields -->
             <TextBlock Text="Login" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=UsernameBox}">
-                <AccessText>_Username</AccessText>
+                <AccessText Text="_Username"/>
             </Label>
             <TextBox x:Name="UsernameBox" Height="25" Margin="0,0,0,10"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=PasswordBox}">
-                <AccessText>_Password</AccessText>
+                <AccessText Text="_Password"/>
             </Label>
             <PasswordBox x:Name="PasswordBox" Height="25" Margin="0,0,0,15"/>
             <Button Content="Sign In" Height="30" Click="LoginButton_Click"/>
         </StackPanel>
-        <!--  -->
+
         <!-- ADMIN VIEW -->
         <Grid x:Name="AdminScreen" Visibility="Collapsed" Margin="20">
             <Grid.RowDefinitions>
@@ -26,6 +29,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <!--The rest of the admin stuff is AI cause Xaml hates me though should be simple to change-->
             <!-- The user list display -->
             <DataGrid x:Name="UsersGrid"
                       Grid.Row="0"
@@ -41,14 +45,17 @@
                     <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
                 </DataGrid.Columns>
             </DataGrid>
-            <!--The rest of the admin stuff is AI cause Xaml hates me though should be simple to change-->
             <!-- Ill leave uncommented since this is AI, come to me if you want this commented properly.-->
             <StackPanel Grid.Row="1" Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <TextBlock Text="Username:" Width="80" VerticalAlignment="Center" />
+                    <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
+                        <AccessText Text="_Username:"/>
+                    </Label>
                     <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" />
 
-                    <TextBlock Text="Role:" Width="40" VerticalAlignment="Center" />
+                    <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
+                        <AccessText Text="_Role:"/>
+                    </Label>
                     <ComboBox x:Name="RoleBox" Width="120">
                         <ComboBoxItem Content="Admin" />
                         <ComboBoxItem Content="User" />
@@ -56,7 +63,9 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <TextBlock Text="New Password:" Width="80" VerticalAlignment="Center" />
+                    <Label Width="auto" VerticalAlignment="Center" Margin="0,0,15,0" Target="{Binding ElementName=NewPasswordBox}">
+                        <AccessText Text="New _Password:"/>
+                    </Label>
                     <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,15,0" />
                     <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" />
                 </StackPanel>
@@ -77,14 +86,23 @@
         <StackPanel x:Name="NewUserScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
             <!-- New user input fields -->
             <TextBlock Text="Create User Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewUsername}">
+                <AccessText Text="New _Username"/>
+            </Label>
             <TextBox x:Name="NewUsername" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewPassword}">
+                <AccessText Text="New _Password"/>
+            </Label>
             <PasswordBox x:Name="NewPassword" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewRole}">
+                <AccessText Text="New _Role"/>
+            </Label>
             <ComboBox x:Name="NewRole" Height="25" Margin="0,0,0,10">
                 <ComboBoxItem Content="Admin"/>
                 <ComboBoxItem Content="User"/>
             </ComboBox>
-            <Button Content="Register New User" Width="100" Height="30" Click="RegisterButton_Click"/>
-            <Button Content="Return" Width="100" Height="30" Click="ReturnButton_Click"/>
+            <Button Content="Register New User" Width="auto" Height="30" Click="RegisterButton_Click"/>
+            <Button Content="Return" Width="auto" Height="30" Click="ReturnButton_Click"/>
         </StackPanel>
 
         <!-- USER VIEW -->
