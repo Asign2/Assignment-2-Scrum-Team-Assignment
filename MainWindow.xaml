@@ -7,7 +7,7 @@
         x:Class="Assign_2.MainWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+
         <!-- LOGIN VIEW -->
         <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
             <!-- Login inputs fields -->
@@ -28,56 +28,158 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <!--The rest of the admin stuff is AI cause Xaml hates me though should be simple to change-->
-            <!-- The user list display -->
-            <DataGrid x:Name="UsersGrid"
-                      Grid.Row="0"
-                      AutoGenerateColumns="False"
-                      SelectionMode="Single"
-                      SelectionChanged="UsersGrid_SelectionChanged"
-                      IsReadOnly="True"
-                      Margin="0,0,0,10">
-                <!-- Collumns that will be on the user list display. -->
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
-                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
-                    <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
-                </DataGrid.Columns>
-            </DataGrid>
-            <!-- Ill leave uncommented since this is AI, come to me if you want this commented properly.-->
-            <StackPanel Grid.Row="1" Orientation="Vertical">
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
-                        <AccessText Text="_Username:"/>
-                    </Label>
-                    <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" IsReadOnly="true" />
 
-                    <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
-                        <AccessText Text="_Role:"/>
-                    </Label>
-                    <ComboBox x:Name="RoleBox" Width="120">
-                        <ComboBoxItem Content="Admin" />
-                        <ComboBoxItem Content="User" />
-                    </ComboBox>
-                </StackPanel>
+            <TabControl Grid.Row="0">
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <Label Width="auto" VerticalAlignment="Center" Margin="0,0,15,0" Target="{Binding ElementName=NewPasswordBox}">
-                        <AccessText Text="New _Password:"/>
-                    </Label>
-                    <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,15,0" />
-                    <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" />
-                </StackPanel>
+                <!-- USERS TAB -->
+                <TabItem Header="Users">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Save Changes" Click="SaveChanges_Click" Width="110" Margin="0,0,10,0" />
-                    <Button Content="Delete User" Click="DeleteUser_Click" Width="110" />
-                </StackPanel>
-            </StackPanel>
+                        <DataGrid x:Name="UsersGrid"
+                                  Grid.Row="0"
+                                  AutoGenerateColumns="False"
+                                  SelectionMode="Single"
+                                  SelectionChanged="UsersGrid_SelectionChanged"
+                                  IsReadOnly="True"
+                                  Margin="0,0,0,10">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
+                                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
+                                <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <StackPanel Grid.Row="1" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
+                                    <AccessText Text="_Username:"/>
+                                </Label>
+                                <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" IsReadOnly="true" />
+
+                                <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
+                                    <AccessText Text="_Role:"/>
+                                </Label>
+                                <ComboBox x:Name="RoleBox" Width="120">
+                                    <ComboBoxItem Content="Admin" />
+                                    <ComboBoxItem Content="User" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <Label Width="auto" VerticalAlignment="Center" Margin="0,0,15,0" Target="{Binding ElementName=NewPasswordBox}">
+                                    <AccessText Text="New _Password:"/>
+                                </Label>
+                                <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,15,0" />
+                                <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Save Changes" Click="SaveChanges_Click" Width="110" Margin="0,0,10,0" />
+                                <Button Content="Delete User" Click="DeleteUser_Click" Width="110" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- SENSOR / DASHBOARD SETTINGS TAB -->
+                <TabItem Header="Sensor Settings">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" BorderBrush="#CCCCCC" BorderThickness="1" Padding="10" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Dashboard Configuration" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=MinTempBox}">
+                                        <AccessText Text="_Min Temp (°C):"/>
+                                    </Label>
+                                    <TextBox x:Name="MinTempBox" Width="70" Margin="0,0,20,0"/>
+
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=MaxTempBox}">
+                                        <AccessText Text="Ma_x Temp (°C):"/>
+                                    </Label>
+                                    <TextBox x:Name="MaxTempBox" Width="70"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=GraphCountBox}">
+                                        <AccessText Text="_Graph Count:"/>
+                                    </Label>
+                                    <TextBox x:Name="GraphCountBox" Width="70" Margin="0,0,20,0"/>
+
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=DefaultGranularityBox}">
+                                        <AccessText Text="Default _Interval:"/>
+                                    </Label>
+                                    <ComboBox x:Name="DefaultGranularityBox" Width="100">
+                                        <ComboBoxItem Content="Hourly"/>
+                                        <ComboBoxItem Content="Daily"/>
+                                        <ComboBoxItem Content="Monthly"/>
+                                        <ComboBoxItem Content="Yearly"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Save Settings" Width="120" Click="SaveSettings_Click" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="SettingsUpdatedText" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <DataGrid x:Name="SensorsGrid"
+                                  Grid.Row="1"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
+                                <DataGridTextColumn Header="Make" Binding="{Binding Make}" Width="120"/>
+                                <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="120"/>
+                                <DataGridTextColumn Header="City" Binding="{Binding City}" Width="120"/>
+                                <DataGridTextColumn Header="Suburb" Binding="{Binding Suburb}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- DASHBOARD LOG TAB -->
+                <TabItem Header="Dashboard Log">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0" Content="Refresh Log" Width="100" HorizontalAlignment="Left"
+                                Margin="0,0,0,10" Click="RefreshLog_Click"/>
+
+                        <DataGrid x:Name="LogGrid"
+                                  Grid.Row="1"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Viewed At" Binding="{Binding ViewedAt}" Width="140"/>
+                                <DataGridTextColumn Header="Viewed By" Binding="{Binding ViewedBy}" Width="120"/>
+                                <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="150"/>
+                                <DataGridTextColumn Header="Interval" Binding="{Binding Granularity}" Width="80"/>
+                                <DataGridTextColumn Header="Graphs" Binding="{Binding GraphCount}" Width="60"/>
+                                <DataGridTextColumn Header="Buckets" Binding="{Binding Buckets}" Width="60"/>
+                                <DataGridTextColumn Header="Avg °C" Binding="{Binding AvgTemp}" Width="70"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+            </TabControl>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                 <Button Content="Add New User" Width="110" Margin="0,0,10,0" Click="ShowNewUserScreen_Click"/>
                 <Button Content="Logout" Width="100" Click="LogoutButton_Click"/>
             </StackPanel>
@@ -107,9 +209,38 @@
         </StackPanel>
 
         <!-- USER VIEW -->
-        <StackPanel x:Name="UserScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="This is the User View" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-            <Button Content="Logout" Width="100" Height="30" Click="LogoutButton_Click"/>
+        <StackPanel x:Name="UserScreen" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Width="740">
+            <TextBlock Text="Temperature Dashboard" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                <Label VerticalAlignment="Center" Target="{Binding ElementName=LocationFilterBox}">
+                    <AccessText Text="_Location:"/>
+                </Label>
+                <ComboBox x:Name="LocationFilterBox" Width="200" Margin="0,0,15,0"
+                          DisplayMemberPath="Display"
+                          SelectionChanged="ReadingFilter_Changed"/>
+
+                <Label VerticalAlignment="Center" Target="{Binding ElementName=UserGranularityBox}">
+                    <AccessText Text="_Interval:"/>
+                </Label>
+                <ComboBox x:Name="UserGranularityBox" Width="110"
+                          SelectionChanged="ReadingFilter_Changed">
+                    <ComboBoxItem Content="Hourly"/>
+                    <ComboBoxItem Content="Daily"/>
+                    <ComboBoxItem Content="Monthly"/>
+                    <ComboBoxItem Content="Yearly"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Small, fixed-height area — grows only by scrolling as more graphs are added -->
+            <Border BorderBrush="#DDDDDD" BorderThickness="1" Height="170" Width="720">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <WrapPanel x:Name="ChartHost" Orientation="Horizontal"/>
+                </ScrollViewer>
+            </Border>
+
+            <Button Content="Logout" Width="100" Height="28" Margin="0,10,0,0"
+                    HorizontalAlignment="Right" Click="LogoutButton_Click"/>
         </StackPanel>
 
     </Grid>

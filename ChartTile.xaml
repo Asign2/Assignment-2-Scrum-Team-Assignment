@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Assign_2.ChartTile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="230" Height="150">
+    <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="4" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="TitleText" FontWeight="Bold" FontSize="11"
+                       Margin="6,4,6,2" Text="Chart"/>
+            <Canvas x:Name="PlotCanvas" Grid.Row="1" ClipToBounds="True"
+                    SizeChanged="PlotCanvas_SizeChanged"/>
+        </Grid>
+    </Border>
+</UserControl>

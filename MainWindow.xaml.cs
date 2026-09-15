@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -7,6 +9,9 @@ namespace Assign_2
     public partial class MainWindow : Window
     {
         private UserRecord selectedUser;
+        private string currentUsername;
+        private bool adminScreenReady;
+        private bool userScreenReady;
 
         public MainWindow()
         {
@@ -44,13 +49,15 @@ namespace Assign_2
                     return;
                 }
 
+                currentUsername = username;
+
                 if (role == "Admin")
                 {
                     OpenAdminScreen();
                 }
                 else
                 {
-                    ShowScreen(UserScreen);
+                    OpenUserScreen();
                 }
             }
             catch (Exception ex)
@@ -68,6 +75,23 @@ namespace Assign_2
         {
             ShowScreen(AdminScreen);
             RefreshUserList();
+
+            if (!adminScreenReady)
+            {
+                adminScreenReady = true;
+                LoadSettingsIntoForm();
+            }
+
+            try
+            {
+                SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            RefreshLog_Click(null, null);
         }
 
         /// <summary>
@@ -263,6 +287,294 @@ namespace Assign_2
             UserScreen.Visibility = Visibility.Collapsed;
 
             screenToShow.Visibility = Visibility.Visible;
+        }
+
+        // ---------------- Sensor Settings (Admin) ----------------
+
+        /// <summary>Loads the saved dashboard settings into the admin form fields.</summary>
+        private void LoadSettingsIntoForm()
+        {
+            try
+            {
+                DashboardSettings settings = SensorsDatabase.GetSettings();
+
+                MinTempBox.Text = settings.MinTemp.ToString();
+                MaxTempBox.Text = settings.MaxTemp.ToString();
+                GraphCountBox.Text = settings.GraphCount.ToString();
+
+                foreach (ComboBoxItem item in DefaultGranularityBox.Items)
+                {
+                    if (item.Content.ToString() == settings.DefaultGranularity)
+                    {
+                        DefaultGranularityBox.SelectedItem = item;
+                    }
+                }
+
+                SettingsUpdatedText.Text = string.IsNullOrEmpty(settings.UpdatedBy)
+                    ? ""
+                    : "Last updated by " + settings.UpdatedBy + " at " + settings.UpdatedAt;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Validates and saves the admin's temperature range, graph count and
+        /// default interval to dbo.DashboardSettings.
+        /// </summary>
+        /// <param name="sender">The save settings button that was Clicked</param>
+        /// <param name="e">The event data.</param>
+        private void SaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (!double.TryParse(MinTempBox.Text, out double minTemp) ||
+                !double.TryParse(MaxTempBox.Text, out double maxTemp))
+            {
+                MessageBox.Show("Min and Max temperature must be numbers.");
+                return;
+            }
+
+            if (minTemp >= maxTemp)
+            {
+                MessageBox.Show("Min temperature must be less than Max temperature.");
+                return;
+            }
+
+            if (!int.TryParse(GraphCountBox.Text, out int graphCount) ||
+                graphCount < 1 || graphCount > 8)
+            {
+                MessageBox.Show("Graph count must be a whole number between 1 and 8.");
+                return;
+            }
+
+            ComboBoxItem granularityItem = DefaultGranularityBox.SelectedItem as ComboBoxItem;
+
+            if (granularityItem == null)
+            {
+                MessageBox.Show("Choose a default interval.");
+                return;
+            }
+
+            DashboardSettings settings = new DashboardSettings
+            {
+                MinTemp = minTemp,
+                MaxTemp = maxTemp,
+                GraphCount = graphCount,
+                DefaultGranularity = granularityItem.Content.ToString()
+            };
+
+            try
+            {
+                SensorsDatabase.SaveSettings(settings, currentUsername);
+                LoadSettingsIntoForm();
+                MessageBox.Show("Settings saved.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Reloads the dashboard view log grid.
+        /// </summary>
+        /// <param name="sender">The refresh log button that was Clicked</param>
+        /// <param name="e">The event data.</param>
+        private void RefreshLog_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                LogGrid.ItemsSource = SensorsDatabase.GetDashboardLog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // ---------------- Dashboard (User) ----------------
+
+        /// <summary>
+        /// Shows the user screen, loads locations once, and applies admin defaults.
+        /// </summary>
+        private void OpenUserScreen()
+        {
+            ShowScreen(UserScreen);
+
+            if (!userScreenReady)
+            {
+                userScreenReady = true;
+
+                List<LocationRecord> locations = new List<LocationRecord>
+                {
+                    new LocationRecord { Id = 0, Display = "All locations" }
+                };
+
+                try
+                {
+                    locations.AddRange(SensorsDatabase.GetAllLocations());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+                LocationFilterBox.ItemsSource = locations;
+                LocationFilterBox.SelectedIndex = 0;
+
+                DashboardSettings settings;
+
+                try
+                {
+                    settings = SensorsDatabase.GetSettings();
+                }
+                catch
+                {
+                    settings = new DashboardSettings
+                    {
+                        MinTemp = 5,
+                        MaxTemp = 30,
+                        GraphCount = 2,
+                        DefaultGranularity = "Monthly"
+                    };
+                }
+
+                foreach (ComboBoxItem item in UserGranularityBox.Items)
+                {
+                    if (item.Content.ToString() == settings.DefaultGranularity)
+                    {
+                        UserGranularityBox.SelectedItem = item;
+                    }
+                }
+
+                if (UserGranularityBox.SelectedItem == null)
+                {
+                    UserGranularityBox.SelectedIndex = 2; // Monthly
+                }
+            }
+
+            RefreshDashboard();
+        }
+
+        /// <summary>
+        /// Re-runs the dashboard whenever the location or interval filter changes.
+        /// </summary>
+        /// <param name="sender">The filter control that changed.</param>
+        /// <param name="e">The event data.</param>
+        private void ReadingFilter_Changed(object sender, RoutedEventArgs e)
+        {
+            if (userScreenReady)
+            {
+                RefreshDashboard();
+            }
+        }
+
+        /// <summary>
+        /// Loads the aggregated readings for the selected location/interval and
+        /// fills the chart tiles, sized by the admin's graph count setting.
+        /// </summary>
+        private void RefreshDashboard()
+        {
+            LocationRecord location = LocationFilterBox.SelectedItem as LocationRecord;
+            ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
+
+            if (location == null || granularityItem == null)
+            {
+                return;
+            }
+
+            Granularity granularity = (Granularity)Enum.Parse(
+                typeof(Granularity), granularityItem.Content.ToString());
+
+            DashboardSettings settings;
+
+            try
+            {
+                settings = SensorsDatabase.GetSettings();
+            }
+            catch
+            {
+                settings = new DashboardSettings { MinTemp = 5, MaxTemp = 30, GraphCount = 2 };
+            }
+
+            List<ReadingAggregate> series;
+
+            try
+            {
+                series = SensorsDatabase.GetAggregates(location.Id, granularity);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
+            List<string> labels = series.Select(r => r.Period).ToList();
+            List<double> avgs = series.Select(r => r.AvgTemp).ToList();
+            List<double> mins = series.Select(r => r.MinTemp).ToList();
+            List<double> maxs = series.Select(r => r.MaxTemp).ToList();
+            List<double> samples = series.Select(r => (double)r.Samples).ToList();
+
+            BuildChartTiles(settings.GraphCount, labels, avgs, mins, maxs, samples,
+                             settings.MinTemp, settings.MaxTemp);
+
+            try
+            {
+                SensorsDatabase.RecordDashboard(new DashboardSnapshot
+                {
+                    ViewedBy = currentUsername,
+                    Location = location.Display,
+                    Granularity = granularity.ToString(),
+                    GraphCount = settings.GraphCount,
+                    Buckets = series.Count,
+                    AvgTemp = series.Count == 0 ? 0 : Math.Round(avgs.Average(), 2)
+                });
+            }
+            catch
+            {
+                // Logging failure should not block the dashboard from showing.
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds the ChartHost panel with as many tiles as the admin's
+        /// graph count allows. The first two slots are the average/min/max
+        /// band and the sample-count bars; extra slots are placeholders
+        /// ready for future visualisations.
+        /// </summary>
+        private void BuildChartTiles(
+            int graphCount,
+            List<string> labels,
+            List<double> avgs,
+            List<double> mins,
+            List<double> maxs,
+            List<double> samples,
+            double minTemp,
+            double maxTemp)
+        {
+            ChartHost.Children.Clear();
+
+            for (int i = 0; i < graphCount; i++)
+            {
+                ChartTile tile = new ChartTile();
+
+                if (i == 0)
+                {
+                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
+                                  minTemp, maxTemp);
+                }
+                else if (i == 1)
+                {
+                    tile.ShowBars("Sample Count", labels, samples);
+                }
+                else
+                {
+                    tile.ShowPlaceholder("Chart " + (i + 1));
+                }
+
+                ChartHost.Children.Add(tile);
+            }
         }
     }
 }
