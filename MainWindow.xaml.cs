@@ -552,7 +552,7 @@ namespace Assign_2
             for (int i = 0; i < graphCount; i++)
             {
                 ChartTile tile = new ChartTile();
-
+//Change to a Switch Statement
                 if (i == 0)
                 {
                     tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
