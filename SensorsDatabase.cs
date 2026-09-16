@@ -20,11 +20,11 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Locations
-                    (
-                        Id INT IDENTITY(1,1) PRIMARY KEY,
-                        City VARCHAR(100) NOT NULL,
-                        Suburb VARCHAR(100) NOT NULL
-                    );");
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    City VARCHAR(255) NOT NULL,
+    Suburb VARCHAR(255) NOT NULL
+);");
             }
 
             // 2. Create Sensors table (linked to Locations via Foreign Key)
@@ -37,17 +37,18 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Sensors
-                    (
-                        Id INT IDENTITY(1,1) PRIMARY KEY,
-                        Date_Installed DATE NOT NULL,
-                        Make VARCHAR(100) NOT NULL,
-                        Model VARCHAR(100) NOT NULL,
-                        Location_Id INT NOT NULL,
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Date_Installed DATE NOT NULL,
+    Make VARCHAR(255) NOT NULL,
+    Model VARCHAR(255) NOT NULL,
+    Location_Id INT NOT NULL,
 
-                        CONSTRAINT FK_Sensors_Locations
-                        FOREIGN KEY (Location_Id)
-                        REFERENCES dbo.Locations(Id)
-                    );");
+    CONSTRAINT FK_Sensors_Locations
+    FOREIGN KEY (Location_Id)
+    REFERENCES dbo.Locations(Id)
+    ON DELETE CASCADE
+);");
             }
 
             // 3. Create Data table (linked to Sensors via Foreign Key)
@@ -60,16 +61,17 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Data
-                    (
-                        Id INT IDENTITY(1,1) PRIMARY KEY,
-                        [Timestamp] DATETIME2 NOT NULL DEFAULT GETDATE(),
-                        Temperature DECIMAL(5,2) NOT NULL,
-                        Sensor_Id INT NOT NULL,
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    [Timestamp] DATETIME2 NOT NULL DEFAULT GETDATE(),
+    Temperature DECIMAL(5,2) NOT NULL,
+    Sensor_Id INT NOT NULL,
 
-                        CONSTRAINT FK_Data_Sensors
-                        FOREIGN KEY (Sensor_Id)
-                        REFERENCES dbo.Sensors(Id)
-                    );");
+    CONSTRAINT FK_Data_Sensors
+    FOREIGN KEY (Sensor_Id)
+    REFERENCES dbo.Sensors(Id)
+    ON DELETE CASCADE
+);");
             }
 
             // 4. Create DashboardSettings table
@@ -82,15 +84,15 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.DashboardSettings
-                    (
-                        Id INT PRIMARY KEY,
-                        MinTemp FLOAT NOT NULL,
-                        MaxTemp FLOAT NOT NULL,
-                        GraphCount INT NOT NULL,
-                        DefaultGranularity NVARCHAR(20) NOT NULL,
-                        UpdatedBy NVARCHAR(100) NULL,
-                        UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
-                    );");
+(
+    Id INT PRIMARY KEY,
+    MinTemp FLOAT NOT NULL,
+    MaxTemp FLOAT NOT NULL,
+    GraphCount INT NOT NULL,
+    DefaultGranularity NVARCHAR(255) NOT NULL,
+    UpdatedBy NVARCHAR(255) NULL,
+    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
+);");
 
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
@@ -108,16 +110,16 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.DashboardLog
-                    (
-                        Id INT IDENTITY(1,1) PRIMARY KEY,
-                        ViewedBy NVARCHAR(100) NOT NULL,
-                        ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-                        Location NVARCHAR(200) NOT NULL,
-                        Granularity NVARCHAR(20) NOT NULL,
-                        GraphCount INT NOT NULL,
-                        Buckets INT NOT NULL,
-                        AvgTemp FLOAT NOT NULL
-                    );");
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ViewedBy NVARCHAR(255) NOT NULL,
+    ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    Location NVARCHAR(255) NOT NULL,
+    Granularity NVARCHAR(255) NOT NULL,
+    GraphCount INT NOT NULL,
+    Buckets INT NOT NULL,
+    AvgTemp FLOAT NOT NULL
+);");
             }
 
             SeedSampleData(connection);
