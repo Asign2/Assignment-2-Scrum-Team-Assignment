@@ -17,30 +17,27 @@ namespace Assign_2
         {
             InitializeComponent();
 
-            try
-            {
+            
                 SensorsDatabase.Initialize();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Database error:\n\n" + ex.Message);
-            }
+            
         }
-
         /// <summary>
-        /// Compares user account input to the database credentials.
-        /// Routes the user to the appropriate screen based on their role.
+        /// Compares users account input to the database account credentials.
+        /// If matches then sends user to their account role's screen.
         /// </summary>
+        /// <param name="sender">The login button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameBox.Text.Trim();
             string password = PasswordBox.Password;
+            string role;
 
             try
             {
-                bool success = UserDatabase.Login(username, password, out string role);
+                bool success = UserDatabase.Login(username, password, out role);
 
-                if (!success)
+                if (success == false)
                 {
                     MessageBox.Show("Invalid username or password.");
                     return;
@@ -50,25 +47,7 @@ namespace Assign_2
 
                 if (role == "Admin")
                 {
-                    ShowScreen(AdminScreen);
-                    RefreshUserList();
-
-                    if (!adminScreenReady)
-                    {
-                        adminScreenReady = true;
-                        LoadSettingsIntoForm();
-                    }
-
-                    try
-                    {
-                        SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
-
-                    RefreshLog_Click(null, null);
+                    OpenAdminScreen();
                 }
                 else
                 {
@@ -81,8 +60,36 @@ namespace Assign_2
             }
         }
 
+
         /// <summary>
-        /// Refreshes the user data grid.
+        /// Redundant method
+        /// change all  OpenAdminScreen(); to just ShowScreen(AdminScreen);
+        /// </summary>
+        private void OpenAdminScreen()
+        {
+            ShowScreen(AdminScreen);
+            RefreshUserList();
+
+            if (!adminScreenReady)
+            {
+                adminScreenReady = true;
+                LoadSettingsIntoForm();
+            }
+
+            try
+            {
+                SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            RefreshLog_Click(null, null);
+        }
+
+        /// <summary>
+        /// Refreshes the user grid when it is updated/changed.
         /// </summary>
         private void RefreshUserList()
         {
@@ -90,8 +97,10 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Populates account edit inputs based on the selected grid user.
+        /// Grabs the values from the box clicked to input it into the edit account input boxes.
         /// </summary>
+        /// <param name="sender">The box on the grid that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void UsersGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             selectedUser = UsersGrid.SelectedItem as UserRecord;
@@ -109,14 +118,15 @@ namespace Assign_2
                 if (item.Content.ToString() == selectedUser.Role)
                 {
                     RoleBox.SelectedItem = item;
-                    break;
                 }
             }
         }
 
         /// <summary>
-        /// Commits updates to the selected user's username and role.
+        /// Commit the changes that were in the edit/update account input boxes.
         /// </summary>
+        /// <param name="sender">The save changes button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void SaveChanges_Click(object sender, RoutedEventArgs e)
         {
             if (selectedUser == null)
@@ -128,7 +138,7 @@ namespace Assign_2
             string newUsername = EditUsernameBox.Text.Trim();
             ComboBoxItem chosenRole = RoleBox.SelectedItem as ComboBoxItem;
 
-            if (string.IsNullOrEmpty(newUsername) || chosenRole == null)
+            if (newUsername == "" || chosenRole == null)
             {
                 MessageBox.Show("Username and role are required.");
                 return;
@@ -147,10 +157,11 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
-
         /// <summary>
-        /// Updates the database password for the selected user.
+        /// Updates the database with the password from the input box.
         /// </summary>
+        /// <param name="sender">The reset password button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void ResetPassword_Click(object sender, RoutedEventArgs e)
         {
             if (selectedUser == null)
@@ -159,7 +170,7 @@ namespace Assign_2
                 return;
             }
 
-            if (string.IsNullOrEmpty(NewPasswordBox.Password))
+            if (NewPasswordBox.Password == "")
             {
                 MessageBox.Show("Enter a new password.");
                 return;
@@ -171,8 +182,10 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Deletes the selected user from the database upon confirmation.
+        /// Deletes the selected user from the database. 
         /// </summary>
+        /// <param name="sender">The delete user button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void DeleteUser_Click(object sender, RoutedEventArgs e)
         {
             if (selectedUser == null)
@@ -182,7 +195,7 @@ namespace Assign_2
             }
 
             MessageBoxResult result = MessageBox.Show(
-                $"Delete user '{selectedUser.Username}'?",
+                "Delete user '" + selectedUser.Username + "'?",
                 "Confirm Delete",
                 MessageBoxButton.YesNo);
 
@@ -194,23 +207,26 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Switches display to the user registration screen.
+        /// Swaps the Display to the new user registration screen. 
         /// </summary>
+        /// <param name="sender">The show new user button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void ShowNewUserScreen_Click(object sender, RoutedEventArgs e)
         {
             ShowScreen(NewUserScreen);
         }
-
         /// <summary>
-        /// Registers a new user with provided input values.
+        /// Registers a new user to the database with the inputted values from the new user registration screen.
         /// </summary>
+        /// <param name="sender">The register new user button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             string username = NewUsername.Text.Trim();
             string password = NewPassword.Password;
             ComboBoxItem chosenRole = NewRole.SelectedItem as ComboBoxItem;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || chosenRole == null)
+            if (username == "" || password == "" || chosenRole == null)
             {
                 MessageBox.Show("All fields are required.");
                 return;
@@ -225,28 +241,27 @@ namespace Assign_2
                 NewUsername.Clear();
                 NewPassword.Clear();
                 NewRole.SelectedItem = null;
-
-                ShowScreen(AdminScreen);
-                RefreshUserList();
+                OpenAdminScreen();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
-
         /// <summary>
-        /// Returns display to the admin screen from registration.
+        /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
+        /// <param name="sender">The retunr button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void ReturnButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowScreen(AdminScreen);
-            RefreshUserList();
+            OpenAdminScreen();
         }
-
         /// <summary>
-        /// Returns display to the login screen and resets inputs.
+        /// Returns the display to the login screen from any other screen and clears the input boxes.
         /// </summary>
+        /// <param name="sender">The logout button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             UsernameBox.Text = "";
@@ -255,8 +270,9 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Manages visibility across all screens.
+        /// Handles the visibility of the screens, hiding all other screens and showing the one passed in.
         /// </summary>
+        /// <param name="screenToShow">The screen that will be shown.</param>
         private void ShowScreen(UIElement screenToShow)
         {
             LoginScreen.Visibility = Visibility.Collapsed;
@@ -269,6 +285,7 @@ namespace Assign_2
 
         // ---------------- Sensor Settings (Admin) ----------------
 
+        /// <summary>Loads the saved dashboard settings into the admin form fields.</summary>
         private void LoadSettingsIntoForm()
         {
             try
@@ -284,13 +301,12 @@ namespace Assign_2
                     if (item.Content.ToString() == settings.DefaultGranularity)
                     {
                         DefaultGranularityBox.SelectedItem = item;
-                        break;
                     }
                 }
 
                 SettingsUpdatedText.Text = string.IsNullOrEmpty(settings.UpdatedBy)
                     ? ""
-                    : $"Last updated by {settings.UpdatedBy} at {settings.UpdatedAt}";
+                    : "Last updated by " + settings.UpdatedBy + " at " + settings.UpdatedAt;
             }
             catch (Exception ex)
             {
@@ -298,6 +314,12 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// Validates and saves the admin's temperature range, graph count and
+        /// default interval to dbo.DashboardSettings.
+        /// </summary>
+        /// <param name="sender">The save settings button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
             if (!double.TryParse(MinTempBox.Text, out double minTemp) ||
@@ -348,6 +370,11 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// Reloads the dashboard view log grid.
+        /// </summary>
+        /// <param name="sender">The refresh log button that was Clicked</param>
+        /// <param name="e">The event data.</param>
         private void RefreshLog_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -362,6 +389,9 @@ namespace Assign_2
 
         // ---------------- Dashboard (User) ----------------
 
+        /// <summary>
+        /// Shows the user screen, loads locations once, and applies admin defaults.
+        /// </summary>
         private void OpenUserScreen()
         {
             ShowScreen(UserScreen);
@@ -409,7 +439,6 @@ namespace Assign_2
                     if (item.Content.ToString() == settings.DefaultGranularity)
                     {
                         UserGranularityBox.SelectedItem = item;
-                        break;
                     }
                 }
 
@@ -422,6 +451,11 @@ namespace Assign_2
             RefreshDashboard();
         }
 
+        /// <summary>
+        /// Re-runs the dashboard whenever the location or interval filter changes.
+        /// </summary>
+        /// <param name="sender">The filter control that changed.</param>
+        /// <param name="e">The event data.</param>
         private void ReadingFilter_Changed(object sender, RoutedEventArgs e)
         {
             if (userScreenReady)
@@ -430,6 +464,10 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// Loads the aggregated readings for the selected location/interval and
+        /// fills the chart tiles, sized by the admin's graph count setting.
+        /// </summary>
         private void RefreshDashboard()
         {
             LocationRecord location = LocationFilterBox.SelectedItem as LocationRecord;
@@ -489,10 +527,16 @@ namespace Assign_2
             }
             catch
             {
-                // Non-blocking log failure
+                // Logging failure should not block the dashboard from showing.
             }
         }
 
+        /// <summary>
+        /// Rebuilds the ChartHost panel with as many tiles as the admin's
+        /// graph count allows. The first two slots are the average/min/max
+        /// band and the sample-count bars; extra slots are placeholders
+        /// ready for future visualisations.
+        /// </summary>
         private void BuildChartTiles(
             int graphCount,
             List<string> labels,
@@ -511,15 +555,12 @@ namespace Assign_2
 
                 if (i == 0)
                 {
-                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs, minTemp, maxTemp);
+                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
+                                  minTemp, maxTemp);
                 }
                 else if (i == 1)
                 {
                     tile.ShowBars("Sample Count", labels, samples);
-                }
-                else if (i == 2)
-                {
-                    tile.ShowPie("Sample Count", labels, samples);
                 }
                 else
                 {
