@@ -17,15 +17,9 @@ namespace Assign_2
         {
             InitializeComponent();
 
-            try
-            {
+            
                 SensorsDatabase.Initialize();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Database error:\n\n" + ex.Message);
-            }
+            
         }
         /// <summary>
         /// Compares users account input to the database account credentials.
