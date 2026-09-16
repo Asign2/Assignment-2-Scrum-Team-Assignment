@@ -10,7 +10,7 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
 
-            // Create Locations table
+            // 1. Create Locations table
             bool locationsExists = RunScalarBool(
                 connection,
                 "SELECT OBJECT_ID('dbo.Locations', 'U');",
@@ -22,12 +22,12 @@ namespace Assign_2
                     CREATE TABLE dbo.Locations
                     (
                         Id INT IDENTITY(1,1) PRIMARY KEY,
-                        City NVARCHAR(100) NOT NULL,
-                        Suburb NVARCHAR(100) NOT NULL
+                        City VARCHAR(100) NOT NULL,
+                        Suburb VARCHAR(100) NOT NULL
                     );");
             }
 
-            // Create Sensors table
+            // 2. Create Sensors table (linked to Locations via Foreign Key)
             bool sensorsExists = RunScalarBool(
                 connection,
                 "SELECT OBJECT_ID('dbo.Sensors', 'U');",
@@ -39,9 +39,9 @@ namespace Assign_2
                     CREATE TABLE dbo.Sensors
                     (
                         Id INT IDENTITY(1,1) PRIMARY KEY,
-                        Date_Installed DATETIME2 NOT NULL,
-                        Make NVARCHAR(100) NOT NULL,
-                        Model NVARCHAR(100) NOT NULL,
+                        Date_Installed DATE NOT NULL,
+                        Make VARCHAR(100) NOT NULL,
+                        Model VARCHAR(100) NOT NULL,
                         Location_Id INT NOT NULL,
 
                         CONSTRAINT FK_Sensors_Locations
@@ -50,7 +50,7 @@ namespace Assign_2
                     );");
             }
 
-            // Create Data table
+            // 3. Create Data table (linked to Sensors via Foreign Key)
             bool dataExists = RunScalarBool(
                 connection,
                 "SELECT OBJECT_ID('dbo.Data', 'U');",
@@ -62,9 +62,8 @@ namespace Assign_2
                     CREATE TABLE dbo.Data
                     (
                         Id INT IDENTITY(1,1) PRIMARY KEY,
-                        [Timestamp] DATETIME2 NOT NULL
-                            DEFAULT GETDATE(),
-                        Temperature FLOAT NOT NULL,
+                        [Timestamp] DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        Temperature DECIMAL(5,2) NOT NULL,
                         Sensor_Id INT NOT NULL,
 
                         CONSTRAINT FK_Data_Sensors
@@ -73,7 +72,7 @@ namespace Assign_2
                     );");
             }
 
-            // Create DashboardSettings table (one row of admin config)
+            // 4. Create DashboardSettings table
             bool settingsExists = RunScalarBool(
                 connection,
                 "SELECT OBJECT_ID('dbo.DashboardSettings', 'U');",
@@ -96,10 +95,10 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
                         (Id, MinTemp, MaxTemp, GraphCount, DefaultGranularity)
-                    VALUES (1, 5, 30, 2, 'Monthly');");
+                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for Pie Chart support
             }
 
-            // Create DashboardLog table (recording of displayed dashboards)
+            // 5. Create DashboardLog table
             bool logExists = RunScalarBool(
                 connection,
                 "SELECT OBJECT_ID('dbo.DashboardLog', 'U');",
@@ -124,55 +123,31 @@ namespace Assign_2
             SeedSampleData(connection);
         }
 
-        private static void RunNonQuery(
-            SqlConnection connection,
-            string sql)
+        private static void RunNonQuery(SqlConnection connection, string sql)
         {
-            using var command =
-                new SqlCommand(sql, connection);
-
+            using var command = new SqlCommand(sql, connection);
             command.ExecuteNonQuery();
         }
 
-        private static bool RunScalarBool(
-            SqlConnection connection,
-            string sql,
-            bool checkNotNull = false)
+        private static bool RunScalarBool(SqlConnection connection, string sql, bool checkNotNull = false)
         {
-            using var command =
-                new SqlCommand(sql, connection);
-
+            using var command = new SqlCommand(sql, connection);
             object result = command.ExecuteScalar();
 
             if (checkNotNull)
             {
-                return result != null &&
-                       result != DBNull.Value;
+                return result != null && result != DBNull.Value;
             }
 
             return Convert.ToInt32(result) > 0;
         }
 
-        /// <summary>
-        /// Inserts a starter location, sensor and a spread of readings if
-        /// dbo.Data is empty, so the dashboard has something to show on a
-        /// freshly created database.
-        /// </summary>
         private static void SeedSampleData(SqlConnection connection)
         {
-            bool dataHasRows = RunScalarBool(
-                connection,
-                "SELECT COUNT(*) FROM dbo.Data;");
+            bool dataHasRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Data;");
+            if (dataHasRows) return;
 
-            if (dataHasRows)
-            {
-                return;
-            }
-
-            bool locationsHaveRows = RunScalarBool(
-                connection,
-                "SELECT COUNT(*) FROM dbo.Locations;");
-
+            bool locationsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Locations;");
             if (!locationsHaveRows)
             {
                 RunNonQuery(connection, @"
@@ -180,45 +155,36 @@ namespace Assign_2
                     VALUES ('Palmerston North', 'Hokowhitu');");
             }
 
-            bool sensorsHaveRows = RunScalarBool(
-                connection,
-                "SELECT COUNT(*) FROM dbo.Sensors;");
-
+            bool sensorsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Sensors;");
             if (!sensorsHaveRows)
             {
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
-                    VALUES (GETDATE(), 'Acme', 'TempSense 1', 1);");
+                    VALUES (CAST(GETDATE() AS DATE), 'Acme', 'TempSense 1', 1);");
             }
 
             RunNonQuery(connection, @"
                 INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
                 VALUES
-                (DATEADD(hour, -1, GETDATE()), 18.2, 1),
-                (DATEADD(hour, -5, GETDATE()), 19.1, 1),
-                (DATEADD(hour, -12, GETDATE()), 16.7, 1),
-                (DATEADD(day, -1, GETDATE()), 17.5, 1),
-                (DATEADD(day, -2, GETDATE()), 20.3, 1),
-                (DATEADD(day, -5, GETDATE()), 14.9, 1),
-                (DATEADD(day, -10, GETDATE()), 15.8, 1),
-                (DATEADD(day, -20, GETDATE()), 21.6, 1),
-                (DATEADD(month, -1, GETDATE()), 22.4, 1),
-                (DATEADD(month, -2, GETDATE()), 13.2, 1),
-                (DATEADD(month, -6, GETDATE()), 25.1, 1),
-                (DATEADD(year, -1, GETDATE()), 11.4, 1);");
+                (DATEADD(hour, -1, GETDATE()), 18.20, 1),
+                (DATEADD(hour, -5, GETDATE()), 19.10, 1),
+                (DATEADD(hour, -12, GETDATE()), 16.70, 1),
+                (DATEADD(day, -1, GETDATE()), 17.50, 1),
+                (DATEADD(day, -2, GETDATE()), 20.30, 1),
+                (DATEADD(day, -5, GETDATE()), 14.90, 1),
+                (DATEADD(day, -10, GETDATE()), 15.80, 1),
+                (DATEADD(day, -20, GETDATE()), 21.60, 1),
+                (DATEADD(month, -1, GETDATE()), 22.40, 1),
+                (DATEADD(month, -2, GETDATE()), 13.20, 1),
+                (DATEADD(month, -6, GETDATE()), 25.10, 1),
+                (DATEADD(year, -1, GETDATE()), 11.40, 1);");
         }
 
-        /// <summary>Every location, for the user's location filter.</summary>
         public static List<LocationRecord> GetAllLocations()
         {
             List<LocationRecord> locations = new List<LocationRecord>();
-
             using var connection = UserDatabase.OpenConnection();
-            using var command = new SqlCommand(@"
-                SELECT Id, City, Suburb
-                FROM dbo.Locations
-                ORDER BY City, Suburb;", connection);
-
+            using var command = new SqlCommand("SELECT Id, City, Suburb FROM dbo.Locations ORDER BY City, Suburb;", connection);
             using SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -229,19 +195,15 @@ namespace Assign_2
                     City = reader.GetString(1),
                     Suburb = reader.GetString(2)
                 };
-
                 location.Display = location.Suburb + ", " + location.City;
                 locations.Add(location);
             }
-
             return locations;
         }
 
-        /// <summary>Every sensor, for the admin's sensor settings tab.</summary>
         public static List<SensorRecord> GetAllSensors()
         {
             List<SensorRecord> sensors = new List<SensorRecord>();
-
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
                 SELECT s.Id, s.Make, s.Model, l.City, l.Suburb
@@ -262,49 +224,32 @@ namespace Assign_2
                     Suburb = reader.GetString(4)
                 });
             }
-
             return sensors;
         }
 
-        /// <summary>
-        /// Groups dbo.Data into time buckets for one location (0 = all locations).
-        /// </summary>
-        /// <param name="locationId">Location to filter on, or 0 for every location.</param>
-        /// <param name="granularity">Bucket size: hour, day, month or year.</param>
-        public static List<ReadingAggregate> GetAggregates(
-            int locationId,
-            Granularity granularity)
+        public static List<ReadingAggregate> GetAggregates(int locationId, Granularity granularity)
         {
-            string bucket;
-
-            switch (granularity)
+            string bucket = granularity switch
             {
-                case Granularity.Hourly:
-                    bucket = "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)";
-                    break;
-                case Granularity.Daily:
-                    bucket = "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)";
-                    break;
-                case Granularity.Monthly:
-                    bucket = "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)";
-                    break;
-                default:
-                    bucket = "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)";
-                    break;
-            }
+                Granularity.Hourly => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
+                Granularity.Daily => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
+                Granularity.Monthly => "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)",
+                _ => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
+            };
 
-            string sql =
-                "SELECT " + bucket + " AS PeriodStart, " +
-                "       AVG(d.Temperature), MIN(d.Temperature), " +
-                "       MAX(d.Temperature), COUNT(*) " +
-                "FROM dbo.Data d " +
-                "INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id " +
-                "WHERE (@locationId = 0 OR s.Location_Id = @locationId) " +
-                "GROUP BY " + bucket + " " +
-                "ORDER BY 1;";
+            string sql = $@"
+                SELECT {bucket} AS PeriodStart,
+                       AVG(CAST(d.Temperature AS FLOAT)), 
+                       MIN(CAST(d.Temperature AS FLOAT)), 
+                       MAX(CAST(d.Temperature AS FLOAT)), 
+                       COUNT(*)
+                FROM dbo.Data d
+                INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id
+                WHERE (@locationId = 0 OR s.Location_Id = @locationId)
+                GROUP BY {bucket}
+                ORDER BY 1;";
 
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
-
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@locationId", locationId);
@@ -314,7 +259,6 @@ namespace Assign_2
             while (reader.Read())
             {
                 DateTime start = reader.GetDateTime(0);
-
                 rows.Add(new ReadingAggregate
                 {
                     Period = FormatPeriod(start, granularity),
@@ -324,35 +268,26 @@ namespace Assign_2
                     Samples = reader.GetInt32(4)
                 });
             }
-
             return rows;
         }
 
-        /// <summary>Formats a bucket start to suit its granularity.</summary>
         private static string FormatPeriod(DateTime start, Granularity granularity)
         {
-            switch (granularity)
+            return granularity switch
             {
-                case Granularity.Hourly:
-                    return start.ToString("dd MMM HH:00");
-                case Granularity.Daily:
-                    return start.ToString("dd MMM yy");
-                case Granularity.Monthly:
-                    return start.ToString("MMM yyyy");
-                default:
-                    return start.ToString("yyyy");
-            }
+                Granularity.Hourly => start.ToString("dd MMM HH:00"),
+                Granularity.Daily => start.ToString("dd MMM yy"),
+                Granularity.Monthly => start.ToString("MMM yyyy"),
+                _ => start.ToString("yyyy")
+            };
         }
 
-        /// <summary>Reads the single admin settings row.</summary>
         public static DashboardSettings GetSettings()
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT MinTemp, MaxTemp, GraphCount,
-                       DefaultGranularity, UpdatedBy, UpdatedAt
-                FROM dbo.DashboardSettings
-                WHERE Id = 1;", connection);
+                SELECT MinTemp, MaxTemp, GraphCount, DefaultGranularity, UpdatedBy, UpdatedAt
+                FROM dbo.DashboardSettings WHERE Id = 1;", connection);
 
             using SqlDataReader reader = command.ExecuteReader();
 
@@ -362,7 +297,7 @@ namespace Assign_2
                 {
                     MinTemp = 5,
                     MaxTemp = 30,
-                    GraphCount = 2,
+                    GraphCount = 3,
                     DefaultGranularity = "Monthly"
                 };
             }
@@ -378,18 +313,13 @@ namespace Assign_2
             };
         }
 
-        /// <summary>Saves the admin settings row.</summary>
         public static void SaveSettings(DashboardSettings settings, string updatedBy)
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
                 UPDATE dbo.DashboardSettings
-                SET MinTemp = @min,
-                    MaxTemp = @max,
-                    GraphCount = @graphs,
-                    DefaultGranularity = @gran,
-                    UpdatedBy = @by,
-                    UpdatedAt = GETDATE()
+                SET MinTemp = @min, MaxTemp = @max, GraphCount = @graphs,
+                    DefaultGranularity = @gran, UpdatedBy = @by, UpdatedAt = GETDATE()
                 WHERE Id = 1;", connection);
 
             command.Parameters.AddWithValue("@min", settings.MinTemp);
@@ -401,13 +331,11 @@ namespace Assign_2
             command.ExecuteNonQuery();
         }
 
-        /// <summary>Records a dashboard that was displayed to a user.</summary>
         public static void RecordDashboard(DashboardSnapshot snapshot)
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                INSERT INTO dbo.DashboardLog
-                    (ViewedBy, Location, Granularity, GraphCount, Buckets, AvgTemp)
+                INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, GraphCount, Buckets, AvgTemp)
                 VALUES (@by, @loc, @gran, @graphs, @buckets, @avg);", connection);
 
             command.Parameters.AddWithValue("@by", snapshot.ViewedBy);
@@ -420,20 +348,15 @@ namespace Assign_2
             command.ExecuteNonQuery();
         }
 
-        /// <summary>Most recent dashboard records, for the admin log tab.</summary>
         public static List<DashboardSnapshot> GetDashboardLog(int take = 200)
         {
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
-
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT TOP (@take) ViewedBy, ViewedAt, Location,
-                       Granularity, GraphCount, Buckets, AvgTemp
-                FROM dbo.DashboardLog
-                ORDER BY ViewedAt DESC;", connection);
+                SELECT TOP (@take) ViewedBy, ViewedAt, Location, Granularity, GraphCount, Buckets, AvgTemp
+                FROM dbo.DashboardLog ORDER BY ViewedAt DESC;", connection);
 
             command.Parameters.AddWithValue("@take", take);
-
             using SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -449,7 +372,6 @@ namespace Assign_2
                     AvgTemp = Math.Round(reader.GetDouble(6), 2)
                 });
             }
-
             return log;
         }
     }
