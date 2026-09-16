@@ -539,9 +539,9 @@ namespace Assign_2
 
         /// <summary>
         /// Rebuilds the ChartHost panel with as many tiles as the admin's
-        /// graph count allows. The first two slots are the average/min/max
-        /// band and the sample-count bars; extra slots are placeholders
-        /// ready for future visualisations.
+        /// graph count allows. Slot 0 is the average/min/max band, slot 1 is
+        /// the sample-count bars, slot 2 is a sample-count pie; any further
+        /// slots are placeholders ready for future visualisations.
         /// </summary>
         private void BuildChartTiles(
             int graphCount,
@@ -567,6 +567,10 @@ namespace Assign_2
                 else if (i == 1)
                 {
                     tile.ShowBars("Sample Count", labels, samples);
+                }
+                else if (i == 2)
+                {
+                    tile.ShowPie("Sample Count", labels, samples);
                 }
                 else
                 {

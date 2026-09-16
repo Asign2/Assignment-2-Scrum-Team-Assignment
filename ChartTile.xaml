@@ -10,8 +10,12 @@
             </Grid.RowDefinitions>
             <TextBlock x:Name="TitleText" FontWeight="Bold" FontSize="11"
                        Margin="6,4,6,2" Text="Chart"/>
-            <Canvas x:Name="PlotCanvas" Grid.Row="1" ClipToBounds="True"
-                    SizeChanged="PlotCanvas_SizeChanged"/>
+            <Image x:Name="PlotImage" Grid.Row="1" Stretch="Uniform"
+                   SizeChanged="PlotImage_SizeChanged"/>
+            <TextBlock x:Name="NoDataText" Grid.Row="1" Text="No data"
+                       Foreground="Gray" FontSize="10"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Visibility="Collapsed"/>
         </Grid>
     </Border>
 </UserControl>

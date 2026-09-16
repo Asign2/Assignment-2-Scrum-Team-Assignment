@@ -1,289 +1,211 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Media.Imaging;
+using VectSharp.Raster.ImageSharp;
 
 namespace Assign_2
 {
     /// <summary>
-    /// A small self-contained chart panel. Drop more of these into the
-    /// dashboard host as new visualisations are added.
+    /// A small chart panel. Give it some numbers via ShowLine / ShowBand /
+    /// ShowBars, and it draws them using VectSharp, then displays the result
+    /// as a picture in PlotImage.
+    ///
+    /// Requires the NuGet packages: VectSharp, VectSharp.Plots,
+    /// VectSharp.Raster.ImageSharp.
+    ///
+    /// How it works, in order:
+    ///   1. Store whatever numbers we were given.
+    ///   2. Turn those numbers into a VectSharp "Plot".
+    ///   3. Render the Plot to a temporary PNG file on disk.
+    ///   4. Load that PNG into the PlotImage control so it shows on screen.
     /// </summary>
     public partial class ChartTile : UserControl
     {
-        private enum TileMode { Empty, Line, Band, Bars }
+        private enum ChartKind { None, Line, Band, Bars, Pie }
 
-        private TileMode mode = TileMode.Empty;
+        private ChartKind kind = ChartKind.None;
+        private string chartTitle = "";
         private List<string> labels = new List<string>();
-        private List<double> primary = new List<double>();
-        private List<double> lower = new List<double>();
-        private List<double> upper = new List<double>();
-        private double? warnLow;
-        private double? warnHigh;
+
+        // "values" is the main series: the line in Line mode, the average in
+        // Band mode, or the bar heights in Bars mode.
+        private List<double> values = new List<double>();
+        private List<double> minValues = new List<double>(); // Band mode only
+        private List<double> maxValues = new List<double>(); // Band mode only
 
         public ChartTile()
         {
             InitializeComponent();
         }
 
-        /// <summary>Single line, with optional admin temperature thresholds.</summary>
+        // ---------------------------------------------------------------
+        // Public methods - these are what MainWindow.cs calls.
+        // low/high are accepted for compatibility but not drawn any more;
+        // dropping the dashed threshold lines kept this class much simpler.
+        // ---------------------------------------------------------------
+
         public void ShowLine(string title, List<string> xLabels,
-                             List<double> values, double? low, double? high)
+                             List<double> data, double? low, double? high)
         {
-            TitleText.Text = title;
-            mode = TileMode.Line;
+            chartTitle = title;
+            kind = ChartKind.Line;
             labels = xLabels;
-            primary = values;
-            warnLow = low;
-            warnHigh = high;
+            values = data;
             Redraw();
         }
 
-        /// <summary>Min/max band with the average drawn through it.</summary>
         public void ShowBand(string title, List<string> xLabels,
                              List<double> mins, List<double> maxs, List<double> avgs,
                              double? low, double? high)
         {
-            TitleText.Text = title;
-            mode = TileMode.Band;
+            chartTitle = title;
+            kind = ChartKind.Band;
             labels = xLabels;
-            lower = mins;
-            upper = maxs;
-            primary = avgs;
-            warnLow = low;
-            warnHigh = high;
+            minValues = mins;
+            maxValues = maxs;
+            values = avgs;
             Redraw();
         }
 
-        /// <summary>Simple vertical bars, e.g. sample counts per period.</summary>
-        public void ShowBars(string title, List<string> xLabels, List<double> values)
+        public void ShowBars(string title, List<string> xLabels, List<double> data)
         {
-            TitleText.Text = title;
-            mode = TileMode.Bars;
+            chartTitle = title;
+            kind = ChartKind.Bars;
             labels = xLabels;
-            primary = values;
-            warnLow = null;
-            warnHigh = null;
+            values = data;
             Redraw();
         }
 
-        /// <summary>Placeholder for a visualisation that is not built yet.</summary>
+        /// <summary>One slice per value, sized by how big each value is.</summary>
+        public void ShowPie(string title, List<string> xLabels, List<double> data)
+        {
+            chartTitle = title;
+            kind = ChartKind.Pie;
+            labels = xLabels;
+            values = data;
+            Redraw();
+        }
+
         public void ShowPlaceholder(string title)
         {
-            TitleText.Text = title;
-            mode = TileMode.Empty;
-            primary = new List<double>();
+            chartTitle = title;
+            kind = ChartKind.None;
+            values = new List<double>();
             Redraw();
         }
 
-        private void PlotCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void PlotImage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             Redraw();
         }
 
-        /// <summary>Clears and repaints the canvas for the current mode.</summary>
+        // ---------------------------------------------------------------
+        // Everything below just turns the stored numbers into a picture.
+        // ---------------------------------------------------------------
+
         private void Redraw()
         {
-            PlotCanvas.Children.Clear();
-
-            double width = PlotCanvas.ActualWidth;
-            double height = PlotCanvas.ActualHeight;
-
-            if (width <= 0 || height <= 0)
+            if (kind == ChartKind.None || values.Count == 0)
             {
+                PlotImage.Source = null;
+                NoDataText.Visibility = Visibility.Visible;
                 return;
             }
 
-            if (mode == TileMode.Empty || primary == null || primary.Count == 0)
+            NoDataText.Visibility = Visibility.Collapsed;
+
+            VectSharp.Plots.Plot plot = kind switch
             {
-                AddLabel("No data", width / 2 - 20, height / 2 - 8, Brushes.Gray);
-                return;
-            }
+                ChartKind.Bars => BuildBarChart(),
+                ChartKind.Pie => BuildPieChart(),
+                _ => BuildLineChart()
+            };
 
-            double padLeft = 34;
-            double padRight = 6;
-            double padTop = 6;
-            double padBottom = 16;
-
-            double plotWidth = width - padLeft - padRight;
-            double plotHeight = height - padTop - padBottom;
-
-            double low = primary[0];
-            double high = primary[0];
-
-            foreach (double v in primary)
-            {
-                if (v < low) low = v;
-                if (v > high) high = v;
-            }
-
-            if (mode == TileMode.Band)
-            {
-                foreach (double v in lower) if (v < low) low = v;
-                foreach (double v in upper) if (v > high) high = v;
-            }
-
-            if (mode == TileMode.Bars)
-            {
-                low = 0;
-            }
-
-            if (warnLow.HasValue && warnLow.Value < low) low = warnLow.Value;
-            if (warnHigh.HasValue && warnHigh.Value > high) high = warnHigh.Value;
-
-            if (high - low < 0.001)
-            {
-                high = low + 1;
-            }
-
-            Func<int, double> xAt = i => primary.Count == 1
-                ? padLeft + (plotWidth / 2)
-                : padLeft + (plotWidth * i / (primary.Count - 1));
-
-            Func<double, double> yAt = v =>
-                padTop + plotHeight - ((v - low) / (high - low) * plotHeight);
-
-            AddLine(padLeft, padTop, padLeft, padTop + plotHeight, Brushes.Gray, 1, false);
-            AddLine(padLeft, padTop + plotHeight, padLeft + plotWidth,
-                    padTop + plotHeight, Brushes.Gray, 1, false);
-
-            AddLabel(Math.Round(high, 1).ToString(), 2, padTop - 6, Brushes.Gray);
-            AddLabel(Math.Round(low, 1).ToString(), 2, padTop + plotHeight - 6, Brushes.Gray);
-
-            if (labels.Count > 0)
-            {
-                AddLabel(labels[0], padLeft, padTop + plotHeight + 2, Brushes.Gray);
-
-                string lastLabel = labels[labels.Count - 1];
-                AddLabel(lastLabel,
-                         padLeft + plotWidth - (lastLabel.Length * 5.0),
-                         padTop + plotHeight + 2, Brushes.Gray);
-            }
-
-            // Admin temperature range shown as dashed guide lines
-            if (warnLow.HasValue)
-            {
-                AddLine(padLeft, yAt(warnLow.Value), padLeft + plotWidth,
-                        yAt(warnLow.Value), Brushes.CornflowerBlue, 1, true);
-            }
-
-            if (warnHigh.HasValue)
-            {
-                AddLine(padLeft, yAt(warnHigh.Value), padLeft + plotWidth,
-                        yAt(warnHigh.Value), Brushes.IndianRed, 1, true);
-            }
-
-            if (mode == TileMode.Bars)
-            {
-                double barWidth = Math.Max(2, (plotWidth / primary.Count) * 0.6);
-
-                for (int i = 0; i < primary.Count; i++)
-                {
-                    double top = yAt(primary[i]);
-
-                    Rectangle bar = new Rectangle
-                    {
-                        Width = barWidth,
-                        Height = Math.Max(1, padTop + plotHeight - top),
-                        Fill = Brushes.SteelBlue
-                    };
-
-                    Canvas.SetLeft(bar, xAt(i) - (barWidth / 2));
-                    Canvas.SetTop(bar, top);
-                    PlotCanvas.Children.Add(bar);
-                }
-
-                return;
-            }
-
-            if (mode == TileMode.Band)
-            {
-                AddSeries(upper, xAt, yAt, Brushes.LightSalmon, 1);
-                AddSeries(lower, xAt, yAt, Brushes.LightSkyBlue, 1);
-            }
-
-            AddSeries(primary, xAt, yAt, Brushes.SteelBlue, 2);
-
-            for (int i = 0; i < primary.Count; i++)
-            {
-                bool outOfRange =
-                    (warnLow.HasValue && primary[i] < warnLow.Value) ||
-                    (warnHigh.HasValue && primary[i] > warnHigh.Value);
-
-                Ellipse dot = new Ellipse
-                {
-                    Width = 4,
-                    Height = 4,
-                    Fill = outOfRange ? Brushes.Red : Brushes.SteelBlue
-                };
-
-                Canvas.SetLeft(dot, xAt(i) - 2);
-                Canvas.SetTop(dot, yAt(primary[i]) - 2);
-                PlotCanvas.Children.Add(dot);
-            }
+            DisplayPlot(plot);
         }
 
-        /// <summary>Adds one polyline series to the canvas.</summary>
-        private void AddSeries(List<double> values, Func<int, double> xAt,
-                               Func<double, double> yAt, Brush stroke, double thickness)
+        /// <summary>Line mode draws one line. Band mode draws max, min and average.</summary>
+        private VectSharp.Plots.Plot BuildLineChart()
         {
-            if (values == null || values.Count == 0)
+            List<(double, double)[]> lines = new List<(double, double)[]>();
+
+            if (kind == ChartKind.Band)
             {
-                return;
+                lines.Add(ToPoints(maxValues));
+                lines.Add(ToPoints(minValues));
             }
 
-            PointCollection points = new PointCollection();
+            lines.Add(ToPoints(values));
+
+            return VectSharp.Plots.Plot.Create.LineCharts(
+                lines.ToArray(),
+                title: chartTitle,
+                xAxisTitle: "Sample",
+                yAxisTitle: "Value");
+        }
+
+        /// <summary>One bar per value, labelled with the matching period.</summary>
+        private VectSharp.Plots.Plot BuildBarChart()
+        {
+            (string, double)[] bars = new (string, double)[values.Count];
 
             for (int i = 0; i < values.Count; i++)
             {
-                points.Add(new Point(xAt(i), yAt(values[i])));
+                string label = i < labels.Count ? labels[i] : i.ToString();
+                bars[i] = (label, values[i]);
             }
 
-            PlotCanvas.Children.Add(new Polyline
-            {
-                Points = points,
-                Stroke = stroke,
-                StrokeThickness = thickness
-            });
+            return VectSharp.Plots.Plot.Create.BarChart(
+                bars,
+                title: chartTitle,
+                yAxisTitle: "Count");
         }
 
-        /// <summary>Adds a straight line, optionally dashed.</summary>
-        private void AddLine(double x1, double y1, double x2, double y2,
-                             Brush stroke, double thickness, bool dashed)
+        /// <summary>Draws one slice per value; slice size is the value itself.</summary>
+        private VectSharp.Plots.Plot BuildPieChart()
         {
-            Line line = new Line
-            {
-                X1 = x1,
-                Y1 = y1,
-                X2 = x2,
-                Y2 = y2,
-                Stroke = stroke,
-                StrokeThickness = thickness
-            };
+            return VectSharp.Plots.Plot.Create.PieChart(
+                values.ToArray(),
+                title: chartTitle);
+        }
 
-            if (dashed)
+        /// <summary>Turns a list of numbers into (x, y) points, using position as x.</summary>
+        private static (double, double)[] ToPoints(List<double> data)
+        {
+            (double, double)[] points = new (double, double)[data.Count];
+
+            for (int i = 0; i < data.Count; i++)
             {
-                line.StrokeDashArray = new DoubleCollection { 3, 3 };
+                points[i] = (i, data[i]);
             }
 
-            PlotCanvas.Children.Add(line);
+            return points;
         }
 
-        /// <summary>Adds a small grey text label.</summary>
-        private void AddLabel(string text, double left, double top, Brush brush)
+        /// <summary>Saves the plot as a temp PNG, then shows that PNG in PlotImage.</summary>
+        private void DisplayPlot(VectSharp.Plots.Plot plot)
         {
-            TextBlock label = new TextBlock
-            {
-                Text = text,
-                FontSize = 9,
-                Foreground = brush
-            };
+            // "VectSharp.Page" is written in full because WPF also has a
+            // class called Page (System.Windows.Controls.Page) - without
+            // the full name the compiler can't tell which one we mean.
+            VectSharp.Page page = plot.Render();
 
-            Canvas.SetLeft(label, left);
-            Canvas.SetTop(label, top);
-            PlotCanvas.Children.Add(label);
+            string tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".png");
+            page.SaveAsImage(tempFile);
+
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad; // load fully so we can delete the file
+            image.UriSource = new Uri(tempFile);
+            image.EndInit();
+            image.Freeze();
+
+            PlotImage.Source = image;
+
+            File.Delete(tempFile);
         }
     }
 }
