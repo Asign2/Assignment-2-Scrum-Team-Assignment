@@ -165,7 +165,6 @@ namespace Assign_2
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
                     VALUES (GETDATE(), 'Acme', 'TempSense 1', 1);");
                 // need more sensors
-                    VALUES (CAST(GETDATE() AS DATE), 'Acme', 'TempSense 1', 1);");
             }
 
             // Sensor generation WIP - fixed values to be replaced by a generator
