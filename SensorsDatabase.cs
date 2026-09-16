@@ -178,6 +178,7 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Locations (City, Suburb)
                     VALUES ('Palmerston North', 'Hokowhitu');");
+                // need more locations
             }
 
             bool sensorsHaveRows = RunScalarBool(
@@ -189,8 +190,10 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
                     VALUES (GETDATE(), 'Acme', 'TempSense 1', 1);");
+                // need more sensors
             }
 
+            // Sensor generation WIP - fixed values to be replaced by a generator
             RunNonQuery(connection, @"
                 INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
                 VALUES
