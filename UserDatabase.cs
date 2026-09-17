@@ -14,7 +14,10 @@ namespace Assign_2
                     @"..\..\..\"));
 
         private static string DbPath =
-            Path.Combine(ProjectRoot, "appdatabase.mdf");
+    Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "Assign_2",
+        "appdatabase.mdf");
 
         private const string DatabaseName = "UserDb_Root";
 
@@ -37,6 +40,7 @@ namespace Assign_2
 
         static UserDatabase()
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(DbPath)!);
             InitializeDatabase();
         }
 
