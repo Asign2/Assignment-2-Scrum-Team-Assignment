@@ -50,6 +50,9 @@
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
                                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
                                 <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
+                                <DataGridTextColumn Header="First Name" Binding="{Binding first_name}" Width="120" />
+                                <DataGridTextColumn Header="Last Name" Binding="{Binding last_name}" Width="120" />
+                                <DataGridTextColumn Header="Date Created" Binding="{Binding date_created, StringFormat=dd MMM yyyy}" Width="110" />
                             </DataGrid.Columns>
                         </DataGrid>
 
@@ -58,8 +61,17 @@
                                 <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
                                     <AccessText Text="_Username:"/>
                                 </Label>
-                                <TextBox x:Name="EditUsernameBox" Width="180" Margin="0,0,15,0" IsReadOnly="true" />
-
+                                <TextBox x:Name="EditUsernameBox" Width="160" Margin="0,0,15,0" IsReadOnly="true" />
+                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditFirstNameBox}">
+                                    <AccessText Text="_First Name:"/>
+                                </Label>
+                                <TextBox x:Name="EditFirstNameBox" Width="160" Margin="0,0,15,0"  IsReadOnly="true"/>
+                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditLastNameBox}">
+                                    <AccessText Text="_Last Name:"/>
+                                     </Label>
+                                <TextBox x:Name="EditLastNameBox" Width="160" Margin="0,0,15,0" IsReadOnly="true"/>
+                               
+                                <DatePicker x:Name="EditDateCreatedPicker" Margin="5"/>
                                 <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
                                     <AccessText Text="_Role:"/>
                                 </Label>

@@ -146,9 +146,22 @@ namespace Assign_2
 
             string newRole = chosenRole.Content.ToString();
 
+            // Pull remaining values directly from form controls or keep original values from selectedUser
+            string newFirstName = EditFirstNameBox.Text.Trim(); // Replace with your actual TextBox name
+            string newLastName = EditLastNameBox.Text.Trim();   // Replace with your actual TextBox name
+            DateTime newDateCreated = selectedUser.date_created; // Preserves the original creation date
+
             try
             {
-                UserDatabase.UpdateUser(selectedUser.Id, newUsername, newRole);
+                UserDatabase.UpdateUser(
+                    selectedUser.Id,
+                    newUsername,
+                    newRole,
+                    newFirstName,
+                    newLastName,
+                    newDateCreated
+                );
+
                 RefreshUserList();
                 MessageBox.Show("User updated.");
             }
@@ -553,43 +566,43 @@ namespace Assign_2
         /// band and the sample-count bars; extra slots are placeholders
         /// ready for future visualisations.
         /// </summary>
-        private void BuildChartTiles(
-            int graphCount,
-            List<string> labels,
-            List<double> avgs,
-            List<double> mins,
-            List<double> maxs,
-            List<double> samples,
-            double minTemp,
-            double maxTemp)
+private void BuildChartTiles(
+    int graphCount,
+    List<string> labels,
+    List<double> avgs,
+    List<double> mins,
+    List<double> maxs,
+    List<double> samples,
+    double minTemp,
+    double maxTemp)
+{
+    ChartHost.Children.Clear();
+
+    for (int i = 0; i < graphCount; i++)
+    {
+        ChartTile tile = new ChartTile();
+        tile.Clicked += ChartTile_Clicked;
+
+        if (i == 0)
         {
-            ChartHost.Children.Clear();
-
-            for (int i = 0; i < graphCount; i++)
-            {
-                ChartTile tile = new ChartTile();
-                tile.Clicked += ChartTile_Clicked;
-
-                if (i == 0)
-                {
-                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
-                                  minTemp, maxTemp);
-                }
-                else if (i == 1)
-                {
-                    tile.ShowBars("Sample Count", labels, samples);
-                }
-                else if (i == 2)
-                {
-                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
-                }
-                else
-                {
-                    tile.ShowPlaceholder("Chart " + (i + 1));
-                }
-
-                ChartHost.Children.Add(tile);
-            }
+            tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
+                          minTemp, maxTemp);
         }
+        else if (i == 1)
+        {
+            tile.ShowBars("Sample Count", labels, samples);
+        }
+        else if (i == 2)
+        {
+            tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
+        }
+        else
+        {
+            tile.ShowPlaceholder("Chart " + (i + 1));
+        }
+
+        ChartHost.Children.Add(tile);
+    }
+}
     }
 }

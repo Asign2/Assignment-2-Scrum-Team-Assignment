@@ -473,26 +473,25 @@ namespace Assign_2
 
         public static List<UserRecord> GetAllUsers()
         {
-            var users =
-                new List<UserRecord>();
+            var users = new List<UserRecord>();
 
-            using var connection =
-                OpenConnection();
+            using var connection = OpenConnection();
 
-            using var command =
-                new SqlCommand(
-                    @"SELECT
-                        u.Id,
-                        u.Username,
-                        r.RoleName
-                      FROM dbo.Users u
-                      INNER JOIN dbo.Roles r
-                        ON u.RoleId = r.Id
-                      ORDER BY u.Username;",
-                    connection);
+            using var command = new SqlCommand(
+                @"SELECT
+            u.Id,
+            u.Username,
+            r.RoleName,
+            u.firstnames,
+            u.lastnames,
+            u.date_created
+          FROM dbo.Users u
+          INNER JOIN dbo.Roles r
+            ON u.RoleId = r.Id
+          ORDER BY u.Username;",
+                connection);
 
-            using var reader =
-                command.ExecuteReader();
+            using var reader = command.ExecuteReader();
 
             while (reader.Read())
             {
@@ -501,7 +500,10 @@ namespace Assign_2
                     {
                         Id = reader.GetInt32(0),
                         Username = reader.GetString(1),
-                        Role = reader.GetString(2)
+                        Role = reader.GetString(2),
+                        first_name = reader.GetString(3),
+                        last_name = reader.GetString(4),
+                        date_created = reader.GetDateTime(5)
                     });
             }
 
@@ -515,7 +517,10 @@ namespace Assign_2
         public static bool UpdateUser(
             int id,
             string newUsername,
-            string newRole)
+            string newRole,
+            string newFirstName,
+            string newLastName,
+            DateTime newDateCreated)
         {
             using var connection =
                 OpenConnection();
@@ -547,22 +552,20 @@ namespace Assign_2
             using var command =
                 new SqlCommand(
                     @"UPDATE dbo.Users
-                      SET Username = @username,
-                          RoleId = @roleId
-                      WHERE Id = @id;",
+          SET Username = @username,
+              RoleId = @roleId,
+              firstnames = @firstname,
+              lastnames = @lastname,
+              date_created = @dateCreated
+          WHERE Id = @id;",
                     connection);
 
-            command.Parameters.AddWithValue(
-                "@username",
-                newUsername);
-
-            command.Parameters.AddWithValue(
-                "@roleId",
-                roleId);
-
-            command.Parameters.AddWithValue(
-                "@id",
-                id);
+            command.Parameters.AddWithValue("@username", newUsername);
+            command.Parameters.AddWithValue("@roleId", roleId);
+            command.Parameters.AddWithValue("@firstname", newFirstName);
+            command.Parameters.AddWithValue("@lastname", newLastName);
+            command.Parameters.AddWithValue("@dateCreated", newDateCreated);
+            command.Parameters.AddWithValue("@id", id);
 
             try
             {
