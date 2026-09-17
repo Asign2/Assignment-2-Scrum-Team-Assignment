@@ -553,19 +553,23 @@ namespace Assign_2
             {
                 ChartTile tile = new ChartTile();
 //Change to a Switch Statement
-                if (i == 0)
-                {
-                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
-                                  minTemp, maxTemp);
-                }
-                else if (i == 1)
-                {
-                    tile.ShowBars("Sample Count", labels, samples);
-                }
-                else
-                {
-                    tile.ShowPlaceholder("Chart " + (i + 1));
-                }
+               if (i == 0)
+{
+    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
+                  minTemp, maxTemp);
+}
+else if (i == 1)
+{
+    tile.ShowBars("Sample Count", labels, samples);
+}
+else if (i == 2)
+{
+    tile.ShowPie("Sample Share", labels, samples);
+}
+else
+{
+    tile.ShowPlaceholder("Chart " + (i + 1));
+}
 
                 ChartHost.Children.Add(tile);
             }
