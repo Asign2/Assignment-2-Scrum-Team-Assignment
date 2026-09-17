@@ -10,7 +10,6 @@
 
         <!-- LOGIN VIEW -->
         <StackPanel x:Name="LoginScreen" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
-            <!-- Login inputs fields -->
             <TextBlock Text="Login" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=UsernameBox}">
                 <AccessText Text="_Username"/>
@@ -187,7 +186,6 @@
 
         <!-- NEW USER VIEW -->
         <StackPanel x:Name="NewUserScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <!-- New user input fields -->
             <TextBlock Text="Create User Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewUsername}">
                 <AccessText Text="New _Username"/>
@@ -242,6 +240,27 @@
             <Button Content="Logout" Width="100" Height="28" Margin="0,10,0,0"
                     HorizontalAlignment="Right" Click="LogoutButton_Click"/>
         </StackPanel>
+
+        <!-- CHART OVERLAY -->
+        <Grid x:Name="ChartOverlay" Visibility="Collapsed" Background="#AA000000">
+            <Border Background="White" CornerRadius="6" Padding="10"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="600" Height="450">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0">
+                        <Button Content="X" Width="28" Height="28" DockPanel.Dock="Right"
+                                Click="CloseChartOverlay_Click"/>
+                        <TextBlock x:Name="OverlayTitleText" FontWeight="Bold" FontSize="14"
+                                   VerticalAlignment="Center" Margin="4,0,0,0"/>
+                    </DockPanel>
+                    <Image x:Name="OverlayImage" Grid.Row="1" Stretch="Uniform" Margin="0,10,0,0"/>
+                </Grid>
+            </Border>
+        </Grid>
 
     </Grid>
 </Window>

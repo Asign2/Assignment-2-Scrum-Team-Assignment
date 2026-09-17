@@ -451,6 +451,22 @@ namespace Assign_2
             RefreshDashboard();
         }
 
+
+        private void ChartTile_Clicked(object sender, ChartTileClickedEventArgs e)
+        {
+            OverlayTitleText.Text = e.Title;
+            OverlayImage.Source = e.Image;
+            ChartOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void CloseChartOverlay_Click(object sender, RoutedEventArgs e)
+        {
+            ChartOverlay.Visibility = Visibility.Collapsed;
+        }
+
+
+
+
         /// <summary>
         /// Re-runs the dashboard whenever the location or interval filter changes.
         /// </summary>
@@ -552,16 +568,25 @@ namespace Assign_2
             for (int i = 0; i < graphCount; i++)
             {
                 ChartTile tile = new ChartTile();
-//Change to a Switch Statement
-               if (i == 0)
-{
-    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
-                  minTemp, maxTemp);
-}
+                tile.Clicked += ChartTile_Clicked;
+
+                if (i == 0)
+                {
+                    tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
+                                  minTemp, maxTemp);
+                }
+                else if (i == 1)
+                {
+                    tile.ShowBars("Sample Count", labels, samples);
+                }
+                else if (i == 2)
+                {
+                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
+                }
                 else
-{
-    tile.ShowPlaceholder("Chart " + (i + 1));
-}
+                {
+                    tile.ShowPlaceholder("Chart " + (i + 1));
+                }
 
                 ChartHost.Children.Add(tile);
             }

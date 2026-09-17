@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using VectSharp.Raster.ImageSharp;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Assign_2
 {
@@ -145,6 +147,18 @@ namespace Assign_2
                 xAxisTitle: "Sample",
                 yAxisTitle: "Value");
         }
+        //Script to enlarge chart on click
+        public event EventHandler<ChartTileClickedEventArgs> Clicked;
+
+        private void EnlargeChart(object sender, MouseButtonEventArgs e)
+        {
+            if (PlotImage.Source == null)
+            {
+                return; // No chart to enlarge
+            }
+            Clicked?.Invoke(this, new ChartTileClickedEventArgs(PlotImage.Source, chartTitle));
+        }
+
 
         /// <summary>One bar per value, labelled with the matching period.</summary>
         private VectSharp.Plots.Plot BuildBarChart()
