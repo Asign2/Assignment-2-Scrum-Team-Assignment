@@ -5,7 +5,7 @@ namespace SprintUnitTests;
 
 public class UserDatabaseTests
 {
-    // Test cases for UserDatabase class
+    // Test cafses for UserDatabase class
     [Fact]
     public void Login_ValidAdminCredentials_ReturnsTrueAndAdminRole()
     {
