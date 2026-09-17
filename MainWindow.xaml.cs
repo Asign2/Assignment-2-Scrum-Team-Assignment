@@ -400,11 +400,8 @@ namespace Assign_2
             {
                 userScreenReady = true;
 
-                List<LocationRecord> locations = new List<LocationRecord>
-                {
-                    new LocationRecord { Id = 0, Display = "All locations" }
-                };
-
+                List<LocationRecord> locations = new List<LocationRecord>();
+             
                 try
                 {
                     locations.AddRange(SensorsDatabase.GetAllLocations());
@@ -415,7 +412,10 @@ namespace Assign_2
                 }
 
                 LocationFilterBox.ItemsSource = locations;
-                LocationFilterBox.SelectedIndex = 0;
+                if (locations.Count > 0)
+                {
+                    LocationFilterBox.SelectedIndex = 0;
+                }
 
                 DashboardSettings settings;
 
@@ -564,9 +564,13 @@ else if (i == 1)
 }
 else if (i == 2)
 {
-    tile.ShowPie("Sample Share", labels, samples);
-}
-else
+                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
+                }
+                else if (i == 3)
+                {
+                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
+                }
+                else
 {
     tile.ShowPlaceholder("Chart " + (i + 1));
 }

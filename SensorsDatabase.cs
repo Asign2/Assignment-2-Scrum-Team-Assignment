@@ -154,7 +154,9 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Locations (City, Suburb)
-                    VALUES ('Palmerston North', 'Hokowhitu');");
+                    VALUES 
+                            ('Palmerston North', 'Hokowhitu'),
+                            ('Auckland', 'Ponsonby');"); 
                 // need more locations
             }
 
@@ -163,26 +165,40 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
-                    VALUES (GETDATE(), 'Acme', 'TempSense 1', 1);");
+                    VALUES 
+                    (GETDATE(), 'Acme', 'TempSense 1', 1),
+                    (GETDATE(), 'Acme', 'TempSense 2', 2)");
                 // need more sensors
             }
 
             // Sensor generation WIP - fixed values to be replaced by a generator
             RunNonQuery(connection, @"
-                INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
-                VALUES
-                (DATEADD(hour, -1, GETDATE()), 18.20, 1),
-                (DATEADD(hour, -5, GETDATE()), 19.10, 1),
-                (DATEADD(hour, -12, GETDATE()), 16.70, 1),
-                (DATEADD(day, -1, GETDATE()), 17.50, 1),
-                (DATEADD(day, -2, GETDATE()), 20.30, 1),
-                (DATEADD(day, -5, GETDATE()), 14.90, 1),
-                (DATEADD(day, -10, GETDATE()), 15.80, 1),
-                (DATEADD(day, -20, GETDATE()), 21.60, 1),
-                (DATEADD(month, -1, GETDATE()), 22.40, 1),
-                (DATEADD(month, -2, GETDATE()), 13.20, 1),
-                (DATEADD(month, -6, GETDATE()), 25.10, 1),
-                (DATEADD(year, -1, GETDATE()), 11.40, 1);");
+    INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
+    VALUES
+    (DATEADD(hour, -1, GETDATE()), 18.20, 1),
+    (DATEADD(hour, -5, GETDATE()), 19.10, 1),
+    (DATEADD(hour, -12, GETDATE()), 16.70, 1),
+    (DATEADD(day, -1, GETDATE()), 17.50, 1),
+    (DATEADD(day, -2, GETDATE()), 20.30, 1),
+    (DATEADD(day, -5, GETDATE()), 14.90, 1),
+    (DATEADD(day, -10, GETDATE()), 15.80, 1),
+    (DATEADD(day, -20, GETDATE()), 21.60, 1),
+    (DATEADD(month, -1, GETDATE()), 22.40, 1),
+    (DATEADD(month, -2, GETDATE()), 13.20, 1),
+    (DATEADD(month, -6, GETDATE()), 25.10, 1),
+    (DATEADD(year, -1, GETDATE()), 11.40, 1),
+    (DATEADD(hour, -2, GETDATE()), 22.50, 2),
+    (DATEADD(hour, -6, GETDATE()), 23.80, 2),
+    (DATEADD(hour, -14, GETDATE()), 21.10, 2),
+    (DATEADD(day, -1, GETDATE()), 24.30, 2),
+    (DATEADD(day, -3, GETDATE()), 26.70, 2),
+    (DATEADD(day, -7, GETDATE()), 19.90, 2),
+    (DATEADD(day, -15, GETDATE()), 20.40, 2),
+    (DATEADD(day, -25, GETDATE()), 27.60, 2),
+    (DATEADD(month, -1, GETDATE()), 25.20, 2),
+    (DATEADD(month, -3, GETDATE()), 18.90, 2),
+    (DATEADD(month, -7, GETDATE()), 28.30, 2),
+    (DATEADD(year, -1, GETDATE()), 16.50, 2);");
         }
 
         public static List<LocationRecord> GetAllLocations()
@@ -250,7 +266,7 @@ namespace Assign_2
                        COUNT(*)
                 FROM dbo.Data d
                 INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id
-                WHERE (@locationId = 0 OR s.Location_Id = @locationId)
+                WHERE s.Location_Id = @locationId
                 GROUP BY {bucket}
                 ORDER BY 1;";
 
