@@ -558,18 +558,6 @@ namespace Assign_2
     tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
                   minTemp, maxTemp);
 }
-else if (i == 1)
-{
-    tile.ShowBars("Sample Count", labels, samples);
-}
-else if (i == 2)
-{
-                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
-                }
-                else if (i == 3)
-                {
-                    tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
-                }
                 else
 {
     tile.ShowPlaceholder("Chart " + (i + 1));

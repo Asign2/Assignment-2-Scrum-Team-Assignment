@@ -20,7 +20,7 @@
                 <AccessText Text="_Password"/>
             </Label>
             <PasswordBox x:Name="PasswordBox" Height="25" Margin="0,0,0,15"/>
-            <Button Content="Sign In" Height="30" Click="LoginButton_Click"/>
+            <Button Content="Sign In" Height="30" Click="LoginButton_Click" IsDefault="True"/>
         </StackPanel>
 
         <!-- ADMIN VIEW -->

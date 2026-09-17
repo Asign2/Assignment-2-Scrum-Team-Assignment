@@ -120,7 +120,6 @@ namespace Assign_2
             VectSharp.Plots.Plot plot = kind switch
             {
                 ChartKind.Bars => BuildBarChart(),
-                ChartKind.Pie => BuildPieChart(),
                 _ => BuildLineChart()
             };
 
@@ -164,15 +163,7 @@ namespace Assign_2
                 yAxisTitle: "Count");
         }
 
-        /// <summary>Draws one slice per value; slice size is the value itself.</summary>
-        private VectSharp.Plots.Plot BuildPieChart()
-        {
-            return VectSharp.Plots.Plot.Create.PieChart(
-                values.ToArray(),
-                title: chartTitle);
-        }
-
-        /// <summary>Turns a list of numbers into (x, y) points, using position as x.</summary>
+       /// <summary>Turns a list of numbers into (x, y) points, using position as x.</summary>
         private static (double, double)[] ToPoints(List<double> data)
         {
             (double, double)[] points = new (double, double)[data.Count];

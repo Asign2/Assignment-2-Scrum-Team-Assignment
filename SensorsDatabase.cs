@@ -156,8 +156,8 @@ namespace Assign_2
                     INSERT INTO dbo.Locations (City, Suburb)
                     VALUES 
                             ('Palmerston North', 'Hokowhitu'),
-                            ('Auckland', 'Ponsonby');"); 
-                // need more locations
+                            ('Auckland', 'Ponsonby');");
+                // need more locations feel free to add more locations shouldn't break anything
             }
 
             bool sensorsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Sensors;");
@@ -168,7 +168,7 @@ namespace Assign_2
                     VALUES 
                     (GETDATE(), 'Acme', 'TempSense 1', 1),
                     (GETDATE(), 'Acme', 'TempSense 2', 2)");
-                // need more sensors
+                // need more sensors feel free to add more sensors shoudn't break anything
             }
 
             // Sensor generation WIP - fixed values to be replaced by a generator
@@ -199,7 +199,7 @@ namespace Assign_2
     (DATEADD(month, -3, GETDATE()), 18.90, 2),
     (DATEADD(month, -7, GETDATE()), 28.30, 2),
     (DATEADD(year, -1, GETDATE()), 16.50, 2);");
-        }
+        }//If you want to test new location just add more data after the final year stuff
 
         public static List<LocationRecord> GetAllLocations()
         {
