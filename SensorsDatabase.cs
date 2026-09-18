@@ -110,16 +110,17 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.DashboardLog
-(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    ViewedBy NVARCHAR(255) NOT NULL,
-    ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    Location NVARCHAR(255) NOT NULL,
-    Granularity NVARCHAR(255) NOT NULL,
-    GraphCount INT NOT NULL,
-    Buckets INT NOT NULL,
-    AvgTemp FLOAT NOT NULL
-);");
+                    (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        ViewedBy NVARCHAR(255) NOT NULL,
+                        ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        Location NVARCHAR(255) NOT NULL,
+                        Granularity NVARCHAR(255) NOT NULL,
+                        GraphCount INT NOT NULL,
+                        Buckets INT NOT NULL,
+                        AvgTemp FLOAT NOT NULL
+                    );"
+                );
             }
 
             SeedSampleData(connection);
@@ -171,34 +172,45 @@ namespace Assign_2
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
 
+            RandomTemp random = new RandomTemp();
+
+            for (int i = 1; i <= 24; i++) { 
+                double temp = random.randomTemp(i);
+                
+                RunNonQuery(connection,
+                    @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
+                    @$"VALUES " +
+                    @$"(DATEADD(hour, {i}, GETDATE()), {temp}, 1);"
+                );
+            }
             // Sensor generation WIP - fixed values to be replaced by a generator
-            RunNonQuery(connection, @"
-    INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
-    VALUES
-    (DATEADD(hour, -1, GETDATE()), 18.20, 1),
-    (DATEADD(hour, -5, GETDATE()), 19.10, 1),
-    (DATEADD(hour, -12, GETDATE()), 16.70, 1),
-    (DATEADD(day, -1, GETDATE()), 17.50, 1),
-    (DATEADD(day, -2, GETDATE()), 20.30, 1),
-    (DATEADD(day, -5, GETDATE()), 14.90, 1),
-    (DATEADD(day, -10, GETDATE()), 15.80, 1),
-    (DATEADD(day, -20, GETDATE()), 21.60, 1),
-    (DATEADD(month, -1, GETDATE()), 22.40, 1),
-    (DATEADD(month, -2, GETDATE()), 13.20, 1),
-    (DATEADD(month, -6, GETDATE()), 25.10, 1),
-    (DATEADD(year, -1, GETDATE()), 11.40, 1),
-    (DATEADD(hour, -2, GETDATE()), 22.50, 2),
-    (DATEADD(hour, -6, GETDATE()), 23.80, 2),
-    (DATEADD(hour, -14, GETDATE()), 21.10, 2),
-    (DATEADD(day, -1, GETDATE()), 24.30, 2),
-    (DATEADD(day, -3, GETDATE()), 26.70, 2),
-    (DATEADD(day, -7, GETDATE()), 19.90, 2),
-    (DATEADD(day, -15, GETDATE()), 20.40, 2),
-    (DATEADD(day, -25, GETDATE()), 27.60, 2),
-    (DATEADD(month, -1, GETDATE()), 25.20, 2),
-    (DATEADD(month, -3, GETDATE()), 18.90, 2),
-    (DATEADD(month, -7, GETDATE()), 28.30, 2),
-    (DATEADD(year, -1, GETDATE()), 16.50, 2);");
+    //        RunNonQuery(connection, @"
+    //INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
+    //VALUES
+    //(DATEADD(hour, -1, GETDATE(03/06/2026)), 18.20, 1),
+    //(DATEADD(hour, -5, GETDATE()), 19.10, 1),
+    //(DATEADD(hour, -12, GETDATE()), 16.70, 1),
+    //(DATEADD(day, -1, GETDATE()), 17.50, 1),
+    //(DATEADD(day, -2, GETDATE()), 20.30, 1),
+    //(DATEADD(day, -5, GETDATE()), 14.90, 1),
+    //(DATEADD(day, -10, GETDATE()), 15.80, 1),
+    //(DATEADD(day, -20, GETDATE()), 21.60, 1),
+    //(DATEADD(month, -1, GETDATE()), 22.40, 1),
+    //(DATEADD(month, -2, GETDATE()), 13.20, 1),
+    //(DATEADD(month, -6, GETDATE()), 25.10, 1),
+    //(DATEADD(year, -1, GETDATE()), 11.40, 1),
+    //(DATEADD(hour, -2, GETDATE()), 22.50, 2),
+    //(DATEADD(hour, -6, GETDATE()), 23.80, 2),
+    //(DATEADD(hour, -14, GETDATE()), 21.10, 2),
+    //(DATEADD(day, -1, GETDATE()), 24.30, 2),
+    //(DATEADD(day, -3, GETDATE()), 26.70, 2),
+    //(DATEADD(day, -7, GETDATE()), 19.90, 2),
+    //(DATEADD(day, -15, GETDATE()), 20.40, 2),
+    //(DATEADD(day, -25, GETDATE()), 27.60, 2),
+    //(DATEADD(month, -1, GETDATE()), 25.20, 2),
+    //(DATEADD(month, -3, GETDATE()), 18.90, 2),
+    //(DATEADD(month, -7, GETDATE()), 28.30, 2),
+    //(DATEADD(year, -1, GETDATE()), 16.50, 2);");
         }//If you want to test new location just add more data after the final year stuff
 
         public static List<LocationRecord> GetAllLocations()

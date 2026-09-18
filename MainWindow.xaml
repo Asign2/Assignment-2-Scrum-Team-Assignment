@@ -48,11 +48,11 @@
                                   Margin="0,0,0,10">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
-                                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
+                                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="155" />
                                 <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
                                 <DataGridTextColumn Header="First Name" Binding="{Binding first_name}" Width="120" />
                                 <DataGridTextColumn Header="Last Name" Binding="{Binding last_name}" Width="120" />
-                                <DataGridTextColumn Header="Date Created" Binding="{Binding date_created, StringFormat=dd MMM yyyy}" Width="110" />
+                                <DataGridTextColumn Header="Date Created" Binding="{Binding date_created, StringFormat=dd MMM yyyy}" Width="95" />
                             </DataGrid.Columns>
                         </DataGrid>
 

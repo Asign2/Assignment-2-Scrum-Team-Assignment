@@ -108,7 +108,7 @@ namespace Assign_2
         // Everything below just turns the stored numbers into a picture.
         // ---------------------------------------------------------------
 
-        private void Redraw()
+        public void Redraw()
         {
             if (kind == ChartKind.None || values.Count == 0)
             {
@@ -144,8 +144,8 @@ namespace Assign_2
             return VectSharp.Plots.Plot.Create.LineCharts(
                 lines.ToArray(),
                 title: chartTitle,
-                xAxisTitle: "Sample",
-                yAxisTitle: "Value");
+                xAxisTitle: "Time",
+                yAxisTitle: "Temperature");
         }
         //Script to enlarge chart on click
         public event EventHandler<ChartTileClickedEventArgs> Clicked;
