@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Assign_2
 {
@@ -182,6 +183,8 @@ namespace Assign_2
                     @$"VALUES " +
                     @$"(DATEADD(hour, {i}, GETDATE()), {temp}, 1);"
                 );
+                Debug.WriteLine($"{DateTime.Now}, hour {i}, {temp}"); // Logs sensor readings to Output window
+                // refactor Debug.WriteLine when implementing live updates
             }
             // Sensor generation WIP - fixed values to be replaced by a generator
     //        RunNonQuery(connection, @"
