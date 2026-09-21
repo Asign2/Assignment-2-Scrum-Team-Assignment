@@ -1,53 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using VectSharp.Raster.ImageSharp;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Assign_2
 {
     /// <summary>
-    /// A small chart panel. Give it some numbers via ShowLine / ShowBand /
-    /// ShowBars, and it draws them using VectSharp, then displays the result
-    /// as a picture in PlotImage.
+    /// A stat-card tile styled after a live temperature dashboard: current
+    /// value, a recent-history sparkline, and a Min/Avg/Max footer — drawn
+    /// entirely with native WPF vector shapes, so it scales crisply at any
+    /// size with no rasterisation step.
     ///
-    /// Requires the NuGet packages: VectSharp, VectSharp.Plots,
-    /// VectSharp.Raster.ImageSharp.
-    ///
-    /// How it works, in order:
-    ///   1. Store whatever numbers we were given.
-    ///   2. Turn those numbers into a VectSharp "Plot".
-    ///   3. Render the Plot to a temporary PNG file on disk.
-    ///   4. Load that PNG into the PlotImage control so it shows on screen.
+    /// Keeps the same public methods as the old VectSharp version
+    /// (ShowLine/ShowBand/ShowBars/ShowPlaceholder) so callers in
+    /// MainWindow.xaml.cs don't need to change what they pass in.
     /// </summary>
     public partial class ChartTile : UserControl
     {
-        private enum ChartKind { None, Line, Band, Bars, Pie }
+        private enum ChartKind { None, Line, Band, Bars}
+
+        public event EventHandler Clicked;
 
         private ChartKind kind = ChartKind.None;
         private string chartTitle = "";
         private List<string> labels = new List<string>();
-
-        // "values" is the main series: the line in Line mode, the average in
-        // Band mode, or the bar heights in Bars mode.
         private List<double> values = new List<double>();
-        private List<double> minValues = new List<double>(); // Band mode only
-        private List<double> maxValues = new List<double>(); // Band mode only
+        private List<double> minValues = new List<double>();
+        private List<double> maxValues = new List<double>();
 
         public ChartTile()
         {
             InitializeComponent();
+            SparklineHost.SizeChanged += (s, e) => DrawSparkline();
         }
-
-        // ---------------------------------------------------------------
-        // Public methods - these are what MainWindow.cs calls.
-        // low/high are accepted for compatibility but not drawn any more;
-        // dropping the dashed threshold lines kept this class much simpler.
-        // ---------------------------------------------------------------
 
         public void ShowLine(string title, List<string> xLabels,
                              List<double> data, double? low, double? high)
@@ -56,6 +44,8 @@ namespace Assign_2
             kind = ChartKind.Line;
             labels = xLabels;
             values = data;
+            minValues = new List<double>();
+            maxValues = new List<double>();
             Redraw();
         }
 
@@ -78,16 +68,8 @@ namespace Assign_2
             kind = ChartKind.Bars;
             labels = xLabels;
             values = data;
-            Redraw();
-        }
-
-        /// <summary>One slice per value, sized by how big each value is.</summary>
-        public void ShowPie(string title, List<string> xLabels, List<double> data)
-        {
-            chartTitle = title;
-            kind = ChartKind.Pie;
-            labels = xLabels;
-            values = data;
+            minValues = new List<double>();
+            maxValues = new List<double>();
             Redraw();
         }
 
@@ -99,119 +81,111 @@ namespace Assign_2
             Redraw();
         }
 
-        private void PlotImage_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void Redraw()
         {
-            Redraw();
-        }
+            TitleText.Text = chartTitle;
 
-        // ---------------------------------------------------------------
-        // Everything below just turns the stored numbers into a picture.
-        // ---------------------------------------------------------------
-
-        public void Redraw()
-        {
             if (kind == ChartKind.None || values.Count == 0)
             {
-                PlotImage.Source = null;
                 NoDataText.Visibility = Visibility.Visible;
+                CurrentValueText.Text = "--";
+                MinValueText.Text = "--";
+                AvgValueText.Text = "--";
+                MaxValueText.Text = "--";
+                MinTimeText.Text = "";
+                MaxTimeText.Text = "";
+                Sparkline.Points = null;
                 return;
             }
 
             NoDataText.Visibility = Visibility.Collapsed;
 
-            VectSharp.Plots.Plot plot = kind switch
-            {
-                ChartKind.Bars => BuildBarChart(),
-                _ => BuildLineChart()
-            };
+            // Band mode has real min/max series; every other mode derives
+            // min/max/avg straight from the main values list.
+            bool hasBand = kind == ChartKind.Band && minValues.Count > 0 && maxValues.Count > 0;
 
-            DisplayPlot(plot);
+            double minTemp = hasBand ? minValues.Min() : values.Min();
+            double maxTemp = hasBand ? maxValues.Max() : values.Max();
+            double avgTemp = values.Average();
+
+            int minIndex = hasBand ? minValues.IndexOf(minTemp) : values.IndexOf(minTemp);
+            int maxIndex = hasBand ? maxValues.IndexOf(maxTemp) : values.IndexOf(maxTemp);
+
+            CurrentValueText.Text = values.Last().ToString("0.0");
+            MinValueText.Text = minTemp.ToString("0.0") + " °C";
+            AvgValueText.Text = avgTemp.ToString("0.00") + " °C";
+            MaxValueText.Text = maxTemp.ToString("0.0") + " °C";
+            MinTimeText.Text = LabelAt(minIndex);
+            MaxTimeText.Text = LabelAt(maxIndex);
+
+            DrawSparkline();
         }
 
-        /// <summary>Line mode draws one line. Band mode draws max, min and average.</summary>
-        private VectSharp.Plots.Plot BuildLineChart()
+        private string LabelAt(int index)
         {
-            List<(double, double)[]> lines = new List<(double, double)[]>();
+            return (index >= 0 && index < labels.Count) ? labels[index] : "";
+        }
 
-            if (kind == ChartKind.Band)
+        private void DrawSparkline()
+        {
+            if (kind == ChartKind.None || values.Count < 2 ||
+                SparklineHost.ActualWidth <= 0 || SparklineHost.ActualHeight <= 0)
             {
-                lines.Add(ToPoints(maxValues));
-                lines.Add(ToPoints(minValues));
+                Sparkline.Points = null;
+                return;
             }
 
-            lines.Add(ToPoints(values));
+            double width = SparklineHost.ActualWidth;
+            double height = SparklineHost.ActualHeight;
 
-            return VectSharp.Plots.Plot.Create.LineCharts(
-                lines.ToArray(),
-                title: chartTitle,
-                xAxisTitle: "Time",
-                yAxisTitle: "Temperature");
+            double min = values.Min();
+            double max = values.Max();
+            double range = (max - min) < 0.01 ? 1 : (max - min);
+
+            var points = new PointCollection();
+            for (int i = 0; i < values.Count; i++)
+            {
+                double x = width * i / (values.Count - 1);
+                double normalized = (values[i] - min) / range;
+                double y = height - (normalized * height);
+                points.Add(new Point(x, y));
+            }
+
+            Sparkline.Points = points;
         }
-        //Script to enlarge chart on click
-        public event EventHandler<ChartTileClickedEventArgs> Clicked;
 
         private void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
-            if (PlotImage.Source == null)
-            {
-                return; // No chart to enlarge
-            }
-            Clicked?.Invoke(this, new ChartTileClickedEventArgs(PlotImage.Source, chartTitle));
+            if (kind == ChartKind.None || values.Count == 0) return;
+            Clicked?.Invoke(this, EventArgs.Empty);
         }
 
-
-        /// <summary>One bar per value, labelled with the matching period.</summary>
-        private VectSharp.Plots.Plot BuildBarChart()
+        /// <summary>
+        /// Builds a second tile with the same data at a larger size, for the
+        /// enlarge-on-click overlay. Vector rendering stays crisp at any
+        /// size, unlike the old PNG upscale.
+        /// </summary>
+        public ChartTile CreateEnlargedCopy(double width = 420, double height = 320)
         {
-            (string, double)[] bars = new (string, double)[values.Count];
+            ChartTile copy = new ChartTile { Width = width, Height = height };
 
-            for (int i = 0; i < values.Count; i++)
+            switch (kind)
             {
-                string label = i < labels.Count ? labels[i] : i.ToString();
-                bars[i] = (label, values[i]);
-            }
-
-            return VectSharp.Plots.Plot.Create.BarChart(
-                bars,
-                title: chartTitle,
-                yAxisTitle: "Count");
-        }
-
-       /// <summary>Turns a list of numbers into (x, y) points, using position as x.</summary>
-        private static (double, double)[] ToPoints(List<double> data)
-        {
-            (double, double)[] points = new (double, double)[data.Count];
-
-            for (int i = 0; i < data.Count; i++)
-            {
-                points[i] = (i, data[i]);
+                case ChartKind.Band:
+                    copy.ShowBand(chartTitle, labels, minValues, maxValues, values, null, null);
+                    break;
+                case ChartKind.Bars:
+                    copy.ShowBars(chartTitle, labels, values);
+                    break;
+                case ChartKind.Line:
+                    copy.ShowLine(chartTitle, labels, values, null, null);
+                    break;
+                default:
+                    copy.ShowPlaceholder(chartTitle);
+                    break;
             }
 
-            return points;
+            return copy;
         }
-
-        /// <summary>Saves the plot as a temp PNG, then shows that PNG in PlotImage.</summary>
-        private void DisplayPlot(VectSharp.Plots.Plot plot)
-        {
-            // "VectSharp.Page" is written in full because WPF also has a
-            // class called Page (System.Windows.Controls.Page) - without
-            // the full name the compiler can't tell which one we mean.
-            VectSharp.Page page = plot.Render();
-
-            string tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".png");
-            page.SaveAsImage(tempFile);
-
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.CacheOption = BitmapCacheOption.OnLoad; // load fully so we can delete the file
-            image.UriSource = new Uri(tempFile);
-            image.EndInit();
-            image.Freeze();
-
-            PlotImage.Source = image;
-
-            File.Delete(tempFile);
-        }
-
     }
 }

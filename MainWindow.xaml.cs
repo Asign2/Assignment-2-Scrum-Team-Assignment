@@ -467,10 +467,13 @@ namespace Assign_2
         }
 
 
-        private void ChartTile_Clicked(object sender, ChartTileClickedEventArgs e)
+        private void ChartTile_Clicked(object sender, EventArgs e)
         {
-            OverlayTitleText.Text = e.Title;
-            OverlayImage.Source = e.Image;
+            ChartTile source = sender as ChartTile;
+            if (source == null) return;
+
+            OverlayContentHost.Children.Clear();
+            OverlayContentHost.Children.Add(source.CreateEnlargedCopy());
             ChartOverlay.Visibility = Visibility.Visible;
         }
 

@@ -97,7 +97,7 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
                         (Id, MinTemp, MaxTemp, GraphCount, DefaultGranularity)
-                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for Pie Chart support
+                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for extra stuff, can be changed.
             }
 
             // 5. Create DashboardLog table
