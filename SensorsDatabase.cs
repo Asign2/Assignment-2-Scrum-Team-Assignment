@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Assign_2
 {
@@ -20,11 +21,11 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Locations
-(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    City VARCHAR(255) NOT NULL,
-    Suburb VARCHAR(255) NOT NULL
-);");
+                    (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        City VARCHAR(255) NOT NULL,
+                        Suburb VARCHAR(255) NOT NULL
+                    );");
             }
 
             // 2. Create Sensors table (linked to Locations via Foreign Key)
@@ -37,18 +38,18 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Sensors
-(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    Date_Installed DATE NOT NULL,
-    Make VARCHAR(255) NOT NULL,
-    Model VARCHAR(255) NOT NULL,
-    Location_Id INT NOT NULL,
+                    (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        Date_Installed DATE NOT NULL,
+                        Make VARCHAR(255) NOT NULL,
+                        Model VARCHAR(255) NOT NULL,
+                        Location_Id INT NOT NULL,
 
-    CONSTRAINT FK_Sensors_Locations
-    FOREIGN KEY (Location_Id)
-    REFERENCES dbo.Locations(Id)
-    ON DELETE CASCADE
-);");
+                        CONSTRAINT FK_Sensors_Locations
+                        FOREIGN KEY (Location_Id)
+                        REFERENCES dbo.Locations(Id)
+                        ON DELETE CASCADE
+                    );");
             }
 
             // 3. Create Data table (linked to Sensors via Foreign Key)
@@ -61,17 +62,17 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.Data
-(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    [Timestamp] DATETIME2 NOT NULL DEFAULT GETDATE(),
-    Temperature DECIMAL(5,2) NOT NULL,
-    Sensor_Id INT NOT NULL,
+                    (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        [Timestamp] DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        Temperature DECIMAL(5,2) NOT NULL,
+                        Sensor_Id INT NOT NULL,
 
-    CONSTRAINT FK_Data_Sensors
-    FOREIGN KEY (Sensor_Id)
-    REFERENCES dbo.Sensors(Id)
-    ON DELETE CASCADE
-);");
+                        CONSTRAINT FK_Data_Sensors
+                        FOREIGN KEY (Sensor_Id)
+                        REFERENCES dbo.Sensors(Id)
+                        ON DELETE CASCADE
+                    );");
             }
 
             // 4. Create DashboardSettings table
@@ -84,20 +85,20 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.DashboardSettings
-(
-    Id INT PRIMARY KEY,
-    MinTemp FLOAT NOT NULL,
-    MaxTemp FLOAT NOT NULL,
-    GraphCount INT NOT NULL,
-    DefaultGranularity NVARCHAR(255) NOT NULL,
-    UpdatedBy NVARCHAR(255) NULL,
-    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
-);");
+                    (
+                        Id INT PRIMARY KEY,
+                        MinTemp FLOAT NOT NULL,
+                        MaxTemp FLOAT NOT NULL,
+                        GraphCount INT NOT NULL,
+                        DefaultGranularity NVARCHAR(255) NOT NULL,
+                        UpdatedBy NVARCHAR(255) NULL,
+                        UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
+                    );");
 
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
                         (Id, MinTemp, MaxTemp, GraphCount, DefaultGranularity)
-                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for Pie Chart support
+                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for extra stuff, can be changed.
             }
 
             // 5. Create DashboardLog table
@@ -110,16 +111,17 @@ namespace Assign_2
             {
                 RunNonQuery(connection, @"
                     CREATE TABLE dbo.DashboardLog
-(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    ViewedBy NVARCHAR(255) NOT NULL,
-    ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    Location NVARCHAR(255) NOT NULL,
-    Granularity NVARCHAR(255) NOT NULL,
-    GraphCount INT NOT NULL,
-    Buckets INT NOT NULL,
-    AvgTemp FLOAT NOT NULL
-);");
+                    (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        ViewedBy NVARCHAR(255) NOT NULL,
+                        ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        Location NVARCHAR(255) NOT NULL,
+                        Granularity NVARCHAR(255) NOT NULL,
+                        GraphCount INT NOT NULL,
+                        Buckets INT NOT NULL,
+                        AvgTemp FLOAT NOT NULL
+                    );"
+                );
             }
 
             SeedSampleData(connection);
@@ -171,34 +173,47 @@ namespace Assign_2
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
 
+            RandomTemp random = new RandomTemp();
+
+            for (int i = 1; i <= 24; i++) { 
+                double temp = random.randomTemp(i);
+                
+                RunNonQuery(connection,
+                    @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
+                    @$"VALUES " +
+                    @$"(DATEADD(hour, {i}, GETDATE()), {temp}, 1);"
+                );
+                Debug.WriteLine($"{DateTime.Now}, hour {i}, {temp}"); // Logs sensor readings to Output window
+                // refactor Debug.WriteLine when implementing live updates
+            }
             // Sensor generation WIP - fixed values to be replaced by a generator
-            RunNonQuery(connection, @"
-    INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
-    VALUES
-    (DATEADD(hour, -1, GETDATE()), 18.20, 1),
-    (DATEADD(hour, -5, GETDATE()), 19.10, 1),
-    (DATEADD(hour, -12, GETDATE()), 16.70, 1),
-    (DATEADD(day, -1, GETDATE()), 17.50, 1),
-    (DATEADD(day, -2, GETDATE()), 20.30, 1),
-    (DATEADD(day, -5, GETDATE()), 14.90, 1),
-    (DATEADD(day, -10, GETDATE()), 15.80, 1),
-    (DATEADD(day, -20, GETDATE()), 21.60, 1),
-    (DATEADD(month, -1, GETDATE()), 22.40, 1),
-    (DATEADD(month, -2, GETDATE()), 13.20, 1),
-    (DATEADD(month, -6, GETDATE()), 25.10, 1),
-    (DATEADD(year, -1, GETDATE()), 11.40, 1),
-    (DATEADD(hour, -2, GETDATE()), 22.50, 2),
-    (DATEADD(hour, -6, GETDATE()), 23.80, 2),
-    (DATEADD(hour, -14, GETDATE()), 21.10, 2),
-    (DATEADD(day, -1, GETDATE()), 24.30, 2),
-    (DATEADD(day, -3, GETDATE()), 26.70, 2),
-    (DATEADD(day, -7, GETDATE()), 19.90, 2),
-    (DATEADD(day, -15, GETDATE()), 20.40, 2),
-    (DATEADD(day, -25, GETDATE()), 27.60, 2),
-    (DATEADD(month, -1, GETDATE()), 25.20, 2),
-    (DATEADD(month, -3, GETDATE()), 18.90, 2),
-    (DATEADD(month, -7, GETDATE()), 28.30, 2),
-    (DATEADD(year, -1, GETDATE()), 16.50, 2);");
+    //        RunNonQuery(connection, @"
+    //INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id)
+    //VALUES
+    //(DATEADD(hour, -1, GETDATE(03/06/2026)), 18.20, 1),
+    //(DATEADD(hour, -5, GETDATE()), 19.10, 1),
+    //(DATEADD(hour, -12, GETDATE()), 16.70, 1),
+    //(DATEADD(day, -1, GETDATE()), 17.50, 1),
+    //(DATEADD(day, -2, GETDATE()), 20.30, 1),
+    //(DATEADD(day, -5, GETDATE()), 14.90, 1),
+    //(DATEADD(day, -10, GETDATE()), 15.80, 1),
+    //(DATEADD(day, -20, GETDATE()), 21.60, 1),
+    //(DATEADD(month, -1, GETDATE()), 22.40, 1),
+    //(DATEADD(month, -2, GETDATE()), 13.20, 1),
+    //(DATEADD(month, -6, GETDATE()), 25.10, 1),
+    //(DATEADD(year, -1, GETDATE()), 11.40, 1),
+    //(DATEADD(hour, -2, GETDATE()), 22.50, 2),
+    //(DATEADD(hour, -6, GETDATE()), 23.80, 2),
+    //(DATEADD(hour, -14, GETDATE()), 21.10, 2),
+    //(DATEADD(day, -1, GETDATE()), 24.30, 2),
+    //(DATEADD(day, -3, GETDATE()), 26.70, 2),
+    //(DATEADD(day, -7, GETDATE()), 19.90, 2),
+    //(DATEADD(day, -15, GETDATE()), 20.40, 2),
+    //(DATEADD(day, -25, GETDATE()), 27.60, 2),
+    //(DATEADD(month, -1, GETDATE()), 25.20, 2),
+    //(DATEADD(month, -3, GETDATE()), 18.90, 2),
+    //(DATEADD(month, -7, GETDATE()), 28.30, 2),
+    //(DATEADD(year, -1, GETDATE()), 16.50, 2);");
         }//If you want to test new location just add more data after the final year stuff
 
         public static List<LocationRecord> GetAllLocations()

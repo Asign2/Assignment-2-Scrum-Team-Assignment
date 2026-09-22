@@ -48,11 +48,11 @@
                                   Margin="0,0,0,10">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
-                                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="200" />
+                                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="155" />
                                 <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="150" />
                                 <DataGridTextColumn Header="First Name" Binding="{Binding first_name}" Width="120" />
                                 <DataGridTextColumn Header="Last Name" Binding="{Binding last_name}" Width="120" />
-                                <DataGridTextColumn Header="Date Created" Binding="{Binding date_created, StringFormat=dd MMM yyyy}" Width="110" />
+                                <DataGridTextColumn Header="Date Created" Binding="{Binding date_created, StringFormat=dd MMM yyyy}" Width="95" />
                             </DataGrid.Columns>
                         </DataGrid>
 
@@ -180,8 +180,8 @@
                                 <DataGridTextColumn Header="Viewed By" Binding="{Binding ViewedBy}" Width="120"/>
                                 <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="150"/>
                                 <DataGridTextColumn Header="Interval" Binding="{Binding Granularity}" Width="80"/>
-                                <DataGridTextColumn Header="Graphs" Binding="{Binding GraphCount}" Width="60"/>
-                                <DataGridTextColumn Header="Buckets" Binding="{Binding Buckets}" Width="60"/>
+                                <DataGridTextColumn Header="Graphs" Binding="{Binding GraphCount}" Width="55"/>
+                                <DataGridTextColumn Header="TimeGroups" Binding="{Binding Buckets}" Width="80"/>
                                 <DataGridTextColumn Header="Avg °C" Binding="{Binding AvgTemp}" Width="70"/>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -264,12 +264,12 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0">
-                        <Button Content="X" Width="28" Height="28" DockPanel.Dock="Right"
+                        <Button Content="X" Width="28" Height="20" DockPanel.Dock="Right" Margin="0,20,0,0"
                                 Click="CloseChartOverlay_Click"/>
                         <TextBlock x:Name="OverlayTitleText" FontWeight="Bold" FontSize="14"
                                    VerticalAlignment="Center" Margin="4,0,0,0"/>
                     </DockPanel>
-                    <Image x:Name="OverlayImage" Grid.Row="1" Stretch="Uniform" Margin="0,10,0,0"/>
+                    <Grid Grid.Row="1" x:Name="OverlayContentHost" Margin="0,10,0,0"/>
                 </Grid>
             </Border>
         </Grid>

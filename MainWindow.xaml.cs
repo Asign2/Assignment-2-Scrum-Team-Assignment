@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Data.SqlClient;
 
 namespace Assign_2
 {
@@ -465,10 +467,13 @@ namespace Assign_2
         }
 
 
-        private void ChartTile_Clicked(object sender, ChartTileClickedEventArgs e)
+        private void ChartTile_Clicked(object sender, EventArgs e)
         {
-            OverlayTitleText.Text = e.Title;
-            OverlayImage.Source = e.Image;
+            ChartTile source = sender as ChartTile;
+            if (source == null) return;
+
+            OverlayContentHost.Children.Clear();
+            OverlayContentHost.Children.Add(source.CreateEnlargedCopy());
             ChartOverlay.Visibility = Visibility.Visible;
         }
 
@@ -539,8 +544,8 @@ namespace Assign_2
             List<double> maxs = series.Select(r => r.MaxTemp).ToList();
             List<double> samples = series.Select(r => (double)r.Samples).ToList();
 
-            BuildChartTiles(settings.GraphCount, labels, avgs, mins, maxs, samples,
-                             settings.MinTemp, settings.MaxTemp);
+            using var connection = UserDatabase.OpenConnection();
+            BuildChartTiles(connection);    
 
             try
             {
@@ -566,43 +571,109 @@ namespace Assign_2
         /// band and the sample-count bars; extra slots are placeholders
         /// ready for future visualisations.
         /// </summary>
-private void BuildChartTiles(
-    int graphCount,
-    List<string> labels,
-    List<double> avgs,
-    List<double> mins,
-    List<double> maxs,
-    List<double> samples,
-    double minTemp,
-    double maxTemp)
-{
-    ChartHost.Children.Clear();
+        private void BuildChartTiles(SqlConnection connection)
+        {
+            List<string> labels = new List<string>();
+            List<double> temperatures = new List<double>();
+            string granularity = (UserGranularityBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string query = granularity switch {
+                "Hourly" => @"
+                    SELECT 
+                        DATEADD(HOUR, DATEDIFF(HOUR, 0, Timestamp), 0) AS Period,
+                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data
+                    WHERE Sensor_Id = 1
+                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, Timestamp), 0)
+                    ORDER BY Period",
 
-    for (int i = 0; i < graphCount; i++)
-    {
-        ChartTile tile = new ChartTile();
-        tile.Clicked += ChartTile_Clicked;
+                "Daily" => @"
+                    SELECT 
+                        DATEADD(DAY, DATEDIFF(DAY, 0, Timestamp), 0) AS Period,
+                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data
+                    WHERE Sensor_Id = 1
+                    GROUP BY DATEADD(DAY, DATEDIFF(DAY, 0, Timestamp), 0)
+                    ORDER BY Period",
 
-        if (i == 0)
-        {
-            tile.ShowBand("Avg / Min / Max Temp", labels, mins, maxs, avgs,
-                          minTemp, maxTemp);
-        }
-        else if (i == 1)
-        {
-            tile.ShowBars("Sample Count", labels, samples);
-        }
-        else if (i == 2)
-        {
-            tile.ShowLine("Avg Temp Trend", labels, avgs, null, null);
-        }
-        else
-        {
-            tile.ShowPlaceholder("Chart " + (i + 1));
-        }
+                "Monthly" => @"
+                    SELECT 
+                        DATEADD(MONTH, DATEDIFF(MONTH, 0, Timestamp), 0) AS Period,
+                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data
+                    WHERE Sensor_Id = 1
+                    GROUP BY DATEADD(MONTH, DATEDIFF(MONTH, 0, Timestamp), 0)
+                    ORDER BY Period",
 
-        ChartHost.Children.Add(tile);
+                "Yearly" => @"
+                    SELECT 
+                        DATEADD(YEAR, DATEDIFF(YEAR, 0, Timestamp), 0) AS Period,
+                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data
+                    WHERE Sensor_Id = 1
+                    GROUP BY DATEADD(YEAR, DATEDIFF(YEAR, 0, Timestamp), 0)
+                    ORDER BY Period",
+                null => throw new InvalidOperationException("Unknown granularity: " + granularity) 
+            };
+
+
+            using SqlCommand command = new SqlCommand(query, connection);
+            using SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                DateTime period = reader.GetDateTime(0);
+                labels.Add(period.ToString(
+                    granularity == "Hourly" ? "HH:mm" :
+                    granularity == "Daily" ? "dd MMM" :
+                    granularity == "Monthly" ? "MMM yyyy" :
+                    "yyyy")
+                );
+
+                labels.Add(reader.GetDateTime(0).ToString("HH:mm"));
+                temperatures.Add((double)reader.GetDecimal(1));
+            }
+
+            ChartHost.Children.Clear();
+
+            for (int i = 0; i < 3; i++)
+            {
+                ChartTile tile = new ChartTile();
+                tile.Clicked += ChartTile_Clicked;
+
+                if (i == 0)
+                {
+                    tile.ShowLine(
+                        "Temperature",
+                        labels,
+                        temperatures,
+                        null,
+                        null);
+                }
+                else if (i == 1)
+                {
+                    tile.ShowBars(
+                        "Temperature Samples",
+                        labels,
+                        temperatures);
+                }
+                else if (i == 2)
+                {
+                    tile.ShowLine(
+                        "Temperature Trend",
+                        labels,
+                        temperatures,
+                        null,
+                        null);
+                }
+                else
+                {
+                    tile.ShowPlaceholder("Chart " + (i + 1));
+                }
+
+                ChartHost.Children.Add(tile);
+            }
+        }
     }
 }
-    }
-}
+
+
