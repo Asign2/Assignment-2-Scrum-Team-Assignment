@@ -479,16 +479,16 @@ namespace Assign_2
 
             using var command = new SqlCommand(
                 @"SELECT
-            u.Id,
-            u.Username,
-            r.RoleName,
-            u.firstnames,
-            u.lastnames,
-            u.date_created
-          FROM dbo.Users u
-          INNER JOIN dbo.Roles r
-            ON u.RoleId = r.Id
-          ORDER BY u.Username;",
+                    u.Id,
+                    u.Username,
+                    r.RoleName,
+                    u.firstnames,
+                    u.lastnames,
+                    u.date_created
+                FROM dbo.Users u
+                INNER JOIN dbo.Roles r
+                    ON u.RoleId = r.Id
+                ORDER BY u.Username;",
                 connection);
 
             using var reader = command.ExecuteReader();
@@ -552,12 +552,12 @@ namespace Assign_2
             using var command =
                 new SqlCommand(
                     @"UPDATE dbo.Users
-          SET Username = @username,
-              RoleId = @roleId,
-              firstnames = @firstname,
-              lastnames = @lastname,
-              date_created = @dateCreated
-          WHERE Id = @id;",
+                      SET Username = @username,
+                          RoleId = @roleId,
+                          firstnames = @firstname,
+                          lastnames = @lastname,
+                          date_created = @dateCreated
+                      WHERE Id = @id;",
                     connection);
 
             command.Parameters.AddWithValue("@username", newUsername);
