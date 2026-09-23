@@ -154,7 +154,7 @@ namespace Assign_2
             Sparkline.Points = points;
         }
 
-        private void EnlargeChart(object sender, MouseButtonEventArgs e)
+        public void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
             if (kind == ChartKind.None || values.Count == 0) return;
             Clicked?.Invoke(this, EventArgs.Empty);

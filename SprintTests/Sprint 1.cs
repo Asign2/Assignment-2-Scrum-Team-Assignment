@@ -44,7 +44,7 @@ public class UserDatabaseTests
     public void Register_NewUser_SuccessfullyAddsUser()
     {
         string uniqueUser = "testuser_" + Guid.NewGuid().ToString().Substring(0, 6);
-        bool registered = UserDatabase.Register(uniqueUser, "pass123", "User");
+        bool registered = UserDatabase.Register(uniqueUser, "pass123", "User", "", "", "");
         bool loginSuccess = UserDatabase.Login(uniqueUser, "pass123", out string role);
 
         Assert.True(registered);
@@ -60,7 +60,7 @@ public class UserDatabaseTests
 
         Assert.Throws<System.Exception>(() =>
         {
-            UserDatabase.Register(duplicateUser, "somepassword", "User");
+            UserDatabase.Register(duplicateUser, "somepassword", "User", "", "", "");
         });
     }
 }

@@ -239,9 +239,12 @@ namespace Assign_2
         {
             string username = NewUsername.Text.Trim();
             string password = NewPassword.Password;
+            string firstname = NewFirstname.Text.Trim();
+            string lastname = NewLastname.Text.Trim();
+            string datecreated = DateTime.Now.Date.ToShortDateString();
             ComboBoxItem chosenRole = NewRole.SelectedItem as ComboBoxItem;
 
-            if (username == "" || password == "" || chosenRole == null)
+            if (username == "" || password == "" || chosenRole == null || firstname == "" || lastname == "" || datecreated == null)
             {
                 MessageBox.Show("All fields are required.");
                 return;
@@ -251,10 +254,12 @@ namespace Assign_2
 
             try
             {
-                UserDatabase.Register(username, password, role);
+                UserDatabase.Register(username, password, role, firstname, lastname, datecreated);
                 MessageBox.Show("User registered.");
                 NewUsername.Clear();
                 NewPassword.Clear();
+                NewFirstname.Clear();
+                NewLastname.Clear();
                 NewRole.SelectedItem = null;
                 OpenAdminScreen();
             }

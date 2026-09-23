@@ -378,7 +378,11 @@ namespace Assign_2
         public static bool Register(
             string username,
             string password,
-            string role)
+            string role,
+            string firstname,
+            string lastname,
+            string datecreated
+            )
         {
             using var connection =
                 OpenConnection();

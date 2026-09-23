@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         mc:Ignorable="av" 
         x:Class="Assign_2.MainWindow"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        WindowState="Maximized"
+        >
     <Grid>
 
         <!-- LOGIN VIEW -->
@@ -70,8 +72,7 @@
                                     <AccessText Text="_Last Name:"/>
                                      </Label>
                                 <TextBox x:Name="EditLastNameBox" Width="160" Margin="0,0,15,0" IsReadOnly="true"/>
-                               
-                                <DatePicker x:Name="EditDateCreatedPicker" Margin="5"/>
+                              
                                 <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
                                     <AccessText Text="_Role:"/>
                                 </Label>
@@ -207,6 +208,14 @@
                 <AccessText Text="New _Password"/>
             </Label>
             <PasswordBox x:Name="NewPassword" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewFirstname}">
+                <AccessText Text="New _FirstNme"/>
+            </Label>
+            <TextBox x:Name="NewFirstname" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewLastname}">
+                <AccessText Text="New _LastName"/>
+            </Label>
+            <TextBox x:Name="NewLastname" Height="25" Margin="0,0,0,10"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewRole}">
                 <AccessText Text="New _Role"/>
             </Label>
