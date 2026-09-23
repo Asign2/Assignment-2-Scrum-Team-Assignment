@@ -1,0 +1,46 @@
+## Daniel
+
+1. What have you done since the last meeting?
+	- Changed vectsharp code to generate SVG rather than PNG images
+	- Sprint 2 xunit testing
+	- chart tiles for displaying graphs
+	- added firstName, lastName & dateCreated fields to user database; viewable by admin
+2. What are you working on today?
+	- Creating new graph visualisations: Bar Graph (single column, measures/displays current temp as a thermometer), Histogram for temp comparison
+3. Do you have any blockers?
+	- Difficulties with XAML; backend is fine
+
+## Gene
+
+1. What have you done since the last meeting?
+	- random temp generation
+	- Can select granularity (time) for graphs
+2. What are you working on today?
+	- Finalising current state of the graphs
+	- Adding more sensor locations
+	- Changing locations to model a multi-story office building with sensors in each of the rooms in each floor
+	- Change location filters to filter by
+		- floor
+		- select individual rooms with a checkbox dropdown list, including a 'select all'
+3. Do you have any blockers?
+	- None
+
+## Nick
+
+1. What have you done since the last meeting?
+	- Code refactoring
+	- Added minimal logging for randomtemp inserts
+	- Redesigned use case diagrams following feedback from Robert
+2. What are you working on today?
+	- Studying for project management exam tomorrow
+3. Do you have any blockers?
+	- Exam tomorrow, but very free during the holidays.
+
+## Check-in
+
+- we should model an orchard farm for our sensors - different locations around a field.
+- Graphs: consider a box-plot graph to detect outliers.
+- Report generation - don't want to just export raw data; we want to export meaningful reports.
+	- for simplicity, maybe a text doc? Or Markdown.
+- Consider implementing a change-management plan.
+- Requirements: Harshvardhan confirmed that NFR 4 is actually a functional requirement; changed it to FR 7.
