@@ -687,5 +687,20 @@ namespace Assign_2
 
             return Convert.ToInt32(result) > 0;
         }
+        // =========================================================
+        // RESET DATABASE FOR TESTS
+        // =========================================================
+
+        public static void ResetDatabase()
+        {
+            using var connection = OpenConnection();
+
+            // Clear existing users and reset identity seed
+            RunNonQuery(connection, "DELETE FROM dbo.Users;");
+            RunNonQuery(connection, "DBCC CHECKIDENT ('dbo.Users', RESEED, 0);");
+
+            // Re-seed default users
+            SeedDefaultUsers(connection);
+        }
     }
 }

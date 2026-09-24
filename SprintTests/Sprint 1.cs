@@ -1,12 +1,18 @@
 using Xunit;
 using Assign_2;
-using 
+using System;
 
 namespace SprintUnitTests;
 
-public class UserDatabaseTests
+public class UserDatabaseTests : IDisposable
 {
-    // Test cafses for UserDatabase class
+    public void Dispose()
+    {
+        // This automatically runs after EVERY test method finishes, 
+        // clearing any new users added and putting the DB back to its default state.
+        UserDatabase.ResetDatabase();
+    }
+
     [Fact]
     public void Login_ValidAdminCredentials_ReturnsTrueAndAdminRole()
     {
@@ -15,7 +21,6 @@ public class UserDatabaseTests
         Assert.Equal("Admin", role);
     }
 
-    // Test case for a valid user login
     [Fact]
     public void Login_ValidUserCredentials_ReturnsTrueAndUserRole()
     {
@@ -24,7 +29,6 @@ public class UserDatabaseTests
         Assert.Equal("User", role);
     }
 
-    // Test case for an invalid password
     [Fact]
     public void Login_InvalidPassword_ReturnsFalse()
     {
@@ -32,7 +36,6 @@ public class UserDatabaseTests
         Assert.False(success);
     }
 
-    // Test case for a non-existent user
     [Fact]
     public void Login_NonExistentUser_ReturnsFalse()
     {
@@ -40,7 +43,6 @@ public class UserDatabaseTests
         Assert.False(success);
     }
 
-    // Test case for registering a new user
     [Fact]
     public void Register_NewUser_SuccessfullyAddsUser()
     {
@@ -53,7 +55,6 @@ public class UserDatabaseTests
         Assert.Equal("User", role);
     }
 
-    // Test case for registering a user with a duplicate username
     [Fact]
     public void Register_DuplicateUsername_ThrowsException()
     {
@@ -63,7 +64,5 @@ public class UserDatabaseTests
         {
             UserDatabase.Register(duplicateUser, "somepassword", "User", "", "", "");
         });
-        UserDb_Root.Database.EnsureDeleted();
-        myDbContext.Database.EnsureCreated();
     }
 }
