@@ -640,43 +640,25 @@ namespace Assign_2
 
             ChartHost.Children.Clear();
 
-            for (int i = 0; i < 3; i++)
-            {
-                ChartTile tile = new ChartTile();
-                tile.Clicked += ChartTile_Clicked;
+            ChartHost.Children.Clear();
 
-                if (i == 0)
-                {
-                    tile.ShowLine(
-                        "Temperature",
-                        labels,
-                        temperatures,
-                        null,
-                        null);
-                }
-                else if (i == 1)
-                {
-                    tile.ShowBars(
-                        "Temperature Samples",
-                        labels,
-                        temperatures);
-                }
-                else if (i == 2)
-                {
-                    tile.ShowLine(
-                        "Temperature Trend",
-                        labels,
-                        temperatures,
-                        null,
-                        null);
-                }
-                else
-                {
-                    tile.ShowPlaceholder("Chart " + (i + 1));
-                }
+            // Top Row
+            ChartTile topTile = new ChartTile();
+            Grid.SetRow(topTile, 0);
+            Grid.SetColumnSpan(topTile, 2);
+            ChartHost.Children.Add(topTile);
 
-                ChartHost.Children.Add(tile);
-            }
+            // Bottom Left
+            ChartTile2 tile2 = new ChartTile2();
+            Grid.SetRow(tile2, 1);
+            Grid.SetColumn(tile2, 0);
+            ChartHost.Children.Add(tile2);
+
+            // Bottom Right
+            ChartTile barTile = new ChartTile();
+            Grid.SetRow(barTile, 1);
+            Grid.SetColumn(barTile, 1);
+            ChartHost.Children.Add(barTile);
         }
     }
 }

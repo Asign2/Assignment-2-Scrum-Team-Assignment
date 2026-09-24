@@ -16,7 +16,7 @@ namespace Assign_2
     /// <summary>
     /// Interaction logic for ChartTile2.xaml
     /// </summary>
-    public partial class ChartTile2 : Window
+    public partial class ChartTile2 : UserControl
     {
         public ChartTile2()
         {

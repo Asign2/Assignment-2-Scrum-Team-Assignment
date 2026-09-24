@@ -37,17 +37,20 @@
                 <TabItem Header="Users">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
+                            <!-- DataGrid gets remaining space -->
                             <RowDefinition Height="*" />
+                            <!-- Edit Form panel below DataGrid -->
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
+                        <!-- Top: Users Table -->
                         <DataGrid x:Name="UsersGrid"
-                                  Grid.Row="0"
-                                  AutoGenerateColumns="False"
-                                  SelectionMode="Single"
-                                  SelectionChanged="UsersGrid_SelectionChanged"
-                                  IsReadOnly="True"
-                                  Margin="0,0,0,10">
+                  Grid.Row="0"
+                  AutoGenerateColumns="False"
+                  SelectionMode="Single"
+                  SelectionChanged="UsersGrid_SelectionChanged"
+                  IsReadOnly="True"
+                  Margin="0,0,0,10">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
                                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="155" />
@@ -58,42 +61,70 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
+                        <!-- Bottom: User Edit Section -->
                         <StackPanel Grid.Row="1" Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
-                                    <AccessText Text="_Username:"/>
-                                </Label>
-                                <TextBox x:Name="EditUsernameBox" Width="160" Margin="0,0,15,0" IsReadOnly="true" />
-                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditFirstNameBox}">
-                                    <AccessText Text="_First Name:"/>
-                                </Label>
-                                <TextBox x:Name="EditFirstNameBox" Width="160" Margin="0,0,15,0"  IsReadOnly="true"/>
-                                <Label Width="80" VerticalAlignment="Center" Target="{Binding ElementName=EditLastNameBox}">
-                                    <AccessText Text="_Last Name:"/>
-                                     </Label>
-                                <TextBox x:Name="EditLastNameBox" Width="160" Margin="0,0,15,0" IsReadOnly="true"/>
-                              
-                                <Label Width="40" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
-                                    <AccessText Text="_Role:"/>
-                                </Label>
-                                <ComboBox x:Name="RoleBox" Width="120">
-                                    <ComboBoxItem Content="Admin" />
-                                    <ComboBoxItem Content="User" />
-                                </ComboBox>
+
+                            <!-- Grid for Form Inputs (Clean 2-Column Layout) -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Row 0: Username & First Name -->
+                                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
+                                        <AccessText Text="_Username:"/>
+                                    </Label>
+                                    <TextBox x:Name="EditUsernameBox" Width="180" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditFirstNameBox}">
+                                        <AccessText Text="_First Name:"/>
+                                    </Label>
+                                    <TextBox x:Name="EditFirstNameBox" Width="180" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <!-- Row 1: Last Name & Role -->
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditLastNameBox}">
+                                        <AccessText Text="_Last Name:"/>
+                                    </Label>
+                                    <TextBox x:Name="EditLastNameBox" Width="180" IsReadOnly="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
+                                        <AccessText Text="_Role:"/>
+                                    </Label>
+                                    <ComboBox x:Name="RoleBox" Width="180">
+                                        <ComboBoxItem Content="Admin" />
+                                        <ComboBoxItem Content="User" />
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <!-- Row 2: Reset Password -->
+                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=NewPasswordBox}">
+                                        <AccessText Text="New _Password:"/>
+                                    </Label>
+                                    <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,10,0" />
+                                    <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" Padding="5,2" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Bottom Action Buttons -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                                <Button Content="Save Changes" Click="SaveChanges_Click" Width="110" Height="28" Margin="0,0,10,0" />
+                                <Button Content="Delete User" Click="DeleteUser_Click" Width="110" Height="28" />
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                <Label Width="auto" VerticalAlignment="Center" Margin="0,0,15,0" Target="{Binding ElementName=NewPasswordBox}">
-                                    <AccessText Text="New _Password:"/>
-                                </Label>
-                                <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,15,0" />
-                                <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" />
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="Save Changes" Click="SaveChanges_Click" Width="110" Margin="0,0,10,0" />
-                                <Button Content="Delete User" Click="DeleteUser_Click" Width="110" />
-                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </TabItem>
