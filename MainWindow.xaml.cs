@@ -47,6 +47,7 @@ namespace Assign_2
 
                 currentUsername = username;
 
+
                 if (role == "Admin")
                 {
                     OpenAdminScreen();
@@ -112,14 +113,19 @@ namespace Assign_2
                 return;
             }
 
+            // Populate the form fields with selected user data
             EditUsernameBox.Text = selectedUser.Username;
+            EditFirstNameBox.Text = selectedUser.first_name; 
+            EditLastNameBox.Text = selectedUser.last_name;   
             NewPasswordBox.Password = "";
 
+            // Handle Role ComboBox selection
             foreach (ComboBoxItem item in RoleBox.Items)
             {
                 if (item.Content.ToString() == selectedUser.Role)
                 {
                     RoleBox.SelectedItem = item;
+                    break; // Optional: break once found for efficiency
                 }
             }
         }
