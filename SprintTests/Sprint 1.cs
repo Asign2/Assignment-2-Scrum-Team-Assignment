@@ -1,5 +1,6 @@
 using Xunit;
 using Assign_2;
+using 
 
 namespace SprintUnitTests;
 
@@ -62,5 +63,7 @@ public class UserDatabaseTests
         {
             UserDatabase.Register(duplicateUser, "somepassword", "User", "", "", "");
         });
+        UserDb_Root.Database.EnsureDeleted();
+        myDbContext.Database.EnsureCreated();
     }
 }

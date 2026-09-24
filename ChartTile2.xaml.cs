@@ -21,7 +21,7 @@ namespace Assign_2
         public ChartTile2()
         {
             InitializeComponent();
-   
+        
         
 
         }

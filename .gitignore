@@ -5,4 +5,5 @@ obj/
 *.mdf
 *.ldf
 *.props
-*.build
+*.log
+*.json

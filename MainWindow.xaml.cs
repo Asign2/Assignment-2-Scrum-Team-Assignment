@@ -207,12 +207,16 @@ namespace Assign_2
             {
                 MessageBox.Show("Select a user first.");
                 return;
+            }else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("You cannot delete yourself");
+                return;
             }
 
-            MessageBoxResult result = MessageBox.Show(
-                "Delete user '" + selectedUser.Username + "'?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo);
+                MessageBoxResult result = MessageBox.Show(
+                    "Delete user '" + selectedUser.Username + "'?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -449,7 +453,7 @@ namespace Assign_2
                     {
                         MinTemp = 5,
                         MaxTemp = 30,
-                        GraphCount = 2,
+                        GraphCount = 3,
                         DefaultGranularity = "Monthly"
                     };
                 }

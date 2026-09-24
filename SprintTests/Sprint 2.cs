@@ -63,6 +63,7 @@ namespace SprintTests
                 Assert.False(string.IsNullOrWhiteSpace(sensor.City));
                 Assert.False(string.IsNullOrWhiteSpace(sensor.Suburb));
             }
+        //add a clear and open db after the final test
         }
     }
 }
