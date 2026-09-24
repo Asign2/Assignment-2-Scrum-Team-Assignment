@@ -176,7 +176,7 @@ namespace Assign_2
             RandomTemp random = new RandomTemp();
 
             for (int i = 1; i <= 24; i++) { 
-                double temp = random.randomTemp(i);
+                double temp = random.InsideTemp(i, 0);
                 
                 RunNonQuery(connection,
                     @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
