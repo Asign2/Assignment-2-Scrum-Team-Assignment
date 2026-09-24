@@ -67,7 +67,7 @@
                             <!-- Grid for Form Inputs (Clean 2-Column Layout) -->
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="300" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
@@ -83,9 +83,9 @@
                                     </Label>
                                     <TextBox x:Name="EditUsernameBox" Width="180" IsReadOnly="True" />
                                 </StackPanel>
-
+                    
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditFirstNameBox}">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=first_name}">
                                         <AccessText Text="_First Name:"/>
                                     </Label>
                                     <TextBox x:Name="EditFirstNameBox" Width="180" IsReadOnly="True" />
@@ -93,7 +93,7 @@
 
                                 <!-- Row 1: Last Name & Role -->
                                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditLastNameBox}">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=last_name}">
                                         <AccessText Text="_Last Name:"/>
                                     </Label>
                                     <TextBox x:Name="EditLastNameBox" Width="180" IsReadOnly="True" />
@@ -108,14 +108,14 @@
                                         <ComboBoxItem Content="User" />
                                     </ComboBox>
                                 </StackPanel>
-
+                            
                                 <!-- Row 2: Reset Password -->
                                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=NewPasswordBox}">
                                         <AccessText Text="New _Password:"/>
                                     </Label>
                                     <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,10,0" />
-                                    <Button Content="Reset Password" Click="ResetPassword_Click" Width="120" Padding="5,2" />
+                                    <Button Content="Update Details" Click="ResetPassword_Click" Width="120" Padding="5,2" />
                                 </StackPanel>
                             </Grid>
 
