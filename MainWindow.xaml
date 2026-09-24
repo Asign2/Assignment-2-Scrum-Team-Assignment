@@ -250,8 +250,14 @@
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewRole}">
                 <AccessText Text="New _Role"/>
             </Label>
-            <ComboBox x:Name="NewRole" Height="25" Margin="0,0,0,10">
-                <ComboBoxItem Content="Admin"/>
+            <ComboBox x:Name="NewRole" 
+          Height="25" 
+          Margin="0,0,0,10"
+          IsEditable="True"
+          IsReadOnly="True"
+          Text="Select a role..."
+          StaysOpenOnEdit="True">
+              <ComboBoxItem Content="Admin"/>
                 <ComboBoxItem Content="User"/>
             </ComboBox>
             <Button Content="Register New User" Width="auto" Height="30" Click="RegisterButton_Click"/>
