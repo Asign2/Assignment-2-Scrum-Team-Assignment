@@ -72,8 +72,8 @@ namespace SprintTests
             {
                 Assert.False(string.IsNullOrWhiteSpace(sensor.Make));
                 Assert.False(string.IsNullOrWhiteSpace(sensor.Model));
-                Assert.False(string.IsNullOrWhiteSpace(sensor.City));
-                Assert.False(string.IsNullOrWhiteSpace(sensor.Suburb));
+                Assert.False(string.IsNullOrWhiteSpace(sensor.Floor.ToString()));
+                Assert.False(string.IsNullOrWhiteSpace(sensor.Room.ToString()));
             }
         }
     }

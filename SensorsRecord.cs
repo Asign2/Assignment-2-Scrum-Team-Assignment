@@ -14,8 +14,8 @@ namespace Assign_2
     public class LocationRecord
     {
         public int Id { get; set; }
-        public string City { get; set; }
-        public string Suburb { get; set; }
+        public int Floor { get; set; }
+        public int Room { get; set; }
         public string Display { get; set; }
     }
 
@@ -25,8 +25,8 @@ namespace Assign_2
         public int Id { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
-        public string City { get; set; }
-        public string Suburb { get; set; }
+        public int Floor { get; set; }
+        public int Room { get; set; }
     }
 
     /// <summary>One aggregated time bucket of temperature readings.</summary>

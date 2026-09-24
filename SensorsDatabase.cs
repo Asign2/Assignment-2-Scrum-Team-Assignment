@@ -23,8 +23,8 @@ namespace Assign_2
                     CREATE TABLE dbo.Locations
                     (
                         Id INT IDENTITY(1,1) PRIMARY KEY,
-                        City VARCHAR(255) NOT NULL,
-                        Suburb VARCHAR(255) NOT NULL
+                        Floor INT NOT NULL,
+                        Room INT NOT NULL
                     );");
             }
 
@@ -155,10 +155,17 @@ namespace Assign_2
             if (!locationsHaveRows)
             {
                 RunNonQuery(connection, @"
-                    INSERT INTO dbo.Locations (City, Suburb)
+                    INSERT INTO dbo.Locations (Floor, Room)
                     VALUES 
-                            ('Palmerston North', 'Hokowhitu'),
-                            ('Auckland', 'Ponsonby');");
+                            (1, 1),
+                            (1, 2),
+                            (1, 3),
+                            (2, 1),
+                            (2, 2),
+                            (2, 3),
+                            (3, 1),
+                            (3, 2),
+                            (3, 3);");
                 // need more locations feel free to add more locations shouldn't break anything
             }
 
@@ -168,8 +175,16 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
                     VALUES 
-                    (GETDATE(), 'Acme', 'TempSense 1', 1),
-                    (GETDATE(), 'Acme', 'TempSense 2', 2)");
+                    (GETDATE(), 'Siemens', 'QAA2061', 1),
+                    (GETDATE(), 'Bosch', 'BME280', 2),
+                    (GETDATE(), 'Texas Instruments', 'TMP36', 3),
+                    (GETDATE(), 'Siemens', 'QAA2061', 4),
+                    (GETDATE(), 'Bosch', 'BME280', 5),
+                    (GETDATE(), 'Siemens', 'QAA2061', 6),
+                    (GETDATE(), 'Texas Instruments', 'TMP36', 7),
+                    (GETDATE(), 'Sensirion', 'SHT31', 8),
+                    (GETDATE(), 'Honeywell', 'HTP-1000', 9);
+                ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
 
@@ -220,7 +235,7 @@ namespace Assign_2
         {
             List<LocationRecord> locations = new List<LocationRecord>();
             using var connection = UserDatabase.OpenConnection();
-            using var command = new SqlCommand("SELECT Id, City, Suburb FROM dbo.Locations ORDER BY City, Suburb;", connection);
+            using var command = new SqlCommand("SELECT Id, Floor, Room FROM dbo.Locations ORDER BY Floor, Room;", connection);
             using SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -228,10 +243,10 @@ namespace Assign_2
                 LocationRecord location = new LocationRecord
                 {
                     Id = reader.GetInt32(0),
-                    City = reader.GetString(1),
-                    Suburb = reader.GetString(2)
+                    Floor = reader.GetInt32(1),
+                    Room = reader.GetInt32(2)
                 };
-                location.Display = location.Suburb + ", " + location.City;
+                location.Display = location.Room + ", " + location.Floor;
                 locations.Add(location);
             }
             return locations;
@@ -242,10 +257,10 @@ namespace Assign_2
             List<SensorRecord> sensors = new List<SensorRecord>();
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT s.Id, s.Make, s.Model, l.City, l.Suburb
+                SELECT s.Id, s.Make, s.Model, l.Floor, l.Room
                 FROM dbo.Sensors s
                 INNER JOIN dbo.Locations l ON l.Id = s.Location_Id
-                ORDER BY l.City, l.Suburb, s.Id;", connection);
+                ORDER BY l.Floor, l.Room, s.Id;", connection);
 
             using SqlDataReader reader = command.ExecuteReader();
 
@@ -256,8 +271,8 @@ namespace Assign_2
                     Id = reader.GetInt32(0),
                     Make = reader.GetString(1),
                     Model = reader.GetString(2),
-                    City = reader.GetString(3),
-                    Suburb = reader.GetString(4)
+                    Floor = reader.GetInt32(3),
+                    Room = reader.GetInt32(4)
                 });
             }
             return sensors;
