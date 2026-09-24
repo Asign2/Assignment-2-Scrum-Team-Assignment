@@ -47,6 +47,7 @@ namespace Assign_2
 
                 currentUsername = username;
 
+
                 if (role == "Admin")
                 {
                     OpenAdminScreen();
@@ -112,14 +113,19 @@ namespace Assign_2
                 return;
             }
 
+            // Populate the form fields with selected user data
             EditUsernameBox.Text = selectedUser.Username;
+            EditFirstNameBox.Text = selectedUser.first_name; 
+            EditLastNameBox.Text = selectedUser.last_name;   
             NewPasswordBox.Password = "";
 
+            // Handle Role ComboBox selection
             foreach (ComboBoxItem item in RoleBox.Items)
             {
                 if (item.Content.ToString() == selectedUser.Role)
                 {
                     RoleBox.SelectedItem = item;
+                    break; // Optional: break once found for efficiency
                 }
             }
         }
@@ -207,12 +213,16 @@ namespace Assign_2
             {
                 MessageBox.Show("Select a user first.");
                 return;
+            }else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("You cannot delete yourself");
+                return;
             }
 
-            MessageBoxResult result = MessageBox.Show(
-                "Delete user '" + selectedUser.Username + "'?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo);
+                MessageBoxResult result = MessageBox.Show(
+                    "Delete user '" + selectedUser.Username + "'?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -449,7 +459,7 @@ namespace Assign_2
                     {
                         MinTemp = 5,
                         MaxTemp = 30,
-                        GraphCount = 2,
+                        GraphCount = 3,
                         DefaultGranularity = "Monthly"
                     };
                 }
