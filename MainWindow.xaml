@@ -185,8 +185,8 @@
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
                                 <DataGridTextColumn Header="Make" Binding="{Binding Make}" Width="120"/>
                                 <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="120"/>
-                                <DataGridTextColumn Header="City" Binding="{Binding City}" Width="120"/>
-                                <DataGridTextColumn Header="Suburb" Binding="{Binding Suburb}" Width="120"/>
+                                <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="120"/>
+                                <DataGridTextColumn Header="Room" Binding="{Binding Room}" Width="120"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

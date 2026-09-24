@@ -18,9 +18,9 @@
 2. What are you working on today?
 	- Finalising current state of the graphs
 	- Adding more sensor locations
-	- Changing locations to model a multi-story office building with sensors in each of the rooms in each floor
+	- Changing locations to model a multi-story office building with sensors in each of the rooms in each Floor
 	- Change location filters to filter by
-		- floor
+		- Floor
 		- select individual rooms with a checkbox dropdown list, including a 'select all'
 3. Do you have any blockers?
 	- None
@@ -41,6 +41,6 @@
 - we should model an orchard farm for our sensors - different locations around a field.
 - Graphs: consider a box-plot graph to detect outliers.
 - Report generation - don't want to just export raw data; we want to export meaningful reports.
-	- for simplicity, maybe a text doc? Or Markdown.
+	- for simpliFloor, maybe a text doc? Or Markdown.
 - Consider implementing a change-management plan.
 - Requirements: Harshvardhan confirmed that NFR 4 is actually a functional requirement; changed it to FR 7.
