@@ -25,6 +25,8 @@ namespace Assign_2
         public int Id { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
+        public int Variance { get; set; }
+        public bool Active { get; set; }
         public int Floor { get; set; }
         public int Room { get; set; }
     }

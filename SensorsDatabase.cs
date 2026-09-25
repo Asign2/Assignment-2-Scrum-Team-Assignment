@@ -43,8 +43,9 @@ namespace Assign_2
                         Date_Installed DATE NOT NULL,
                         Make VARCHAR(255) NOT NULL,
                         Model VARCHAR(255) NOT NULL,
+                        variance INT NOT NULL,
                         Location_Id INT NOT NULL,
-
+                        Active BIT NOT NULL DEFAULT 1,
                         CONSTRAINT FK_Sensors_Locations
                         FOREIGN KEY (Location_Id)
                         REFERENCES dbo.Locations(Id)
@@ -173,33 +174,37 @@ namespace Assign_2
             if (!sensorsHaveRows)
             {
                 RunNonQuery(connection, @"
-                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id)
+                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance)
                     VALUES 
-                    (GETDATE(), 'Siemens', 'QAA2061', 1),
-                    (GETDATE(), 'Bosch', 'BME280', 2),
-                    (GETDATE(), 'Texas Instruments', 'TMP36', 3),
-                    (GETDATE(), 'Siemens', 'QAA2061', 4),
-                    (GETDATE(), 'Bosch', 'BME280', 5),
-                    (GETDATE(), 'Siemens', 'QAA2061', 6),
-                    (GETDATE(), 'Texas Instruments', 'TMP36', 7),
-                    (GETDATE(), 'Sensirion', 'SHT31', 8),
-                    (GETDATE(), 'Honeywell', 'HTP-1000', 9);
+                    (GETDATE(), 'Siemens', 'QAA2061', 1, 3),
+                    (GETDATE(), 'Bosch', 'BME280', 2, 3),
+                    (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4),
+                    (GETDATE(), 'Siemens', 'QAA2061', 4, -5),
+                    (GETDATE(), 'Bosch', 'BME280', 5, -7),
+                    (GETDATE(), 'Siemens', 'QAA2061', 6, -8),
+                    (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9),
+                    (GETDATE(), 'Sensirion', 'SHT31', 8, -10),
+                    (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
 
             RandomTemp random = new RandomTemp();
+            foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
+            {
+                int n = sensor.Variance;
+                for (int i = 1; i <= 24; i++)
+                {
+                    double temp = random.randomTemp(i, n);
 
-            for (int i = 1; i <= 24; i++) { 
-                double temp = random.randomTemp(i, 0);
-                
-                RunNonQuery(connection,
-                    @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
-                    @$"VALUES " +
-                    @$"(DATEADD(hour, {i}, GETDATE()), {temp}, 1);"
-                );
-                Debug.WriteLine($"{DateTime.Now}, hour {i}, {temp}"); // Logs sensor readings to Output window
-                // refactor Debug.WriteLine when implementing live updates
+                    RunNonQuery(connection,
+                        @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
+                        @$"VALUES " +
+                        @$"(DATEADD(hour, {i}, GETDATE()), {temp}, {sensor.Id});"
+                    );
+                    Debug.WriteLine($"{DateTime.Now}, hour {i}, {temp}"); // Logs sensor readings to Output window
+                                                                          // refactor Debug.WriteLine when implementing live updates
+                }
             }
             // Sensor generation WIP - fixed values to be replaced by a generator
     //        RunNonQuery(connection, @"
