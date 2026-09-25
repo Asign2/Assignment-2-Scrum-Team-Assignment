@@ -1,11 +1,22 @@
 ﻿using Xunit;
 using Assign_2;
+using System;
 
 namespace SprintTests
 {
-    public class Sprint_2
+    public class Sprint_2 : IDisposable
     {
-        //Code for testing Sql injection (one of the requirements for sprint 2)
+        public void Dispose()
+        {
+            // This automatically runs after EVERY test method finishes.
+            // It clears any newly registered users and resets UserDatabase back to default.
+            UserDatabase.ResetDatabase();
+
+            // If SensorsDatabase needs a reset or clear as well, you can add it here:
+            //SensorsDatabase.ResetDatabase();
+        }
+
+        // Code for testing Sql injection (one of the requirements for sprint 2)
         [Fact]
         public void Login_SQLInjectionAttempt_ShouldFail()
         {
@@ -18,6 +29,7 @@ namespace SprintTests
 
             Assert.False(result);
         }
+
         // Test that all users can be retrieved from the database.
         [Fact]
         public void GetAllUsers_ReturnsUsers()
@@ -27,8 +39,6 @@ namespace SprintTests
             Assert.NotNull(users);
             Assert.NotEmpty(users);
         }
-        //Needs Update, delete, add testing for user
-
 
         // Test that locations can be retrieved from the database.
         [Fact]
@@ -39,6 +49,7 @@ namespace SprintTests
             Assert.NotNull(locations);
             Assert.NotEmpty(locations);
         }
+
         // Test that sensors can be retrieved from the database.
         [Fact]
         public void GetAllSensors_ReturnsSensors()
@@ -48,6 +59,7 @@ namespace SprintTests
             Assert.NotNull(sensors);
             Assert.NotEmpty(sensors);
         }
+
         // Test that every sensor has location information.
         [Fact]
         public void GetAllSensors_SensorsHaveLocationInformation()
@@ -63,7 +75,6 @@ namespace SprintTests
                 Assert.False(string.IsNullOrWhiteSpace(sensor.Floor.ToString()));
                 Assert.False(string.IsNullOrWhiteSpace(sensor.Room.ToString()));
             }
-        //add a clear and open db after the final test
         }
     }
 }

@@ -189,125 +189,50 @@ namespace Assign_2
         // SEED DEFAULT USERS
         // =========================================================
         //The Datetime stuff mostlikely has to be changed to the current date and time when the program is run, but I don't know how to do that yet (its weird).
-        private static void SeedDefaultUsers(
-            SqlConnection connection)
+        private static void SeedDefaultUsers(SqlConnection connection)
         {
-            var defaultUsers =
-                new
-                (
-                    string Username,
-                    string Password,
-                    int RoleId,
-                    string Firstname,
-                    string Lastname,
-                    DateTime DateCreated
-                )[]
-                {
-                    (
-                        "admin",
-                        "admin123",
-                        1,
-                        "Admin",
-                        "Account",
-                        new DateTime(2026, 9, 9)
-                    ),
-
-                    (
-                        "alex",
-                        "user123",
-                        2,
-                        "Alex",
-                        "User",
-                        new DateTime(2026, 9, 9)
-                    ),
-
-                    (
-                        "jordan",
-                        "user123",
-                        2,
-                        "Jordan",
-                        "User",
-                        new DateTime(2026, 9, 9)
-                    ),
-
-                    (
-                        "sam",
-                        "user123",
-                        2,
-                        "Sam",
-                        "User",
-                        new DateTime(2026, 9, 9)
-                    ),
-
-                    (
-                        "taylor",
-                        "user123",
-                        2,
-                        "Taylor",
-                        "User",
-                        new DateTime(2026, 9, 9)
-                    ),
-
-                    (
-                        "bot",
-                        "temp",
-                        1,
-                        "Backupcharacter1",
-                        "",
-                        new DateTime(2026, 9, 9)
-                    )
-                };
+            // Define the tuple with explicit names so user.Username, user.Password, etc., work
+            var defaultUsers = new (string Username, string Password, int RoleId, string Firstname, string Lastname)[]
+            {
+        ("admin", "admin123", 1, "Admin", "Account"),
+        ("alex", "user123", 2, "Alex", "User"),
+        ("jordan", "user123", 2, "Jordan", "User"),
+        ("sam", "user123", 2, "Sam", "User"),
+        ("taylor", "user123", 2, "Taylor", "User"),
+        ("bot", "temp", 1, "Backupcharacter1", "")
+            };
 
             foreach (var user in defaultUsers)
             {
-                string hash =
-                    BCrypt.Net.BCrypt.HashPassword(
-                        user.Password);
+                string hash = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
                 using var command = new SqlCommand(
                     @"INSERT INTO dbo.Users
-                    (
-                        Username,
-                        PasswordHash,
-                        firstnames,
-                        lastnames,
-                        date_created,
-                        RoleId
-                    )
-                    VALUES
-                    (
-                        @username,
-                        @hash,
-                        @firstname,
-                        @lastname,
-                        @date_created,
-                        @roleId
-                    );",
+            (
+                Username,
+                PasswordHash,
+                firstnames,
+                lastnames,
+                date_created,
+                RoleId
+            )
+            VALUES
+            (
+                @username,
+                @hash,
+                @firstname,
+                @lastname,
+                @date_created,
+                @roleId
+            );",
                     connection);
 
-                command.Parameters.AddWithValue(
-                    "@username",
-                    user.Username);
-
-                command.Parameters.AddWithValue(
-                    "@hash",
-                    hash);
-
-                command.Parameters.AddWithValue(
-                    "@firstname",
-                    user.Firstname);
-
-                command.Parameters.AddWithValue(
-                    "@lastname",
-                    user.Lastname);
-
-                command.Parameters.AddWithValue(
-                    "@date_created",
-                    user.DateCreated);
-
-                command.Parameters.AddWithValue(
-                    "@roleId",
-                    user.RoleId);
+                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@hash", hash);
+                command.Parameters.AddWithValue("@firstname", user.Firstname);
+                command.Parameters.AddWithValue("@lastname", user.Lastname);
+                command.Parameters.AddWithValue("@date_created", DateTime.Now); // Automatically uses current time
+                command.Parameters.AddWithValue("@roleId", user.RoleId);
 
                 command.ExecuteNonQuery();
             }
@@ -686,6 +611,21 @@ namespace Assign_2
             }
 
             return Convert.ToInt32(result) > 0;
+        }
+        // =========================================================
+        // RESET DATABASE FOR TESTS
+        // =========================================================
+
+        public static void ResetDatabase()
+        {
+            using var connection = OpenConnection();
+
+            // Clear existing users and reset identity seed
+            RunNonQuery(connection, "DELETE FROM dbo.Users;");
+            RunNonQuery(connection, "DBCC CHECKIDENT ('dbo.Users', RESEED, 0);");
+
+            // Re-seed default users
+            SeedDefaultUsers(connection);
         }
     }
 }
