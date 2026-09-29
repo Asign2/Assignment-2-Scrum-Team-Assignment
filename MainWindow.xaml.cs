@@ -211,11 +211,11 @@ namespace Assign_2
         {
             if (selectedUser == null)
             {
-                MessageBox.Show("Select a user first.");
+                MessageBox.Show("Cannot delete user. No user currently selected.");
                 return;
             }else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show("You cannot delete yourself");
+                MessageBox.Show("Cannot delete current user. You cannot delete the account you are currently logged into.");
                 return;
             }
 

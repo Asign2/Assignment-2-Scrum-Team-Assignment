@@ -54,8 +54,6 @@ namespace Assign_2
 
             // Calculate the temperature using the modified sine functions and the additional parameter n
             double temp = average + (3.2 * sin1) + (0.9 * sin2) + (0.5 * sin4) + 0.3 * n;
-            //Stop loop for 20 seconds
-            //Thread.Sleep(20000);
             return temp;
         }
     }
