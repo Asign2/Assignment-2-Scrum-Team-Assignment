@@ -594,38 +594,46 @@ namespace Assign_2
             string query = granularity switch {
                 "Hourly" => @"
                     SELECT 
-                        DATEADD(HOUR, DATEDIFF(HOUR, 0, Timestamp), 0) AS Period,
-                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data
-                    WHERE Sensor_Id = 1
-                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, Timestamp), 0)
+                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
+                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data d
+                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
+                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
+                    WHERE l.Floor = 1
+                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
                     ORDER BY Period",
 
                 "Daily" => @"
                     SELECT 
-                        DATEADD(DAY, DATEDIFF(DAY, 0, Timestamp), 0) AS Period,
-                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data
-                    WHERE Sensor_Id = 1
-                    GROUP BY DATEADD(DAY, DATEDIFF(DAY, 0, Timestamp), 0)
+                        DATEADD(DAY, DATEDIFF(DAY, 0, d.Timestamp), 0) AS Period,
+                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data d
+                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
+                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
+                    WHERE l.Floor = 1
+                    GROUP BY DATEADD(DAY, DATEDIFF(DAY, 0, d.Timestamp), 0)
                     ORDER BY Period",
 
                 "Monthly" => @"
                     SELECT 
-                        DATEADD(MONTH, DATEDIFF(MONTH, 0, Timestamp), 0) AS Period,
-                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data
-                    WHERE Sensor_Id = 1
-                    GROUP BY DATEADD(MONTH, DATEDIFF(MONTH, 0, Timestamp), 0)
+                        DATEADD(MONTH, DATEDIFF(MONTH, 0, d.Timestamp), 0) AS Period,
+                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data d
+                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
+                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
+                    WHERE l.Floor = 1
+                    GROUP BY DATEADD(MONTH, DATEDIFF(MONTH, 0, d.Timestamp), 0)
                     ORDER BY Period",
 
                 "Yearly" => @"
                     SELECT 
-                        DATEADD(YEAR, DATEDIFF(YEAR, 0, Timestamp), 0) AS Period,
-                        CAST(AVG(Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data
-                    WHERE Sensor_Id = 1
-                    GROUP BY DATEADD(YEAR, DATEDIFF(YEAR, 0, Timestamp), 0)
+                        DATEADD(YEAR, DATEDIFF(YEAR, 0, d.Timestamp), 0) AS Period,
+                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
+                    FROM dbo.Data d
+                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
+                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
+                    WHERE l.Floor = 1
+                    GROUP BY DATEADD(YEAR, DATEDIFF(YEAR, 0, d.Timestamp), 0)
                     ORDER BY Period",
                 null => throw new InvalidOperationException("Unknown granularity: " + granularity) 
             };
@@ -652,8 +660,13 @@ namespace Assign_2
 
             ChartHost.Children.Clear();
 
+            // uses new chart title to fill
+            //
             // Top Row
+           
             ChartTile topTile = new ChartTile();
+            topTile.ShowLine("temp", labels, temperatures, null, null);
+            topTile.Clicked += ChartTile_Clicked;
             Grid.SetRow(topTile, 0);
             Grid.SetColumnSpan(topTile, 2);
             ChartHost.Children.Add(topTile);
