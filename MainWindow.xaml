@@ -289,7 +289,7 @@
             </StackPanel>
 
             <!-- Small, fixed-height area — grows only by scrolling as more graphs are added -->
-            <Border BorderBrush="#DDDDDD" BorderThickness="1" Height="170" Width="720">
+            <Border BorderBrush="#DDDDDD" BorderThickness="1" Height="500" Width="720">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <WrapPanel x:Name="ChartHost" Orientation="Horizontal"/>
                 </ScrollViewer>

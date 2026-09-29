@@ -358,7 +358,20 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        public static double? GetLatestTemp(int locationId)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+        SELECT TOP (1) CAST(d.Temperature AS FLOAT)
+        FROM dbo.Data d
+        INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id
+        WHERE s.Location_Id = @locationId
+        ORDER BY d.[Timestamp] DESC;", connection);
 
+            command.Parameters.AddWithValue("@locationId", locationId);
+            object result = command.ExecuteScalar();
+            return result == null ? null : Convert.ToDouble(result);
+        }
         public static void RecordDashboard(DashboardSnapshot snapshot)
         {
             using var connection = UserDatabase.OpenConnection();
