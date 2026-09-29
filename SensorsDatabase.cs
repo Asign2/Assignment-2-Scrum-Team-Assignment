@@ -193,7 +193,12 @@ namespace Assign_2
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
                 int n = sensor.Variance;
-                for (int i = 1; i <= 24; i++)
+                int t = 24; // number of hours to pre-seed database.
+                             // Default 24 (1 day)
+                             // 168 == 1 week
+                             // 720 == 1 month
+
+                for (int i = 1; i <= t; i++)
                 {
                     double temp = random.randomTemp(i, n);
 
