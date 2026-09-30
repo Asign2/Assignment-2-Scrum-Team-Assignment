@@ -4,8 +4,8 @@ namespace Assign_2
 {
     public enum Granularity
     {
-        Hourly,
         Daily,
+        Weekly,
         Monthly,
         Yearly
     }

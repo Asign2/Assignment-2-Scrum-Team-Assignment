@@ -163,8 +163,8 @@
                                         <AccessText Text="Default _Interval:"/>
                                     </Label>
                                     <ComboBox x:Name="DefaultGranularityBox" Width="100">
-                                        <ComboBoxItem Content="Hourly"/>
                                         <ComboBoxItem Content="Daily"/>
+                                        <ComboBoxItem Content="Weekly"/>
                                         <ComboBoxItem Content="Monthly"/>
                                         <ComboBoxItem Content="Yearly"/>
                                     </ComboBox>
@@ -281,8 +281,8 @@
                 </Label>
                 <ComboBox x:Name="UserGranularityBox" Width="110"
                           SelectionChanged="ReadingFilter_Changed">
-                    <ComboBoxItem Content="Hourly"/>
                     <ComboBoxItem Content="Daily"/>
+                    <ComboBoxItem Content="Weekly"/>
                     <ComboBoxItem Content="Monthly"/>
                     <ComboBoxItem Content="Yearly"/>
                 </ComboBox>

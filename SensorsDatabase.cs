@@ -264,8 +264,8 @@ namespace Assign_2
         {
             string bucket = granularity switch
             {
-                Granularity.Hourly => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
-                Granularity.Daily => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
+                Granularity.Daily => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
+                Granularity.Weekly => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
                 Granularity.Monthly => "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)",
                 _ => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
             };
@@ -308,8 +308,8 @@ namespace Assign_2
         {
             return granularity switch
             {
-                Granularity.Hourly => start.ToString("dd MMM HH:00"),
-                Granularity.Daily => start.ToString("dd MMM yy"),
+                Granularity.Daily => start.ToString("dd MMM HH:00"),
+                Granularity.Weekly => start.ToString("dd MMM yy"),
                 Granularity.Monthly => start.ToString("MMM yyyy"),
                 _ => start.ToString("yyyy")
             };

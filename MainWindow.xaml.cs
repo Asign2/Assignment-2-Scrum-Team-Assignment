@@ -592,7 +592,7 @@ namespace Assign_2
             List<double> temperatures = new List<double>();
             string granularity = (UserGranularityBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string query = granularity switch {
-                "Hourly" => @"
+                "Daily" => @"
                     SELECT 
                         DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
                         CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
@@ -600,40 +600,44 @@ namespace Assign_2
                     INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                     INNER JOIN dbo.Locations l on s.Location_id = l.Id
                     WHERE l.Floor = 1
+                        AND d.Timestamp >= DATEADD(HOUR, -24, (SELECT MAX(Timestamp) FROM dbo.Data))
                     GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
                     ORDER BY Period",
 
-                "Daily" => @"
+                "Weekly" => @"
                     SELECT 
-                        DATEADD(DAY, DATEDIFF(DAY, 0, d.Timestamp), 0) AS Period,
+                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
                         CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
                     FROM dbo.Data d
                     INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                     INNER JOIN dbo.Locations l on s.Location_id = l.Id
                     WHERE l.Floor = 1
-                    GROUP BY DATEADD(DAY, DATEDIFF(DAY, 0, d.Timestamp), 0)
+                        AND d.Timestamp >= DATEADD(HOUR, -168, (SELECT MAX(Timestamp) FROM dbo.Data))
+                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
                     ORDER BY Period",
 
                 "Monthly" => @"
                     SELECT 
-                        DATEADD(MONTH, DATEDIFF(MONTH, 0, d.Timestamp), 0) AS Period,
+                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
                         CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
                     FROM dbo.Data d
                     INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                     INNER JOIN dbo.Locations l on s.Location_id = l.Id
                     WHERE l.Floor = 1
-                    GROUP BY DATEADD(MONTH, DATEDIFF(MONTH, 0, d.Timestamp), 0)
+                        AND d.Timestamp >= DATEADD(HOUR, -720, (SELECT MAX(Timestamp) FROM dbo.Data))
+                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) 
                     ORDER BY Period",
 
                 "Yearly" => @"
                     SELECT 
-                        DATEADD(YEAR, DATEDIFF(YEAR, 0, d.Timestamp), 0) AS Period,
+                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
                         CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
                     FROM dbo.Data d
                     INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                     INNER JOIN dbo.Locations l on s.Location_id = l.Id
                     WHERE l.Floor = 1
-                    GROUP BY DATEADD(YEAR, DATEDIFF(YEAR, 0, d.Timestamp), 0)
+                        AND d.Timestamp >= DATEADD(HOUR, -8760, (SELECT MAX(Timestamp) FROM dbo.Data)) 
+                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
                     ORDER BY Period",
                 null => throw new InvalidOperationException("Unknown granularity: " + granularity) 
             };
@@ -646,8 +650,8 @@ namespace Assign_2
             {
                 DateTime period = reader.GetDateTime(0);
                 labels.Add(period.ToString(
-                    granularity == "Hourly" ? "HH:mm" :
-                    granularity == "Daily" ? "dd MMM" :
+                    granularity == "Daily" ? "HH:mm" :
+                    granularity == "Weekly" ? "dd MMM" :
                     granularity == "Monthly" ? "MMM yyyy" :
                     "yyyy")
                 );
