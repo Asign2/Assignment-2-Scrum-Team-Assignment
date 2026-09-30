@@ -88,7 +88,6 @@ namespace Assign_2
             if (kind == ChartKind.None || values.Count == 0)
             {
                 NoDataText.Visibility = Visibility.Visible;
-                CurrentValueText.Text = "--";
                 MinValueText.Text = "--";
                 AvgValueText.Text = "--";
                 MaxValueText.Text = "--";
@@ -111,7 +110,6 @@ namespace Assign_2
             int minIndex = hasBand ? minValues.IndexOf(minTemp) : values.IndexOf(minTemp);
             int maxIndex = hasBand ? maxValues.IndexOf(maxTemp) : values.IndexOf(maxTemp);
 
-            CurrentValueText.Text = values.Last().ToString("0.0");
             MinValueText.Text = minTemp.ToString("0.0") + " °C";
             AvgValueText.Text = avgTemp.ToString("0.00") + " °C";
             MaxValueText.Text = maxTemp.ToString("0.0") + " °C";

@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="Assign_2.ChartTile"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="160">
+             Height="300">
     <Border x:Name="RootBorder" CornerRadius="10" Margin="4" Padding="12"
             Background="#1C1C1E" Cursor="Hand" MouseLeftButtonUp="EnlargeChart">
         <Grid>
@@ -24,14 +24,7 @@
                 </Canvas>
             </Grid>
 
-            <!-- CURRENT VALUE -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,4" VerticalAlignment="Bottom">
-                <TextBlock x:Name="CurrentValueText" Text="--" Foreground="White"
-                           FontSize="30" FontWeight="Light"/>
-                <TextBlock Text="°C" Foreground="#B0B0B5" FontSize="14"
-                           VerticalAlignment="Top" Margin="2,4,0,0"/>
-            </StackPanel>
-
+           
             <!-- SPARKLINE + HOVER -->
             <Grid Grid.Row="2" x:Name="SparklineHost" ClipToBounds="False" Background="Transparent"
                   MouseMove="SparklineHost_MouseMove" MouseLeave="SparklineHost_MouseLeave">
