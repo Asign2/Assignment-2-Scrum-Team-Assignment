@@ -88,7 +88,6 @@ namespace Assign_2
             if (kind == ChartKind.None || values.Count == 0)
             {
                 NoDataText.Visibility = Visibility.Visible;
-                CurrentValueText.Text = "--";
                 MinValueText.Text = "--";
                 AvgValueText.Text = "--";
                 MaxValueText.Text = "--";
@@ -111,7 +110,6 @@ namespace Assign_2
             int minIndex = hasBand ? minValues.IndexOf(minTemp) : values.IndexOf(minTemp);
             int maxIndex = hasBand ? maxValues.IndexOf(maxTemp) : values.IndexOf(maxTemp);
 
-            CurrentValueText.Text = values.Last().ToString("0.0");
             MinValueText.Text = minTemp.ToString("0.0") + " °C";
             AvgValueText.Text = avgTemp.ToString("0.00") + " °C";
             MaxValueText.Text = maxTemp.ToString("0.0") + " °C";
@@ -186,6 +184,45 @@ namespace Assign_2
             }
 
             return copy;
+        }
+        private void SparklineHost_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (values.Count < 2) return;
+
+            Point pos = e.GetPosition(SparklineHost);
+
+            // How far across the chart the mouse is, from 0.0 (left edge) to 1.0 (right edge)
+            double fraction = pos.X / SparklineHost.ActualWidth;
+
+            // Turn that into a data point number.
+            int lastIndex = values.Count - 1;
+            int i = (int)Math.Round(fraction * lastIndex);
+
+            // Keep it in range in case the mouse is slightly past an edge
+            if (i < 0) i = 0;
+            if (i > lastIndex) i = lastIndex;
+
+            TooltipTemperature.Text = $"{values[i]:0.0} °C";
+            TooltipTime.Text = LabelAt(i);
+
+            // Fixed tooltip size (adjust if your text is wider or taller) Could be changed later for dynamic sizing
+            double tipWidth = 70;
+            double tipHeight = 40;
+
+            // Centre the tooltip on the mouse, then stop it going off either edge
+            double left = pos.X - tipWidth / 2;
+            double maxLeft = SparklineHost.ActualWidth - tipWidth;
+            if (left > maxLeft) left = maxLeft;
+            if (left < 0) left = 0;
+
+            Canvas.SetLeft(TemperatureTooltip, left);
+            Canvas.SetTop(TemperatureTooltip, pos.Y - tipHeight - 10);
+            TemperatureTooltip.Visibility = Visibility.Visible;
+        }
+
+        private void SparklineHost_MouseLeave(object sender, MouseEventArgs e)
+        {
+            TemperatureTooltip.Visibility = Visibility.Collapsed;
         }
     }
 }

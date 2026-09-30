@@ -663,7 +663,7 @@ namespace Assign_2
             // uses new chart title to fill
             //
             // Top Row
-           
+
             ChartTile topTile = new ChartTile();
             topTile.ShowLine("temp", labels, temperatures, null, null);
             topTile.Clicked += ChartTile_Clicked;
@@ -673,15 +673,22 @@ namespace Assign_2
 
             // Bottom Left
             ChartTile2 tile2 = new ChartTile2();
+
+            if (temperatures.Count > 0)
+            {
+                // Take the latest/most recent reading or average temperature
+                double latestTemp = temperatures.Last();
+
+                // Retrieve settings for range constraints (or pass defaults)
+                DashboardSettings settings = SensorsDatabase.GetSettings();
+
+                // Pass latest reading and min/max bounds to update visual
+                tile2.UpdateValue(latestTemp, settings.MinTemp, settings.MaxTemp);
+            }
+
             Grid.SetRow(tile2, 1);
             Grid.SetColumn(tile2, 0);
             ChartHost.Children.Add(tile2);
-
-            // Bottom Right
-            ChartTile barTile = new ChartTile();
-            Grid.SetRow(barTile, 1);
-            Grid.SetColumn(barTile, 1);
-            ChartHost.Children.Add(barTile);
         }
     }
 }
