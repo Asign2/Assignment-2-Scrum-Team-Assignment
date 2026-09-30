@@ -663,7 +663,7 @@ namespace Assign_2
             // uses new chart title to fill
             //
             // Top Row
-           
+
             ChartTile topTile = new ChartTile();
             topTile.ShowLine("temp", labels, temperatures, null, null);
             topTile.Clicked += ChartTile_Clicked;
@@ -676,12 +676,6 @@ namespace Assign_2
             Grid.SetRow(tile2, 1);
             Grid.SetColumn(tile2, 0);
             ChartHost.Children.Add(tile2);
-
-            // Bottom Right
-            ChartTile barTile = new ChartTile();
-            Grid.SetRow(barTile, 1);
-            Grid.SetColumn(barTile, 1);
-            ChartHost.Children.Add(barTile);
         }
     }
 }
