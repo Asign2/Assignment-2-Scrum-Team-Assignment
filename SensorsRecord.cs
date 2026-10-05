@@ -61,7 +61,6 @@ namespace Assign_2
         public string Location { get; set; }
         public string Granularity { get; set; }
         public int GraphCount { get; set; }
-        public int Buckets { get; set; }
         public double AvgTemp { get; set; }
     }
 }
