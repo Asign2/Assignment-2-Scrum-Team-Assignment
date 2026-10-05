@@ -560,7 +560,7 @@ namespace Assign_2
             List<double> samples = series.Select(r => (double)r.Samples).ToList();
 
             using var connection = UserDatabase.OpenConnection();
-            BuildChartTiles(connection);    
+            BuildChartTiles(location.Id, granularity);    
 
             try
             {
@@ -586,82 +586,31 @@ namespace Assign_2
         /// band and the sample-count bars; extra slots are placeholders
         /// ready for future visualisations.
         /// </summary>
-        private void BuildChartTiles(SqlConnection connection)
+        private void BuildChartTiles(int locationId, Granularity granularity)
         {
-            List<string> labels = new List<string>();
-            List<double> temperatures = new List<double>();
-            string granularity = (UserGranularityBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            string query = granularity switch {
-                "Daily" => @"
-                    SELECT 
-                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
-                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data d
-                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
-                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
-                    WHERE l.Floor = 1
-                        AND d.Timestamp >= DATEADD(HOUR, -24, (SELECT MAX(Timestamp) FROM dbo.Data))
-                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
-                    ORDER BY Period",
+            List<(DateTime Period, double Temperature)> readings;
 
-                "Weekly" => @"
-                    SELECT 
-                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
-                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data d
-                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
-                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
-                    WHERE l.Floor = 1
-                        AND d.Timestamp >= DATEADD(HOUR, -168, (SELECT MAX(Timestamp) FROM dbo.Data))
-                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
-                    ORDER BY Period",
-
-                "Monthly" => @"
-                    SELECT 
-                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
-                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data d
-                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
-                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
-                    WHERE l.Floor = 1
-                        AND d.Timestamp >= DATEADD(HOUR, -720, (SELECT MAX(Timestamp) FROM dbo.Data))
-                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) 
-                    ORDER BY Period",
-
-                "Yearly" => @"
-                    SELECT 
-                        DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
-                        CAST(AVG(d.Temperature) AS DECIMAL(5,2)) AS Temperature
-                    FROM dbo.Data d
-                    INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
-                    INNER JOIN dbo.Locations l on s.Location_id = l.Id
-                    WHERE l.Floor = 1
-                        AND d.Timestamp >= DATEADD(HOUR, -8760, (SELECT MAX(Timestamp) FROM dbo.Data)) 
-                    GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
-                    ORDER BY Period",
-                null => throw new InvalidOperationException("Unknown granularity: " + granularity) 
-            };
-
-
-            using SqlCommand command = new SqlCommand(query, connection);
-            using SqlDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
+            try
             {
-                DateTime period = reader.GetDateTime(0);
-                labels.Add(period.ToString(
-                    granularity == "Daily" ? "HH:mm" :
-                    granularity == "Weekly" ? "dd MMM" :
-                    granularity == "Monthly" ? "MMM yyyy" :
-                    "yyyy")
-                );
-
-                labels.Add(reader.GetDateTime(0).ToString("HH:mm"));
-                temperatures.Add((double)reader.GetDecimal(1));
+                readings = SensorsDatabase.GetChartReadings(locationId, granularity);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
             }
 
-            ChartHost.Children.Clear();
+            string granularityName = granularity.ToString();
+            List<string> labels = readings.Select(reading => reading.Period.ToString(
+                granularityName == "Daily" ? "HH:mm" :
+                granularityName == "Weekly" ? "dd MMM" :
+                granularityName == "Monthly" ? "MMM yyyy" :
+                    "yyyy")).ToList();
 
+            List<double> temperatures = readings
+                .Select(reading => reading.Temperature)
+                .ToList();
+            
             ChartHost.Children.Clear();
 
             // uses new chart title to fill
