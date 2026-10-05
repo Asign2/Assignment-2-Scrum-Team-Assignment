@@ -412,7 +412,7 @@ namespace Assign_2
                     Location = reader.GetString(2),
                     Granularity = reader.GetString(3),
                     GraphCount = reader.GetInt32(4),
-                    AvgTemp = Math.Round(reader.GetDouble(6), 2)
+                    AvgTemp = Math.Round(reader.GetDouble(5), 2)
                 });
             }
             return log;
