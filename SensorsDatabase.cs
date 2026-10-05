@@ -119,7 +119,6 @@ namespace Assign_2
                         Location NVARCHAR(255) NOT NULL,
                         Granularity NVARCHAR(255) NOT NULL,
                         GraphCount INT NOT NULL,
-                        Buckets INT NOT NULL,
                         AvgTemp FLOAT NOT NULL
                     );"
                 );
@@ -381,14 +380,13 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, GraphCount, Buckets, AvgTemp)
-                VALUES (@by, @loc, @gran, @graphs, @buckets, @avg);", connection);
+                INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, GraphCount, AvgTemp)
+                VALUES (@by, @loc, @gran, @graphs, @avg);", connection);
 
             command.Parameters.AddWithValue("@by", snapshot.ViewedBy);
             command.Parameters.AddWithValue("@loc", snapshot.Location);
             command.Parameters.AddWithValue("@gran", snapshot.Granularity);
             command.Parameters.AddWithValue("@graphs", snapshot.GraphCount);
-            command.Parameters.AddWithValue("@buckets", snapshot.Buckets);
             command.Parameters.AddWithValue("@avg", snapshot.AvgTemp);
 
             command.ExecuteNonQuery();
@@ -399,7 +397,7 @@ namespace Assign_2
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT TOP (@take) ViewedBy, ViewedAt, Location, Granularity, GraphCount, Buckets, AvgTemp
+                SELECT TOP (@take) ViewedBy, ViewedAt, Location, Granularity, GraphCount, AvgTemp
                 FROM dbo.DashboardLog ORDER BY ViewedAt DESC;", connection);
 
             command.Parameters.AddWithValue("@take", take);
@@ -414,7 +412,6 @@ namespace Assign_2
                     Location = reader.GetString(2),
                     Granularity = reader.GetString(3),
                     GraphCount = reader.GetInt32(4),
-                    Buckets = reader.GetInt32(5),
                     AvgTemp = Math.Round(reader.GetDouble(6), 2)
                 });
             }

@@ -570,7 +570,6 @@ namespace Assign_2
                     Location = location.Display,
                     Granularity = granularity.ToString(),
                     GraphCount = settings.GraphCount,
-                    Buckets = series.Count,
                     AvgTemp = series.Count == 0 ? 0 : Math.Round(avgs.Average(), 2)
                 });
             }
