@@ -420,5 +420,50 @@ namespace Assign_2
             }
             return log;
         }
+
+        // Gets chart readings to populate ChartTile graph
+        // uses a switch for the granularity
+        public static List<(DateTime Period, double Temperature)> GetChartReadings(
+            int locationId,
+            Granularity granularity)
+        {
+            int hours = granularity switch
+            {
+                Granularity.Daily => 24,
+                Granularity.Weekly => 168,
+                Granularity.Monthly => 720,
+                Granularity.Yearly => 8760,
+                _ => throw new ArgumentOutOfRangeException(nameof(granularity))
+            };
+
+            string query = @"
+                SELECT
+                    DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
+                    CAST(AVG(d.Temperature) AS DECIMAL(5, 2)) AS Temperature
+                FROM dbo.Data d
+                INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
+                INNER JOIN dbo.Locations l ON s.Location_id = l.Id
+                WHERE l.Id = @LocationId
+                    AND d.Timestamp >= DATEADD(HOUR, -@Hours, (SELECT MAX(Timestamp) FROM dbo.Data))
+                GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
+                ORDER BY Period;";
+
+            using SqlConnection connection = UserDatabase.OpenConnection();
+            using SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocationId", locationId);
+            command.Parameters.AddWithValue("@Hours", hours);
+            // @LocationId and @Hours are parameters for parameterised query
+            // reduces SQL SELECT code to just one statement, with Granularity & location as input
+
+            List<(DateTime Period, double Temperature)> readings = new List<(DateTime, double)>();
+
+            using SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                readings.Add((reader.GetDateTime(0), Convert.ToDouble(reader.GetValue(1))));
+            }
+
+            return readings;
+        }
     }
 }
