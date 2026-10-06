@@ -189,6 +189,12 @@
                                 <DataGridTextColumn Header="Room" Binding="{Binding Room}" Width="120"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <StackPanel Orientation="Horizontal" Margin="420,0,0,50">
+                            <TextBlock Text="Active Graphs:" Width="110" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            <CheckBox x:Name="BarCheckbox" Content="Current temp" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="BoxplotCheckbox" Content="Temp Comparison" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                            <CheckBox x:Name="LineChcekbox" Content="Temp Reading" IsChecked="True" VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
                 </TabItem>
 

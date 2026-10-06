@@ -45,10 +45,13 @@ namespace Assign_2
     /// <summary>Admin-controlled dashboard configuration (single row, Id = 1).</summary>
     public class DashboardSettings
     {
-        public double MinTemp { get; set; }
-        public double MaxTemp { get; set; }
         public int GraphCount { get; set; }
         public string DefaultGranularity { get; set; }
+
+        public bool ShowCurrentTemp { get; set; }
+        public bool ShowTempComparison { get; set; }
+        public bool ShowTempReading { get; set; }
+
         public string UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

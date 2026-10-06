@@ -25,7 +25,7 @@ namespace Assign_2
         public event EventHandler Clicked;
 
         private ChartKind kind = ChartKind.None;
-        private string chartTitle = "";
+        private string chartTitle = "Bar Graph";
         private List<string> labels = new List<string>();
         private List<double> values = new List<double>();
         private List<double> minValues = new List<double>();

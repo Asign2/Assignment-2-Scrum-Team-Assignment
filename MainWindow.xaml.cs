@@ -322,8 +322,6 @@ namespace Assign_2
             {
                 DashboardSettings settings = SensorsDatabase.GetSettings();
 
-                MinTempBox.Text = settings.MinTemp.ToString();
-                MaxTempBox.Text = settings.MaxTemp.ToString();
                 GraphCountBox.Text = settings.GraphCount.ToString();
 
                 foreach (ComboBoxItem item in DefaultGranularityBox.Items)
@@ -331,8 +329,13 @@ namespace Assign_2
                     if (item.Content.ToString() == settings.DefaultGranularity)
                     {
                         DefaultGranularityBox.SelectedItem = item;
+                        break;
                     }
                 }
+
+                BarCheckbox.IsChecked = settings.ShowCurrentTemp;
+                BoxplotCheckbox.IsChecked = settings.ShowTempComparison;
+                LineChcekbox.IsChecked = settings.ShowTempReading;
 
                 SettingsUpdatedText.Text = string.IsNullOrEmpty(settings.UpdatedBy)
                     ? ""
@@ -352,19 +355,6 @@ namespace Assign_2
         /// <param name="e">The event data.</param>
         private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (!double.TryParse(MinTempBox.Text, out double minTemp) ||
-                !double.TryParse(MaxTempBox.Text, out double maxTemp))
-            {
-                MessageBox.Show("Min and Max temperature must be numbers.");
-                return;
-            }
-
-            if (minTemp >= maxTemp)
-            {
-                MessageBox.Show("Min temperature must be less than Max temperature.");
-                return;
-            }
-
             if (!int.TryParse(GraphCountBox.Text, out int graphCount) ||
                 graphCount < 1 || graphCount > 8)
             {
@@ -372,7 +362,8 @@ namespace Assign_2
                 return;
             }
 
-            ComboBoxItem granularityItem = DefaultGranularityBox.SelectedItem as ComboBoxItem;
+            ComboBoxItem granularityItem =
+                DefaultGranularityBox.SelectedItem as ComboBoxItem;
 
             if (granularityItem == null)
             {
@@ -382,8 +373,9 @@ namespace Assign_2
 
             DashboardSettings settings = new DashboardSettings
             {
-                MinTemp = minTemp,
-                MaxTemp = maxTemp,
+                ShowCurrentTemp = BarCheckbox.IsChecked == true,
+                ShowTempComparison = BoxplotCheckbox.IsChecked == true,
+                ShowTempReading = LineChcekbox.IsChecked == true,
                 GraphCount = graphCount,
                 DefaultGranularity = granularityItem.Content.ToString()
             };
@@ -458,10 +450,11 @@ namespace Assign_2
                 {
                     settings = new DashboardSettings
                     {
-                        MinTemp = 5,
-                        MaxTemp = 30,
                         GraphCount = 3,
-                        DefaultGranularity = "Monthly"
+                        DefaultGranularity = "Monthly",
+                        ShowCurrentTemp = true,
+                        ShowTempComparison = true,
+                        ShowTempReading = true
                     };
                 }
 
@@ -539,7 +532,14 @@ namespace Assign_2
             }
             catch
             {
-                settings = new DashboardSettings { MinTemp = 5, MaxTemp = 30, GraphCount = 2 };
+                settings = new DashboardSettings
+                {
+                    GraphCount = 2,
+                    DefaultGranularity = "Monthly",
+                    ShowCurrentTemp = true,
+                    ShowTempComparison = true,
+                    ShowTempReading = true
+                };
             }
 
             List<ReadingAggregate> series;
@@ -601,50 +601,68 @@ namespace Assign_2
             }
 
             string granularityName = granularity.ToString();
+
             List<string> labels = readings.Select(reading => reading.Period.ToString(
                 granularityName == "Daily" ? "HH:mm" :
                 granularityName == "Weekly" ? "dd MMM" :
                 granularityName == "Monthly" ? "MMM yyyy" :
-                    "yyyy")).ToList();
+                "yyyy")).ToList();
 
             List<double> temperatures = readings
                 .Select(reading => reading.Temperature)
                 .ToList();
-            
+
             ChartHost.Children.Clear();
 
-            // uses new chart title to fill
-            //
-            // Top Row
+            DashboardSettings settings = SensorsDatabase.GetSettings();
 
-            ChartTile topTile = new ChartTile();
-            topTile.ShowLine("Chart 1", labels, temperatures, null, null);
-            topTile.Clicked += ChartTile_Clicked;
-            Grid.SetRow(topTile, 0);
-            Grid.SetColumnSpan(topTile, 2);
-            ChartHost.Children.Add(topTile);
-
-            // Bottom Left
-            ChartTile2 tile2 = new ChartTile2();
-
-            if (temperatures.Count > 0)
+            // Line - Temperature Reading
+            if (settings.ShowTempReading)
             {
-                // Take the latest/most recent reading or average temperature
-                double latestTemp = temperatures.Last();
+                ChartTile topTile = new ChartTile();
 
-                // Retrieve settings for range constraints (or pass defaults)
-                DashboardSettings settings = SensorsDatabase.GetSettings();
+                topTile.ShowLine(
+                    "Temperature",
+                    labels,
+                    temperatures,
+                    null,
+                    null
+                );
 
-                // Pass latest reading and min/max bounds to update visual
-                tile2.UpdateValue(latestTemp, settings.MinTemp, settings.MaxTemp);
+                topTile.Clicked += ChartTile_Clicked;
+
+                Grid.SetRow(topTile, 0);
+                Grid.SetColumnSpan(topTile, 2);
+
+                ChartHost.Children.Add(topTile);
             }
 
-            Grid.SetRow(tile2, 1);
-            Grid.SetColumn(tile2, 0);
-            ChartHost.Children.Add(tile2);
+            // Bar - Current Temperature
+            if (settings.ShowCurrentTemp)
+            {
+                ChartTile2 tile2 = new ChartTile2();
+
+                if (temperatures.Count > 0)
+                {
+                    double latestTemp = temperatures.Last();
+
+                    tile2.UpdateValue(latestTemp);
+                }
+
+                Grid.SetRow(tile2, 1);
+                Grid.SetColumn(tile2, 0);
+
+                ChartHost.Children.Add(tile2);
+            }
+
+            // Boxplot - Temperature Comparison
+            if (settings.ShowTempComparison)
+            {
+                // Boxplot generation goes here
+            }
         }
 
- 
+
     }
 }
 

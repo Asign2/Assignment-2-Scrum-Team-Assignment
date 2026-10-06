@@ -88,18 +88,19 @@ namespace Assign_2
                     CREATE TABLE dbo.DashboardSettings
                     (
                         Id INT PRIMARY KEY,
-                        MinTemp FLOAT NOT NULL,
-                        MaxTemp FLOAT NOT NULL,
                         GraphCount INT NOT NULL,
                         DefaultGranularity NVARCHAR(255) NOT NULL,
+                        ShowCurrentTemp BIT NOT NULL DEFAULT 1,
+                        ShowTempComparison BIT NOT NULL DEFAULT 1,
+                        ShowTempReading BIT NOT NULL DEFAULT 1,
                         UpdatedBy NVARCHAR(255) NULL,
                         UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
                     );");
 
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
-                        (Id, MinTemp, MaxTemp, GraphCount, DefaultGranularity)
-                    VALUES (1, 5, 30, 3, 'Monthly');"); // Updated GraphCount default to 3 for extra stuff, can be changed.
+                    (Id, GraphCount, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading)
+                    VALUES (1, 3, 'Monthly', 1, 1, 1);");
             }
 
             // 5. Create DashboardLog table
@@ -331,8 +332,11 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT MinTemp, MaxTemp, GraphCount, DefaultGranularity, UpdatedBy, UpdatedAt
-                FROM dbo.DashboardSettings WHERE Id = 1;", connection);
+        SELECT GraphCount, DefaultGranularity,
+               ShowCurrentTemp, ShowTempComparison, ShowTempReading,
+               UpdatedBy, UpdatedAt
+        FROM dbo.DashboardSettings
+        WHERE Id = 1;", connection);
 
             using SqlDataReader reader = command.ExecuteReader();
 
@@ -340,21 +344,23 @@ namespace Assign_2
             {
                 return new DashboardSettings
                 {
-                    MinTemp = 5,
-                    MaxTemp = 30,
                     GraphCount = 3,
-                    DefaultGranularity = "Monthly"
+                    DefaultGranularity = "Monthly",
+                    ShowCurrentTemp = true,
+                    ShowTempComparison = true,
+                    ShowTempReading = true
                 };
             }
 
             return new DashboardSettings
             {
-                MinTemp = reader.GetDouble(0),
-                MaxTemp = reader.GetDouble(1),
-                GraphCount = reader.GetInt32(2),
-                DefaultGranularity = reader.GetString(3),
-                UpdatedBy = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                UpdatedAt = reader.GetDateTime(5)
+                GraphCount = reader.GetInt32(0),
+                DefaultGranularity = reader.GetString(1),
+                ShowCurrentTemp = reader.GetBoolean(2),
+                ShowTempComparison = reader.GetBoolean(3),
+                ShowTempReading = reader.GetBoolean(4),
+                UpdatedBy = reader.IsDBNull(5) ? "" : reader.GetString(5),
+                UpdatedAt = reader.GetDateTime(6)
             };
         }
 
@@ -362,15 +368,21 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                UPDATE dbo.DashboardSettings
-                SET MinTemp = @min, MaxTemp = @max, GraphCount = @graphs,
-                    DefaultGranularity = @gran, UpdatedBy = @by, UpdatedAt = GETDATE()
-                WHERE Id = 1;", connection);
+        UPDATE dbo.DashboardSettings
+        SET GraphCount = @graphs,
+            DefaultGranularity = @gran,
+            ShowCurrentTemp = @currentTemp,
+            ShowTempComparison = @comparison,
+            ShowTempReading = @reading,
+            UpdatedBy = @by,
+            UpdatedAt = GETDATE()
+        WHERE Id = 1;", connection);
 
-            command.Parameters.AddWithValue("@min", settings.MinTemp);
-            command.Parameters.AddWithValue("@max", settings.MaxTemp);
             command.Parameters.AddWithValue("@graphs", settings.GraphCount);
             command.Parameters.AddWithValue("@gran", settings.DefaultGranularity);
+            command.Parameters.AddWithValue("@currentTemp", settings.ShowCurrentTemp);
+            command.Parameters.AddWithValue("@comparison", settings.ShowTempComparison);
+            command.Parameters.AddWithValue("@reading", settings.ShowTempReading);
             command.Parameters.AddWithValue("@by", (object)updatedBy ?? DBNull.Value);
 
             command.ExecuteNonQuery();
