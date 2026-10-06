@@ -21,7 +21,7 @@ namespace Assign_2
 
         private const string DatabaseName = "UserDb_Root";
 
-        private static string ConnectionString =
+        internal static string ConnectionString =
             $@"Server=(localdb)\mssqllocaldb;
                 AttachDbFilename={DbPath};
                 Database={DatabaseName};

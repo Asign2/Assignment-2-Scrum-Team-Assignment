@@ -229,7 +229,9 @@
 
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                 <Button Content="Add New User" Width="110" Margin="0,0,10,0" Click="ShowNewUserScreen_Click"/>
-                <Button Content="Logout" Width="100" Click="LogoutButton_Click"/>
+                <Button Content="Logout" Width="100" Margin="0,0,10,0" Click="LogoutButton_Click"/>
+                <Button Content="Export UserLog" Width="100" Margin="0,0,10,0" Click="ExportUserLog"/>
+                <Button Content="Export Full Data" Margin="0,0,10,0" Click="ExportAllDataJson_Click"/>
             </StackPanel>
         </Grid>
 
@@ -300,8 +302,25 @@
                 </ScrollViewer>
             </Border>
 
-            <Button Content="Logout" Width="100" Height="28" Margin="0,10,0,0"
-                    HorizontalAlignment="Right" Click="LogoutButton_Click"/>
+            <WrapPanel HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button Content="Export simplified Data"
+            Padding="10,4"
+            Height="28"
+            Margin="0,0,10,5"
+            Click="ExportTemperatureData_Click"/>
+
+                <Button Content="Export Full Data"
+            Padding="10,4"
+            Height="28"
+            Margin="0,0,10,5"
+            Click="ExportAllDataJson_Click"/>
+
+                <Button Content="Logout"
+            Padding="15,4"
+            Height="28"
+            Margin="0,0,0,5"
+            Click="LogoutButton_Click"/>
+            </WrapPanel>
         </StackPanel>
 
         <!-- CHART OVERLAY -->
