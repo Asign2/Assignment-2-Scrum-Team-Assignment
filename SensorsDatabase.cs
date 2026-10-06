@@ -43,7 +43,7 @@ namespace Assign_2
                         Date_Installed DATE NOT NULL,
                         Make VARCHAR(255) NOT NULL,
                         Model VARCHAR(255) NOT NULL,
-                        variance INT NOT NULL,
+                        Variance INT NOT NULL,
                         Location_Id INT NOT NULL,
                         Active BIT NOT NULL DEFAULT 1,
                         CONSTRAINT FK_Sensors_Locations
@@ -175,15 +175,15 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance)
                     VALUES 
-                    (GETDATE(), 'Siemens', 'QAA2061', 1, 3),
-                    (GETDATE(), 'Bosch', 'BME280', 2, 3),
-                    (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4),
-                    (GETDATE(), 'Siemens', 'QAA2061', 4, -5),
-                    (GETDATE(), 'Bosch', 'BME280', 5, -7),
-                    (GETDATE(), 'Siemens', 'QAA2061', 6, -8),
-                    (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9),
-                    (GETDATE(), 'Sensirion', 'SHT31', 8, -10),
-                    (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8);
+                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3),
+                        (GETDATE(), 'Bosch', 'BME280', 2, 5),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10),
+                        (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
@@ -191,23 +191,33 @@ namespace Assign_2
             RandomTemp random = new RandomTemp();
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
+                Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
                 int t = 24; // number of hours to pre-seed database.
                              // Default 24 (1 day)
                              // 168 == 1 week
                              // 720 == 1 month
 
+                using var command = new SqlCommand(
+                    @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
+                    VALUES (DATEADD(hour, @hours, GETDATE()), @temperature, @sensorId);", connection);
+
+                command.Parameters.Add("@hours", System.Data.SqlDbType.Int);
+                command.Parameters.Add("@temperature", System.Data.SqlDbType.Decimal);
+                command.Parameters.Add("@sensorId", System.Data.SqlDbType.Int);
+
+                command.Parameters["@temperature"].Precision = 5;
+                command.Parameters["@temperature"].Scale = 2;
+
                 for (int i = 1; i <= t; i++)
                 {
-                    double temp = random.randomTemp(i, n);
+                    double temp = random.randomTemp(i, sensor.Variance);
+                    Debug.WriteLine($"{i}, {sensor.Variance}, {temp}");
 
-                    RunNonQuery(connection,
-                        @$"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) " +
-                        @$"VALUES " +
-                        @$"(DATEADD(hour, {i}, GETDATE()), {temp}, {sensor.Id});"
-                    );
-                    Debug.WriteLine($"{DateTime.Now}, hour {i}, {temp}"); // Logs sensor readings to Output window
-                                                                          // refactor Debug.WriteLine when implementing live updates
+                    command.Parameters["@hours"].Value = i; 
+                    command.Parameters["@temperature"].Value = temp;
+                    command.Parameters["@sensorId"].Value = sensor.Id;
+                    command.ExecuteNonQuery();
                 }
             }
         }//If you want to test new location just add more data after the final year stuff
@@ -238,10 +248,11 @@ namespace Assign_2
             List<SensorRecord> sensors = new List<SensorRecord>();
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT s.Id, s.Make, s.Model, l.Floor, l.Room
-                FROM dbo.Sensors s
-                INNER JOIN dbo.Locations l ON l.Id = s.Location_Id
-                ORDER BY l.Floor, l.Room, s.Id;", connection);
+                SELECT s.Id, s.Make, s.Model, l.Floor, l.Room, s.Variance, s.Active
+                    FROM dbo.Sensors s
+                    INNER JOIN dbo.Locations l ON l.Id = s.Location_Id
+                    ORDER BY l.Floor, l.Room, s.Id;"
+                , connection);
 
             using SqlDataReader reader = command.ExecuteReader();
 
@@ -253,7 +264,9 @@ namespace Assign_2
                     Make = reader.GetString(1),
                     Model = reader.GetString(2),
                     Floor = reader.GetInt32(3),
-                    Room = reader.GetInt32(4)
+                    Room = reader.GetInt32(4),
+                    Variance = reader.GetInt32(5),
+                    Active = reader.GetBoolean(6)   
                 });
             }
             return sensors;
@@ -266,7 +279,7 @@ namespace Assign_2
                 Granularity.Daily => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
                 Granularity.Weekly => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
                 Granularity.Monthly => "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)",
-                _ => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
+                _                   => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
             };
 
             string sql = $@"
@@ -275,11 +288,11 @@ namespace Assign_2
                        MIN(CAST(d.Temperature AS FLOAT)), 
                        MAX(CAST(d.Temperature AS FLOAT)), 
                        COUNT(*)
-                FROM dbo.Data d
-                INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id
-                WHERE s.Location_Id = @locationId
-                GROUP BY {bucket}
-                ORDER BY 1;";
+                    FROM dbo.Data d
+                    INNER JOIN dbo.Sensors s ON s.Id = d.Sensor_Id
+                    WHERE s.Location_Id = @locationId
+                    GROUP BY {bucket}
+                    ORDER BY 1;";
 
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
             using var connection = UserDatabase.OpenConnection();

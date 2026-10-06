@@ -447,6 +447,7 @@ namespace Assign_2
                     LocationFilterBox.SelectedIndex = 0;
                 }
 
+
                 DashboardSettings settings;
 
                 try
@@ -617,7 +618,7 @@ namespace Assign_2
             // Top Row
 
             ChartTile topTile = new ChartTile();
-            topTile.ShowLine("temp", labels, temperatures, null, null);
+            topTile.ShowLine("Chart 1", labels, temperatures, null, null);
             topTile.Clicked += ChartTile_Clicked;
             Grid.SetRow(topTile, 0);
             Grid.SetColumnSpan(topTile, 2);
@@ -642,6 +643,8 @@ namespace Assign_2
             Grid.SetColumn(tile2, 0);
             ChartHost.Children.Add(tile2);
         }
+
+ 
     }
 }
 
