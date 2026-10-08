@@ -23,9 +23,9 @@ namespace Assign_2
         {
             InitializeComponent();
 
-            
-                SensorsDatabase.Initialize();
-            
+
+            SensorsDatabase.Initialize();
+
         }
         /// <summary>
         /// Compares users account input to the database account credentials.
@@ -119,8 +119,8 @@ namespace Assign_2
 
             // Populate the form fields with selected user data
             EditUsernameBox.Text = selectedUser.Username;
-            EditFirstNameBox.Text = selectedUser.first_name; 
-            EditLastNameBox.Text = selectedUser.last_name;   
+            EditFirstNameBox.Text = selectedUser.first_name;
+            EditLastNameBox.Text = selectedUser.last_name;
             NewPasswordBox.Password = "";
 
             // Handle Role ComboBox selection
@@ -217,16 +217,17 @@ namespace Assign_2
             {
                 MessageBox.Show("Cannot delete user. No user currently selected.");
                 return;
-            }else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
+            }
+            else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Cannot delete current user. You cannot delete the account you are currently logged into.");
                 return;
             }
 
-                MessageBoxResult result = MessageBox.Show(
-                    "Delete user '" + selectedUser.Username + "'?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show(
+                "Delete user '" + selectedUser.Username + "'?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -427,7 +428,7 @@ namespace Assign_2
                 userScreenReady = true;
 
                 List<LocationRecord> locations = new List<LocationRecord>();
-             
+
                 try
                 {
                     locations.AddRange(SensorsDatabase.GetAllLocations());
@@ -437,12 +438,21 @@ namespace Assign_2
                     MessageBox.Show(ex.Message);
                 }
 
-                LocationFilterBox.ItemsSource = locations;
-                if (locations.Count > 0)
-                {
-                    LocationFilterBox.SelectedIndex = 0;
-                }
+                //TVMSCB Logic
 
+                locations.Sort((a, b) =>
+                {
+                    int floorComparison = a.Floor.CompareTo(b.Floor);
+                    if (floorComparison != 0)
+                        return floorComparison;
+                    return a.Room.CompareTo(b.Room);
+                });
+
+                LocationTreeView.Items.Clear();
+                foreach (var floorGroup in locations.GroupBy(l => l.Floor))
+                {
+                    
+                }
 
                 DashboardSettings settings;
 
@@ -505,7 +515,7 @@ namespace Assign_2
         //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
-            var location = LocationFilterBox.SelectedItem as LocationRecord;
+            var location = LocationTreeView.SelectedItem as LocationRecord;
             var granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
             if (location == null || granularityItem == null)
             {
@@ -576,7 +586,7 @@ namespace Assign_2
         /// </summary>
         private void RefreshDashboard()
         {
-            LocationRecord location = LocationFilterBox.SelectedItem as LocationRecord;
+            LocationRecord location = LocationTreeView.SelectedItem as LocationRecord;
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
 
             if (location == null || granularityItem == null)
@@ -624,7 +634,7 @@ namespace Assign_2
             List<double> samples = series.Select(r => (double)r.Samples).ToList();
 
             using var connection = UserDatabase.OpenConnection();
-            BuildChartTiles(location.Id, granularity);    
+            BuildChartTiles(location.Id, granularity);
 
             try
             {
@@ -724,9 +734,16 @@ namespace Assign_2
                 // Boxplot generation goes here
             }
         }
-
-
+        private void LocationTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (userScreenReady)
+            {
+                RefreshDashboard();
+            }
+        }
     }
 }
+
+
 
 

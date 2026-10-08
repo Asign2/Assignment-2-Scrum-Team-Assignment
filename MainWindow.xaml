@@ -279,9 +279,28 @@
                 <Label VerticalAlignment="Center" Target="{Binding ElementName=LocationFilterBox}">
                     <AccessText Text="_Location:"/>
                 </Label>
-                <ComboBox x:Name="LocationFilterBox" Width="200" Margin="0,0,15,0"
-                          DisplayMemberPath="Display"
-                          SelectionChanged="ReadingFilter_Changed"/>
+                
+                
+                <!--Tree View multi select combo box-->
+                <ToggleButton 
+                    x:Name="LocationToggleButton" 
+                    Width="110" Height="25" 
+                    Content="Select Locations"/>
+                <Popup 
+                      PlacementTarget="{Binding ElementName=LocationToggleButton}" 
+                    Placement="Bottom" 
+                    IsOpen="{Binding IsChecked, ElementName=LocationToggleButton}"
+                    StaysOpen="False">
+                    <Border BorderBrush="Gray" BorderThickness="1" Background="White">
+                        <ScrollViewer Height="200" Width="200">
+                            <TreeView x:Name="LocationTreeView" SelectedItemChanged="LocationTreeView_SelectedItemChanged">
+                                <!-- TreeView items will be populated in code-behind -->
+                            </TreeView>
+                        </ScrollViewer>
+                    </Border>
+                </Popup>
+
+
 
                 <Label VerticalAlignment="Center" Target="{Binding ElementName=UserGranularityBox}">
                     <AccessText Text="_Interval:"/>
