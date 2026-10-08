@@ -446,10 +446,10 @@ namespace Assign_2
                     {
                         Content = "Floor " + floorGroup.Key,
                         Tag = floorGroup.Key,
-                        IsChecked = true
+                        IsChecked = true,
+                        
                     };
-                    floorCheckBox.Checked += Floor_Checked;
-                    floorCheckBox.Unchecked += Floor_Unchecked;
+                    floorCheckBox.Click += FloorCheckBox_Click;
                     TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
               
                     foreach (var location in floorGroup)
@@ -732,31 +732,44 @@ namespace Assign_2
                 RefreshDashboard();
             }
         }
-        private void Floor_Checked(object sender, RoutedEventArgs e)
+        private void FloorCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox &&
-                checkBox.Tag is TreeViewItem floor)
+            if (sender is CheckBox checkBox)
             {
-               foreach (TreeViewItem room in floor.Items)
+                var floorKey = checkBox.Tag;
+                if (checkBox.IsChecked == true)
                 {
-                    if (room.Header is CheckBox roomCheckBox)
+                    foreach (TreeViewItem floorItem in LocationTreeView.Items)
                     {
-                        roomCheckBox.IsChecked = true;
+                        if (floorItem.Header is CheckBox floorCheckBox && floorCheckBox.Tag.Equals(floorKey))
+                        {
+                            foreach (TreeViewItem roomItem in floorItem.Items)
+                            {
+                                if (roomItem.Header is CheckBox roomCheckBox)
+                                {
+                                    roomCheckBox.IsChecked = true;
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
-            }
-        }
-
-        private void Floor_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox checkBox &&
-                checkBox.Tag is TreeViewItem floor)
-            {
-                foreach (TreeViewItem room in floor.Items)
+                else if (checkBox.IsChecked == false)
                 {
-                    if (room.Header is CheckBox roomCheckBox)
+                    foreach (TreeViewItem floorItem in LocationTreeView.Items)
                     {
-                        roomCheckBox.IsChecked = false;
+                        if (floorItem.Header is CheckBox floorCheckBox && floorCheckBox.Tag.Equals(floorKey))
+                        {
+                            foreach (TreeViewItem roomItem in floorItem.Items)
+                            {
+                                if (roomItem.Header is CheckBox roomCheckBox)
+                                {
+                                    roomCheckBox.IsChecked = false;
+
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
             }
