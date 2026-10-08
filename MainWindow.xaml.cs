@@ -442,7 +442,13 @@ namespace Assign_2
                 LocationTreeView.Items.Clear();
                 foreach (var floorGroup in locations.GroupBy(l => l.Floor))
                 {
-                    
+                    TreeViewItem floorItem = new TreeViewItem { Header = "Floor " + floorGroup.Key };
+                    foreach (var location in floorGroup)
+                    {
+                        TreeViewItem locationItem = new TreeViewItem { Header = "Room " + location.Room, Tag = location };
+                        floorItem.Items.Add(locationItem);
+                    }
+                    LocationTreeView.Items.Add(floorItem);
                 }
 
                 DashboardSettings settings;
