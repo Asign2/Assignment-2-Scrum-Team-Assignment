@@ -1,13 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace Assign_2
@@ -489,29 +480,6 @@ namespace Assign_2
             RefreshDashboard();
         }
 
-        private static readonly JsonSerializerOptions Pretty = new() { WriteIndented = true };
-
-        /// Asks where to save, then writes the data as indented JSON. Does nothing if cancelled.
-        private static void SaveJson(string fileName, object data)
-        {
-            var dialog = new SaveFileDialog { Filter = "JSON files (*.json)|*.json", FileName = fileName };
-            if (dialog.ShowDialog() == true)
-                File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(data, Pretty));
-        }
-
-        /// Runs a SELECT and returns each row as a column-name and adds the  value dictionary. Helps bypass a bug i had.
-        private static List<Dictionary<string, object>> Query(string sql)
-        {
-            using var connection = new SqlConnection(UserDatabase.ConnectionString);
-            connection.Open();
-            using var reader = new SqlCommand(sql, connection).ExecuteReader();
-
-            var rows = new List<Dictionary<string, object>>();
-            while (reader.Read())
-                rows.Add(Enumerable.Range(0, reader.FieldCount)
-                    .ToDictionary(i => reader.GetName(i), i => reader.IsDBNull(i) ? null : reader.GetValue(i)));
-            return rows;
-        }
         //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
@@ -526,7 +494,7 @@ namespace Assign_2
             var granularity = Enum.Parse<Granularity>(granularityItem.Content.ToString());
             var series = SensorsDatabase.GetAggregates(location.Id, granularity);
 
-            SaveJson($"TemperatureData_{granularity}.json", new
+            JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
                 Location = location.Display,
                 Granularity = granularity.ToString(),
@@ -537,17 +505,17 @@ namespace Assign_2
         //Exports all Temprature Data from the database to a JSON file.
         private void ExportAllDataJson_Click(object sender, RoutedEventArgs e)
         {
-            SaveJson("AllSensorData.json", new
+            JsonExport.SaveJson("AllSensorData.json", new
             {
-                Locations = Query("SELECT * FROM dbo.Locations"),
-                Sensors = Query("SELECT * FROM dbo.Sensors"),
-                Data = Query("SELECT * FROM dbo.Data")
+                Locations = JsonExport.Query("SELECT * FROM dbo.Locations"),
+                Sensors = JsonExport.Query("SELECT * FROM dbo.Sensors"),
+                Data = JsonExport.Query("SELECT * FROM dbo.Data")
             });
         }
         //Uses Existing Table to export the dashboard log to a JSON file.
         private void ExportUserLog(object sender, RoutedEventArgs e)
         {
-            SaveJson("DashboardLog.json", Query("SELECT * FROM dbo.DashboardLog"));
+            JsonExport.SaveJson("DashboardLog.json", JsonExport.Query("SELECT * FROM dbo.DashboardLog"));
         }
         private void ChartTile_Clicked(object sender, EventArgs e)
         {
