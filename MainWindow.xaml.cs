@@ -442,10 +442,20 @@ namespace Assign_2
                 LocationTreeView.Items.Clear();
                 foreach (var floorGroup in locations.GroupBy(l => l.Floor))
                 {
-                    TreeViewItem floorItem = new TreeViewItem { Header = "Floor " + floorGroup.Key };
+                    CheckBox floorCheckBox = new CheckBox
+                    {
+                        Content = "Floor " + floorGroup.Key, Tag = floorGroup.Key
+                    };
+                    TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
+              
                     foreach (var location in floorGroup)
                     {
-                        TreeViewItem locationItem = new TreeViewItem { Header = "Room " + location.Room, Tag = location };
+                        CheckBox roomCheckBox = new CheckBox
+                        {
+                            Content = "Room " + location.Room, Tag = location.Id
+                        };
+                        TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
+                        
                         floorItem.Items.Add(locationItem);
                     }
                     LocationTreeView.Items.Add(floorItem);
