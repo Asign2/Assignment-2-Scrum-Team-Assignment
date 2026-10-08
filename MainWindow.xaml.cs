@@ -444,15 +444,22 @@ namespace Assign_2
                 {
                     CheckBox floorCheckBox = new CheckBox
                     {
-                        Content = "Floor " + floorGroup.Key, Tag = floorGroup.Key
+                        Content = "Floor " + floorGroup.Key,
+                        Tag = floorGroup.Key,
+                        IsChecked = true
                     };
+                    floorCheckBox.Checked += Floor_Checked;
+                    floorCheckBox.Unchecked += Floor_Unchecked;
                     TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
               
                     foreach (var location in floorGroup)
                     {
                         CheckBox roomCheckBox = new CheckBox
                         {
-                            Content = "Room " + location.Room, Tag = location.Id
+                            Content = "Room " + location.Room, 
+                            Tag = location.Id,
+                            IsChecked = true
+                            
                         };
                         TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
                         
@@ -723,6 +730,35 @@ namespace Assign_2
             if (userScreenReady)
             {
                 RefreshDashboard();
+            }
+        }
+        private void Floor_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox &&
+                checkBox.Tag is TreeViewItem floor)
+            {
+               foreach (TreeViewItem room in floor.Items)
+                {
+                    if (room.Header is CheckBox roomCheckBox)
+                    {
+                        roomCheckBox.IsChecked = true;
+                    }
+                }
+            }
+        }
+
+        private void Floor_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox &&
+                checkBox.Tag is TreeViewItem floor)
+            {
+                foreach (TreeViewItem room in floor.Items)
+                {
+                    if (room.Header is CheckBox roomCheckBox)
+                    {
+                        roomCheckBox.IsChecked = false;
+                    }
+                }
             }
         }
     }
