@@ -657,77 +657,79 @@ namespace Assign_2
         private void BuildChartTiles(List<int> locations, Granularity granularity)
         {
             List<(DateTime Period, double Temperature)> readings;
-
-            try
+            foreach (int location in locations)
             {
-                readings = SensorsDatabase.GetChartReadings(locations, granularity);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-
-            string granularityName = granularity.ToString();
-
-            List<string> labels = readings.Select(reading => reading.Period.ToString(
-                granularityName == "Daily" ? "HH:mm" :
-                granularityName == "Weekly" ? "dd MMM" :
-                granularityName == "Monthly" ? "MMM yyyy" :
-                "yyyy")).ToList();
-
-            List<double> temperatures = readings
-                .Select(reading => reading.Temperature)
-                .ToList();
-
-            ChartHost.Children.Clear();
-
-            DashboardSettings settings = SensorsDatabase.GetSettings();
-
-            // Line - Temperature Reading
-            if (settings.ShowTempReading)
-            {
-                ChartTile topTile = new ChartTile();
-
-                topTile.ShowLine(
-                    "Temperature",
-                    labels,
-                    temperatures,
-                    null,
-                    null
-                );
-
-                topTile.Clicked += ChartTile_Clicked;
-
-                Grid.SetRow(topTile, 0);
-                Grid.SetColumnSpan(topTile, 2);
-
-                ChartHost.Children.Add(topTile);
-            }
-
-            // Bar - Current Temperature
-            if (settings.ShowCurrentTemp)
-            {
-                ChartTile2 tile2 = new ChartTile2();
-
-                if (temperatures.Count > 0)
+                try
                 {
-                    double latestTemp = temperatures.Last();
-
-                    tile2.UpdateValue(latestTemp);
+                    readings = SensorsDatabase.GetChartReadings(location, granularity);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
                 }
 
-                Grid.SetRow(tile2, 1);
-                Grid.SetColumn(tile2, 0);
+                string granularityName = granularity.ToString();
 
-                ChartHost.Children.Add(tile2);
-            }
+                List<string> labels = readings.Select(reading => reading.Period.ToString(
+                    granularityName == "Daily" ? "HH:mm" :
+                    granularityName == "Weekly" ? "dd MMM" :
+                    granularityName == "Monthly" ? "MMM yyyy" :
+                    "yyyy")).ToList();
 
-            // Boxplot - Temperature Comparison
-            if (settings.ShowTempComparison)
-            {
-                // Boxplot generation goes here
+                List<double> temperatures = readings
+                    .Select(reading => reading.Temperature)
+                    .ToList();
+
+                DashboardSettings settings = SensorsDatabase.GetSettings();
+
+                // Line - Temperature Reading
+                if (settings.ShowTempReading)
+                {
+                    ChartTile topTile = new ChartTile();
+
+                    topTile.ShowLine(
+                        "Temperature",
+                        labels,
+                        temperatures,
+                        null,
+                        null
+                    );
+
+                    topTile.Clicked += ChartTile_Clicked;
+
+                    Grid.SetRow(topTile, 0);
+                    Grid.SetColumnSpan(topTile, 2);
+
+                    ChartHost.Children.Add(topTile);
+                }
+
+                // Bar - Current Temperature
+                if (settings.ShowCurrentTemp)
+                {
+                    ChartTile2 tile2 = new ChartTile2();
+
+                    if (temperatures.Count > 0)
+                    {
+                        double latestTemp = temperatures.Last();
+
+                        tile2.UpdateValue(latestTemp);
+                    }
+
+                    Grid.SetRow(tile2, 1);
+                    Grid.SetColumn(tile2, 0);
+
+                    ChartHost.Children.Add(tile2);
+                }
+
+                // Boxplot - Temperature Comparison
+                if (settings.ShowTempComparison)
+                {
+                    // Boxplot generation goes here
+                }
+
             }
+            
         }
 
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

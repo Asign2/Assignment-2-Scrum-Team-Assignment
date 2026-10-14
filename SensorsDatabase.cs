@@ -452,7 +452,7 @@ namespace Assign_2
         // Gets chart readings to populate ChartTile graph
         // uses a switch for the granularity
         public static List<(DateTime Period, double Temperature)> GetChartReadings(
-            List <int> locations,
+            int location,
             Granularity granularity)
         {
             int hours = granularity switch
@@ -478,7 +478,7 @@ namespace Assign_2
 
             using SqlConnection connection = UserDatabase.OpenConnection();
             using SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@LocationId", locations);
+            command.Parameters.AddWithValue("@LocationId", location);
             command.Parameters.AddWithValue("@Hours", hours);
             // @LocationId and @Hours are parameters for parameterised query
             // reduces SQL SELECT code to just one statement, with Granularity & location as input
