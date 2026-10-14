@@ -429,8 +429,8 @@ namespace Assign_2
                     MessageBox.Show(ex.Message);
                 }
 
-                //TVMSCB Logic
-
+                //Tree View MultiSelect Combo Box logic.
+                
                 locations.Sort((a, b) =>
                 {
                     int floorComparison = a.Floor.CompareTo(b.Floor);
@@ -438,8 +438,9 @@ namespace Assign_2
                         return floorComparison;
                     return a.Room.CompareTo(b.Room);
                 });
-
+               
                 LocationTreeView.Items.Clear();
+                
                 foreach (var floorGroup in locations.GroupBy(l => l.Floor))
                 {
                     CheckBox floorCheckBox = new CheckBox
@@ -507,20 +508,20 @@ namespace Assign_2
         //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
-            var location = LocationTreeView.SelectedItem as LocationRecord;
+            List<int> locations = SelectedLocations();
             var granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
-            if (location == null || granularityItem == null)
+            if (locations.Count == 0 || granularityItem == null)
             {
                 MessageBox.Show("Please select a location and granularity.");
                 return;
             }
 
             var granularity = Enum.Parse<Granularity>(granularityItem.Content.ToString());
-            var series = SensorsDatabase.GetAggregates(location.Id, granularity);
+            var series = SensorsDatabase.GetAggregates(locations, granularity);
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
-                Location = location.Display,
+                Location = string.Join(", ", locations),
                 Granularity = granularity.ToString(),
                 ExportedAt = DateTime.UtcNow,
                 Readings = series
@@ -578,10 +579,10 @@ namespace Assign_2
         /// </summary>
         private void RefreshDashboard()
         {
-            LocationRecord location = LocationTreeView.SelectedItem as LocationRecord;
+            List<int> locations = SelectedLocations();
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
 
-            if (location == null || granularityItem == null)
+            if ( locations.Count == 0 || granularityItem == null)
             {
                 return;
             }
@@ -611,7 +612,7 @@ namespace Assign_2
 
             try
             {
-                series = SensorsDatabase.GetAggregates(location.Id, granularity);
+                series = SensorsDatabase.GetAggregates(locations, granularity);
             }
             catch (Exception ex)
             {
@@ -626,14 +627,14 @@ namespace Assign_2
             List<double> samples = series.Select(r => (double)r.Samples).ToList();
 
             using var connection = UserDatabase.OpenConnection();
-            BuildChartTiles(location.Id, granularity);
+            BuildChartTiles(locations, granularity);
 
             try
             {
                 SensorsDatabase.RecordDashboard(new DashboardSnapshot
                 {
                     ViewedBy = currentUsername,
-                    Location = location.Display,
+                    Location = string.Join(", ", locations),
                     Granularity = granularity.ToString(),
                     GraphCount = settings.GraphCount,
                     AvgTemp = series.Count == 0 ? 0 : Math.Round(avgs.Average(), 2)
@@ -651,13 +652,15 @@ namespace Assign_2
         /// band and the sample-count bars; extra slots are placeholders
         /// ready for future visualisations.
         /// </summary>
-        private void BuildChartTiles(int locationId, Granularity granularity)
+        /// <param name="locations">list of locations that the charts will represent</param>
+        /// <param name="granularity">the granularity of the data (e.g., Daily, Weekly, Monthly)</param>
+        private void BuildChartTiles(List<int> locations, Granularity granularity)
         {
             List<(DateTime Period, double Temperature)> readings;
 
             try
             {
-                readings = SensorsDatabase.GetChartReadings(locationId, granularity);
+                readings = SensorsDatabase.GetChartReadings(locations, granularity);
             }
             catch (Exception ex)
             {
@@ -726,6 +729,7 @@ namespace Assign_2
                 // Boxplot generation goes here
             }
         }
+
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (userScreenReady)
@@ -733,6 +737,12 @@ namespace Assign_2
                 RefreshDashboard();
             }
         }
+        /// <summary>
+        /// Changes the room checkbox automatically when its floor is ticked or not ticked.
+        /// e.g. if you seleccted or deselect a floor it will change all rooms under it apporopriately.
+        /// </summary>
+        /// <param name="sender">if a floor checkbox is ticked.</param>
+        /// <param name="e">The data for floor checkbox ticked.</param>
         private void FloorCheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox checkBox)
@@ -781,6 +791,13 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// Changes the floor checkbox automatically when its rooms are changed
+        /// e.g. if a you deselect a room its floor will alsoo be deselected with other rooms selected.
+        /// e.g. if you select all rooms under a floor it will then be selected.
+        /// </summary>
+        /// <param name="sender">if a room checkbox is ticked.</param>
+        /// <param name="e">The data for room checkbox ticked.</param>
         private void RoomCheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox roomCheckBox)
@@ -806,7 +823,10 @@ namespace Assign_2
             }
 
         }
-
+        /// <summary>
+        /// This will return a list for all the selected room location ints.
+        /// </summary>
+        /// <returns> room int locations.</returns>
         public List<int> SelectedLocations()
         {
             var selectedLocations = new List<int>();
