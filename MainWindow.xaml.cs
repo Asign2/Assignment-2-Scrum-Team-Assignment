@@ -447,22 +447,23 @@ namespace Assign_2
                         Content = "Floor " + floorGroup.Key,
                         Tag = floorGroup.Key,
                         IsChecked = true,
-                        
+
                     };
                     floorCheckBox.Click += FloorCheckBox_Click;
                     TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
-              
+
                     foreach (var location in floorGroup)
                     {
                         CheckBox roomCheckBox = new CheckBox
                         {
-                            Content = "Room " + location.Room, 
+                            Content = "Room " + location.Room,
                             Tag = location.Id,
                             IsChecked = true
-                            
+
                         };
                         TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
-                        
+                        roomCheckBox.Click += RoomCheckBox_Click;
+
                         floorItem.Items.Add(locationItem);
                     }
                     LocationTreeView.Items.Add(floorItem);
@@ -748,11 +749,14 @@ namespace Assign_2
                                 if (roomItem.Header is CheckBox roomCheckBox)
                                 {
                                     roomCheckBox.IsChecked = true;
+                                    roomCheckBox.Click += RoomCheckBox_Click;
+
                                 }
                             }
                             break;
                         }
                     }
+
                 }
                 else if (checkBox.IsChecked == false)
                 {
@@ -765,6 +769,7 @@ namespace Assign_2
                                 if (roomItem.Header is CheckBox roomCheckBox)
                                 {
                                     roomCheckBox.IsChecked = false;
+                                    roomCheckBox.Click -= RoomCheckBox_Click;
 
                                 }
                             }
@@ -772,8 +777,54 @@ namespace Assign_2
                         }
                     }
                 }
+
             }
         }
+
+        private void RoomCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox roomCheckBox)
+            {
+                var roomItem = roomCheckBox.Parent as TreeViewItem;
+                var floorItem = roomItem?.Parent as TreeViewItem;
+                if (floorItem != null)
+                {
+                    bool allRoomsChecked = true;
+                    foreach (TreeViewItem item in floorItem.Items)
+                    {
+                        if (item.Header is CheckBox cb && cb.IsChecked == false)
+                        {
+                            allRoomsChecked = false;
+                            break;
+                        }
+                    }
+                    if (floorItem.Header is CheckBox floorCheckBox)
+                    {
+                        floorCheckBox.IsChecked = allRoomsChecked;
+                    }
+                }
+            }
+
+        }
+
+        public List<int> SelectedLocations()
+        {
+            var selectedLocations = new List<int>();
+            foreach (TreeViewItem floorItem in LocationTreeView.Items)
+            {
+                foreach (TreeViewItem roomItem in floorItem.Items)
+                {
+                    if (roomItem.Header is CheckBox roomCheckBox && roomCheckBox.IsChecked == true)
+                    {
+                        if (roomItem.Tag is LocationRecord location)
+                        {
+                            selectedLocations.Add(location.Id);
+                        }
+                    }
+                }
+            }
+            return selectedLocations;
+        }   
     }
 }
 
