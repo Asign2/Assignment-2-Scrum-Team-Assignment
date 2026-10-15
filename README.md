@@ -20,7 +20,7 @@ The app stores data in a database, including:
 
 ## Commands
 
-- `dotnet test "./Assign2.sln"` (run tests)
+- `dotnet test "./Assign2.sln" --logger "trx;LogFileName=test-results.trx"` (run tests and export results)
 - `mkdir ""` (create new folder)
 - `cd ""` (go to new folder)
 - `dotnet new xunit3` (create xnit 3 template)
