@@ -657,6 +657,7 @@ namespace Assign_2
         private void BuildChartTiles(List<int> locations, Granularity granularity)
         {
             List<(DateTime Period, double Temperature)> readings;
+            ChartHost.Children.Clear();
             foreach (int location in locations)
             {
                 try
@@ -689,7 +690,7 @@ namespace Assign_2
                     ChartTile topTile = new ChartTile();
 
                     topTile.ShowLine(
-                        "Temperature",
+                        $"Graph {location}",
                         labels,
                         temperatures,
                         null,
@@ -849,7 +850,3 @@ namespace Assign_2
         }   
     }
 }
-
-
-
-
