@@ -451,6 +451,8 @@ namespace Assign_2
 
                     };
                     floorCheckBox.Click += FloorCheckBox_Click;
+                    floorCheckBox.Click += LocationTreeView_SelectedItemChanged;
+
                     TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
 
                     foreach (var location in floorGroup)
@@ -464,6 +466,7 @@ namespace Assign_2
                         };
                         TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
                         roomCheckBox.Click += RoomCheckBox_Click;
+                        roomCheckBox.Click += LocationTreeView_SelectedItemChanged;
 
                         floorItem.Items.Add(locationItem);
                     }
@@ -733,11 +736,12 @@ namespace Assign_2
             
         }
 
-        private void LocationTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
             if (userScreenReady)
             {
                 RefreshDashboard();
+                //BuildChartTiles(SelectedLocations(), (Granularity)Enum.Parse(typeof(Granularity), (UserGranularityBox.SelectedItem as ComboBoxItem).Content.ToString()));
             }
         }
         /// <summary>
