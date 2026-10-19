@@ -672,6 +672,13 @@ namespace Assign_2
                     return;
                 }
 
+                //Checks if a location has relevant temperature data.
+                if (readings.Count == 0)
+                {
+                    Console.WriteLine($"No readings for location {location}.");
+                    continue;
+                }
+
                 string granularityName = granularity.ToString();
 
                 List<string> labels = readings.Select(reading => reading.Period.ToString(
