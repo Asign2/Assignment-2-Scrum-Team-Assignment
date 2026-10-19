@@ -413,7 +413,7 @@ namespace Assign_2
         private void OpenUserScreen()
         {
             ShowScreen(UserScreen);
-
+            userScreenReady = false; 
             if (!userScreenReady)
             {
                 userScreenReady = true;
@@ -504,7 +504,7 @@ namespace Assign_2
                     UserGranularityBox.SelectedIndex = 2; // Monthly
                 }
             }
-
+            userScreenReady = true;
             RefreshDashboard();
         }
 
@@ -559,8 +559,6 @@ namespace Assign_2
         {
             ChartOverlay.Visibility = Visibility.Collapsed;
         }
-
-
 
 
         /// <summary>
@@ -663,6 +661,7 @@ namespace Assign_2
             ChartHost.Children.Clear();
             foreach (int location in locations)
             {
+
                 try
                 {
                     readings = SensorsDatabase.GetChartReadings(location, granularity);
@@ -733,7 +732,6 @@ namespace Assign_2
                 }
 
             }
-            
         }
 
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
@@ -741,7 +739,6 @@ namespace Assign_2
             if (userScreenReady)
             {
                 RefreshDashboard();
-                //BuildChartTiles(SelectedLocations(), (Granularity)Enum.Parse(typeof(Granularity), (UserGranularityBox.SelectedItem as ComboBoxItem).Content.ToString()));
             }
         }
         /// <summary>
