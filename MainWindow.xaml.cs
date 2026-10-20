@@ -310,7 +310,7 @@ namespace Assign_2
             {
                 DashboardSettings settings = SensorsDatabase.GetSettings();
 
-                GraphCountBox.Text = settings.GraphCount.ToString();
+               
 
                 foreach (ComboBoxItem item in DefaultGranularityBox.Items)
                 {
@@ -343,12 +343,6 @@ namespace Assign_2
         /// <param name="e">The event data.</param>
         private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (!int.TryParse(GraphCountBox.Text, out int graphCount) ||
-                graphCount < 1 || graphCount > 8)
-            {
-                MessageBox.Show("Graph count must be a whole number between 1 and 8.");
-                return;
-            }
 
             ComboBoxItem granularityItem =
                 DefaultGranularityBox.SelectedItem as ComboBoxItem;
@@ -364,7 +358,6 @@ namespace Assign_2
                 ShowCurrentTemp = BarCheckbox.IsChecked == true,
                 ShowTempComparison = BoxplotCheckbox.IsChecked == true,
                 ShowTempReading = LineChcekbox.IsChecked == true,
-                GraphCount = graphCount,
                 DefaultGranularity = granularityItem.Content.ToString()
             };
 
@@ -438,7 +431,6 @@ namespace Assign_2
                 {
                     settings = new DashboardSettings
                     {
-                        GraphCount = 3,
                         DefaultGranularity = "Monthly",
                         ShowCurrentTemp = true,
                         ShowTempComparison = true,
@@ -558,7 +550,6 @@ namespace Assign_2
             {
                 settings = new DashboardSettings
                 {
-                    GraphCount = 2,
                     DefaultGranularity = "Monthly",
                     ShowCurrentTemp = true,
                     ShowTempComparison = true,
@@ -594,7 +585,6 @@ namespace Assign_2
                     ViewedBy = currentUsername,
                     Location = location.Display,
                     Granularity = granularity.ToString(),
-                    GraphCount = settings.GraphCount,
                     AvgTemp = series.Count == 0 ? 0 : Math.Round(avgs.Average(), 2)
                 });
             }

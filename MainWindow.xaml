@@ -153,11 +153,7 @@
                                 </StackPanel>
 
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=GraphCountBox}">
-                                        <AccessText Text="_Graph Count:"/>
-                                    </Label>
-                                    <TextBox x:Name="GraphCountBox" Width="70" Margin="0,0,20,0"/>
-
+                                  
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=DefaultGranularityBox}">
                                         <AccessText Text="Default _Interval:"/>
                                     </Label>
