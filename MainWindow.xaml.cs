@@ -147,6 +147,12 @@ namespace Assign_2
                 return;
             }
 
+            if (NewPasswordBox.Password == "")
+            {
+                MessageBox.Show("Enter a new password.");
+                return;
+            }
+
             string newRole = chosenRole.Content.ToString();
 
             // Pull remaining values directly from form controls or keep original values from selectedUser
@@ -154,48 +160,35 @@ namespace Assign_2
             string newLastName = EditLastNameBox.Text.Trim();   // Replace with your actual TextBox name
             DateTime newDateCreated = selectedUser.date_created; // Preserves the original creation date
 
-            try
-            {
-                UserDatabase.UpdateUser(
-                    selectedUser.Id,
-                    newUsername,
-                    newRole,
-                    newFirstName,
-                    newLastName,
-                    newDateCreated
-                );
+            try {
+                bool success = UserDatabase.UpdateUser(
+                      selectedUser.Id,
+                      newUsername,
+                      newRole,
+                      newFirstName,
+                      newLastName,
+                      newDateCreated
+                  );
 
+
+                if (!success)
+                {
+                    MessageBox.Show("Failed to update user");
+                    return;
+                }
+                //Reuses Old Reset Password Code now inbedded inside SaveChanges 
+                if (!string.IsNullOrEmpty(NewPasswordBox.Password)) {
+                    UserDatabase.UpdatePassword(selectedUser.Id, NewPasswordBox.Password);
+                    NewPasswordBox.Password = "";
+                }
                 RefreshUserList();
-                MessageBox.Show("User updated.");
+                MessageBox.Show("User Updated Successfully");
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+            catch (Exception ex) 
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
-        }
-        /// <summary>
-        /// Updates the database with the password from the input box.
-        /// </summary>
-        /// <param name="sender">The reset password button that was Clicked</param>
-        /// <param name="e">The event data.</param>
-        private void ResetPassword_Click(object sender, RoutedEventArgs e)
-        {
-            if (selectedUser == null)
-            {
-                MessageBox.Show("Select a user first.");
-                return;
-            }
-
-            if (NewPasswordBox.Password == "")
-            {
-                MessageBox.Show("Enter a new password.");
-                return;
-            }
-
-            UserDatabase.UpdatePassword(selectedUser.Id, NewPasswordBox.Password);
-            NewPasswordBox.Password = "";
-            MessageBox.Show("Password updated.");
-        }
 
         /// <summary>
         /// Deletes the selected user from the database. 

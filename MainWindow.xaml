@@ -115,7 +115,6 @@
                                         <AccessText Text="New _Password:"/>
                                     </Label>
                                     <PasswordBox x:Name="NewPasswordBox" Width="180" Margin="0,0,10,0" />
-                                    <Button Content="Update Details" Click="ResetPassword_Click" Width="120" Padding="5,2" />
                                 </StackPanel>
                             </Grid>
 
