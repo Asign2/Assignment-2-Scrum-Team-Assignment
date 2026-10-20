@@ -88,7 +88,6 @@ namespace Assign_2
                     CREATE TABLE dbo.DashboardSettings
                     (
                         Id INT PRIMARY KEY,
-                        GraphCount INT NOT NULL,
                         DefaultGranularity NVARCHAR(255) NOT NULL,
                         ShowCurrentTemp BIT NOT NULL DEFAULT 1,
                         ShowTempComparison BIT NOT NULL DEFAULT 1,
@@ -99,7 +98,7 @@ namespace Assign_2
 
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
-                    (Id, GraphCount, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading)
+                    (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading)
                     VALUES (1, 3, 'Monthly', 1, 1, 1);");
             }
 
@@ -119,7 +118,6 @@ namespace Assign_2
                         ViewedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
                         Location NVARCHAR(255) NOT NULL,
                         Granularity NVARCHAR(255) NOT NULL,
-                        GraphCount INT NOT NULL,
                         AvgTemp FLOAT NOT NULL
                     );"
                 );
@@ -332,7 +330,7 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-        SELECT GraphCount, DefaultGranularity,
+        SELECT DefaultGranularity,
                ShowCurrentTemp, ShowTempComparison, ShowTempReading,
                UpdatedBy, UpdatedAt
         FROM dbo.DashboardSettings
@@ -344,7 +342,6 @@ namespace Assign_2
             {
                 return new DashboardSettings
                 {
-                    GraphCount = 3,
                     DefaultGranularity = "Monthly",
                     ShowCurrentTemp = true,
                     ShowTempComparison = true,
@@ -354,7 +351,6 @@ namespace Assign_2
 
             return new DashboardSettings
             {
-                GraphCount = reader.GetInt32(0),
                 DefaultGranularity = reader.GetString(1),
                 ShowCurrentTemp = reader.GetBoolean(2),
                 ShowTempComparison = reader.GetBoolean(3),
@@ -369,7 +365,7 @@ namespace Assign_2
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
         UPDATE dbo.DashboardSettings
-        SET GraphCount = @graphs,
+        SET
             DefaultGranularity = @gran,
             ShowCurrentTemp = @currentTemp,
             ShowTempComparison = @comparison,
@@ -378,7 +374,6 @@ namespace Assign_2
             UpdatedAt = GETDATE()
         WHERE Id = 1;", connection);
 
-            command.Parameters.AddWithValue("@graphs", settings.GraphCount);
             command.Parameters.AddWithValue("@gran", settings.DefaultGranularity);
             command.Parameters.AddWithValue("@currentTemp", settings.ShowCurrentTemp);
             command.Parameters.AddWithValue("@comparison", settings.ShowTempComparison);
@@ -405,13 +400,12 @@ namespace Assign_2
         {
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, GraphCount, AvgTemp)
+                INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, AvgTemp)
                 VALUES (@by, @loc, @gran, @graphs, @avg);", connection);
 
             command.Parameters.AddWithValue("@by", snapshot.ViewedBy);
             command.Parameters.AddWithValue("@loc", snapshot.Location);
             command.Parameters.AddWithValue("@gran", snapshot.Granularity);
-            command.Parameters.AddWithValue("@graphs", snapshot.GraphCount);
             command.Parameters.AddWithValue("@avg", snapshot.AvgTemp);
 
             command.ExecuteNonQuery();
@@ -422,7 +416,7 @@ namespace Assign_2
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
-                SELECT TOP (@take) ViewedBy, ViewedAt, Location, Granularity, GraphCount, AvgTemp
+                SELECT TOP (@take) ViewedBy, ViewedAt, Location, Granularity, AvgTemp
                 FROM dbo.DashboardLog ORDER BY ViewedAt DESC;", connection);
 
             command.Parameters.AddWithValue("@take", take);
@@ -436,7 +430,6 @@ namespace Assign_2
                     ViewedAt = reader.GetDateTime(1),
                     Location = reader.GetString(2),
                     Granularity = reader.GetString(3),
-                    GraphCount = reader.GetInt32(4),
                     AvgTemp = Math.Round(reader.GetDouble(5), 2)
                 });
             }
