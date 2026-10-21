@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xaml.Schema;
 
 namespace Assign_2
 {
@@ -272,20 +271,17 @@ namespace Assign_2
             return sensors;
         }
 
-        public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
+        public static List<ReadingAggregate> GetAggregates(int locationId, Granularity granularity)
         {
-            List<ReadingAggregate> rows = new List<ReadingAggregate>();
-            foreach (int location in locations)
+            string bucket = granularity switch
             {
-                string bucket = granularity switch
-                {
-                    Granularity.Daily => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
-                    Granularity.Weekly => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
-                    Granularity.Monthly => "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)",
-                    _ => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
-                };
+                Granularity.Daily => "DATEADD(hour, DATEDIFF(hour, 0, d.[Timestamp]), 0)",
+                Granularity.Weekly => "DATEADD(day, DATEDIFF(day, 0, d.[Timestamp]), 0)",
+                Granularity.Monthly => "DATEADD(month, DATEDIFF(month, 0, d.[Timestamp]), 0)",
+                _                   => "DATEADD(year, DATEDIFF(year, 0, d.[Timestamp]), 0)"
+            };
 
-                string sql = $@"
+            string sql = $@"
                 SELECT {bucket} AS PeriodStart,
                        AVG(CAST(d.Temperature AS FLOAT)), 
                        MIN(CAST(d.Temperature AS FLOAT)), 
@@ -297,26 +293,24 @@ namespace Assign_2
                     GROUP BY {bucket}
                     ORDER BY 1;";
 
-                
-                using var connection = UserDatabase.OpenConnection();
-                using var command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@locationId", location);
+            List<ReadingAggregate> rows = new List<ReadingAggregate>();
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@locationId", locationId);
 
-                using SqlDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
 
-
-                while (reader.Read())
+            while (reader.Read())
+            {
+                DateTime start = reader.GetDateTime(0);
+                rows.Add(new ReadingAggregate
                 {
-                    DateTime start = reader.GetDateTime(0);
-                    rows.Add(new ReadingAggregate
-                    {
-                        Period = FormatPeriod(start, granularity),
-                        AvgTemp = Math.Round(reader.GetDouble(1), 2),
-                        MinTemp = Math.Round(reader.GetDouble(2), 2),
-                        MaxTemp = Math.Round(reader.GetDouble(3), 2),
-                        Samples = reader.GetInt32(4)
-                    });
-                }
+                    Period = FormatPeriod(start, granularity),
+                    AvgTemp = Math.Round(reader.GetDouble(1), 2),
+                    MinTemp = Math.Round(reader.GetDouble(2), 2),
+                    MaxTemp = Math.Round(reader.GetDouble(3), 2),
+                    Samples = reader.GetInt32(4)
+                });
             }
             return rows;
         }
@@ -445,7 +439,7 @@ namespace Assign_2
         // Gets chart readings to populate ChartTile graph
         // uses a switch for the granularity
         public static List<(DateTime Period, double Temperature)> GetChartReadings(
-            int location,
+            int locationId,
             Granularity granularity)
         {
             int hours = granularity switch
@@ -471,7 +465,7 @@ namespace Assign_2
 
             using SqlConnection connection = UserDatabase.OpenConnection();
             using SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@LocationId", location);
+            command.Parameters.AddWithValue("@LocationId", locationId);
             command.Parameters.AddWithValue("@Hours", hours);
             // @LocationId and @Hours are parameters for parameterised query
             // reduces SQL SELECT code to just one statement, with Granularity & location as input
