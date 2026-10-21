@@ -14,9 +14,9 @@ namespace Assign_2
         {
             InitializeComponent();
 
-            
-                SensorsDatabase.Initialize();
-            
+
+            SensorsDatabase.Initialize();
+
         }
         /// <summary>
         /// Compares users account input to the database account credentials.
@@ -110,8 +110,8 @@ namespace Assign_2
 
             // Populate the form fields with selected user data
             EditUsernameBox.Text = selectedUser.Username;
-            EditFirstNameBox.Text = selectedUser.first_name; 
-            EditLastNameBox.Text = selectedUser.last_name;   
+            EditFirstNameBox.Text = selectedUser.first_name;
+            EditLastNameBox.Text = selectedUser.last_name;
             NewPasswordBox.Password = "";
 
             // Handle Role ComboBox selection
@@ -201,16 +201,17 @@ namespace Assign_2
             {
                 MessageBox.Show("Cannot delete user. No user currently selected.");
                 return;
-            }else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
+            }
+            else if (selectedUser.Username.Equals(currentUsername, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Cannot delete current user. You cannot delete the account you are currently logged into.");
                 return;
             }
 
-                MessageBoxResult result = MessageBox.Show(
-                    "Delete user '" + selectedUser.Username + "'?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show(
+                "Delete user '" + selectedUser.Username + "'?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -398,13 +399,13 @@ namespace Assign_2
         private void OpenUserScreen()
         {
             ShowScreen(UserScreen);
-
+            userScreenReady = false; 
             if (!userScreenReady)
             {
                 userScreenReady = true;
 
                 List<LocationRecord> locations = new List<LocationRecord>();
-             
+
                 try
                 {
                     locations.AddRange(SensorsDatabase.GetAllLocations());
@@ -414,12 +415,49 @@ namespace Assign_2
                     MessageBox.Show(ex.Message);
                 }
 
-                LocationFilterBox.ItemsSource = locations;
-                if (locations.Count > 0)
+                //Tree View MultiSelect Combo Box logic.
+                
+                locations.Sort((a, b) =>
                 {
-                    LocationFilterBox.SelectedIndex = 0;
-                }
+                    int floorComparison = a.Floor.CompareTo(b.Floor);
+                    if (floorComparison != 0)
+                        return floorComparison;
+                    return a.Room.CompareTo(b.Room);
+                });
+               
+                LocationTreeView.Items.Clear();
+                
+                foreach (var floorGroup in locations.GroupBy(l => l.Floor))
+                {
+                    CheckBox floorCheckBox = new CheckBox
+                    {
+                        Content = "Floor " + floorGroup.Key,
+                        Tag = floorGroup.Key,
+                        IsChecked = true,
 
+                    };
+                    floorCheckBox.Click += FloorCheckBox_Click;
+                    floorCheckBox.Click += LocationTreeView_SelectedItemChanged;
+
+                    TreeViewItem floorItem = new TreeViewItem { Header = floorCheckBox };
+
+                    foreach (var location in floorGroup)
+                    {
+                        CheckBox roomCheckBox = new CheckBox
+                        {
+                            Content = "Room " + location.Room,
+                            Tag = location.Id,
+                            IsChecked = true
+
+                        };
+                        TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
+                        roomCheckBox.Click += RoomCheckBox_Click;
+                        roomCheckBox.Click += LocationTreeView_SelectedItemChanged;
+
+                        floorItem.Items.Add(locationItem);
+                    }
+                    LocationTreeView.Items.Add(floorItem);
+                }
 
                 DashboardSettings settings;
 
@@ -451,27 +489,27 @@ namespace Assign_2
                     UserGranularityBox.SelectedIndex = 2; // Monthly
                 }
             }
-
+            userScreenReady = true;
             RefreshDashboard();
         }
 
         //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
-            var location = LocationFilterBox.SelectedItem as LocationRecord;
+            List<int> locations = SelectedLocations();
             var granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
-            if (location == null || granularityItem == null)
+            if (locations.Count == 0 || granularityItem == null)
             {
                 MessageBox.Show("Please select a location and granularity.");
                 return;
             }
 
             var granularity = Enum.Parse<Granularity>(granularityItem.Content.ToString());
-            var series = SensorsDatabase.GetAggregates(location.Id, granularity);
+            var series = SensorsDatabase.GetAggregates(locations, granularity);
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
-                Location = location.Display,
+                Location = string.Join(", ", locations),
                 Granularity = granularity.ToString(),
                 ExportedAt = DateTime.UtcNow,
                 Readings = series
@@ -508,8 +546,6 @@ namespace Assign_2
         }
 
 
-
-
         /// <summary>
         /// Re-runs the dashboard whenever the location or interval filter changes.
         /// </summary>
@@ -529,10 +565,10 @@ namespace Assign_2
         /// </summary>
         private void RefreshDashboard()
         {
-            LocationRecord location = LocationFilterBox.SelectedItem as LocationRecord;
+            List<int> locations = SelectedLocations();
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
 
-            if (location == null || granularityItem == null)
+            if ( locations.Count == 0 || granularityItem == null)
             {
                 return;
             }
@@ -561,7 +597,7 @@ namespace Assign_2
 
             try
             {
-                series = SensorsDatabase.GetAggregates(location.Id, granularity);
+                series = SensorsDatabase.GetAggregates(locations, granularity);
             }
             catch (Exception ex)
             {
@@ -576,14 +612,14 @@ namespace Assign_2
             List<double> samples = series.Select(r => (double)r.Samples).ToList();
 
             using var connection = UserDatabase.OpenConnection();
-            BuildChartTiles(location.Id, granularity);    
+            BuildChartTiles(locations, granularity);
 
             try
             {
                 SensorsDatabase.RecordDashboard(new DashboardSnapshot
                 {
                     ViewedBy = currentUsername,
-                    Location = location.Display,
+                    Location = string.Join(", ", locations),
                     Granularity = granularity.ToString(),
                     AvgTemp = series.Count == 0 ? 0 : Math.Round(avgs.Average(), 2)
                 });
@@ -600,84 +636,208 @@ namespace Assign_2
         /// band and the sample-count bars; extra slots are placeholders
         /// ready for future visualisations.
         /// </summary>
-        private void BuildChartTiles(int locationId, Granularity granularity)
+        /// <param name="locations">list of locations that the charts will represent</param>
+        /// <param name="granularity">the granularity of the data (e.g., Daily, Weekly, Monthly)</param>
+        private void BuildChartTiles(List<int> locations, Granularity granularity)
         {
             List<(DateTime Period, double Temperature)> readings;
-
-            try
-            {
-                readings = SensorsDatabase.GetChartReadings(locationId, granularity);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-
-            string granularityName = granularity.ToString();
-
-            List<string> labels = readings.Select(reading => reading.Period.ToString(
-                granularityName == "Daily" ? "HH:mm" :
-                granularityName == "Weekly" ? "dd MMM" :
-                granularityName == "Monthly" ? "MMM yyyy" :
-                "yyyy")).ToList();
-
-            List<double> temperatures = readings
-                .Select(reading => reading.Temperature)
-                .ToList();
-
             ChartHost.Children.Clear();
-
-            DashboardSettings settings = SensorsDatabase.GetSettings();
-
-            // Line - Temperature Reading
-            if (settings.ShowTempReading)
+            foreach (int location in locations)
             {
-                ChartTile topTile = new ChartTile();
 
-                topTile.ShowLine(
-                    "Temperature",
-                    labels,
-                    temperatures,
-                    null,
-                    null
-                );
-
-                topTile.Clicked += ChartTile_Clicked;
-
-                Grid.SetRow(topTile, 0);
-                Grid.SetColumnSpan(topTile, 2);
-
-                ChartHost.Children.Add(topTile);
-            }
-
-            // Bar - Current Temperature
-            if (settings.ShowCurrentTemp)
-            {
-                ChartTile2 tile2 = new ChartTile2();
-
-                if (temperatures.Count > 0)
+                try
                 {
-                    double latestTemp = temperatures.Last();
-
-                    tile2.UpdateValue(latestTemp);
+                    readings = SensorsDatabase.GetChartReadings(location, granularity);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
                 }
 
-                Grid.SetRow(tile2, 1);
-                Grid.SetColumn(tile2, 0);
+                //Checks if a location has relevant temperature data.
+                if (readings.Count == 0)
+                {
+                    Console.WriteLine($"No readings for location {location}.");
+                    continue;
+                }
 
-                ChartHost.Children.Add(tile2);
-            }
+                string granularityName = granularity.ToString();
 
-            // Boxplot - Temperature Comparison
-            if (settings.ShowTempComparison)
-            {
-                // Boxplot generation goes here
+                List<string> labels = readings.Select(reading => reading.Period.ToString(
+                    granularityName == "Daily" ? "HH:mm" :
+                    granularityName == "Weekly" ? "dd MMM" :
+                    granularityName == "Monthly" ? "MMM yyyy" :
+                    "yyyy")).ToList();
+
+                List<double> temperatures = readings
+                    .Select(reading => reading.Temperature)
+                    .ToList();
+
+                DashboardSettings settings = SensorsDatabase.GetSettings();
+
+                // Line - Temperature Reading
+                if (settings.ShowTempReading)
+                {
+                    ChartTile topTile = new ChartTile();
+
+                    topTile.ShowLine(
+                        $"Graph {location}",
+                        labels,
+                        temperatures,
+                        null,
+                        null
+                    );
+
+                    topTile.Clicked += ChartTile_Clicked;
+
+                    Grid.SetRow(topTile, 0);
+                    Grid.SetColumnSpan(topTile, 2);
+
+                    ChartHost.Children.Add(topTile);
+                }
+
+                // Bar - Current Temperature
+                if (settings.ShowCurrentTemp)
+                {
+                    ChartTile2 tile2 = new ChartTile2();
+
+                    if (temperatures.Count > 0)
+                    {
+                        double latestTemp = temperatures.Last();
+
+                        tile2.UpdateValue(latestTemp);
+                    }
+
+                    Grid.SetRow(tile2, 1);
+                    Grid.SetColumn(tile2, 0);
+
+                    ChartHost.Children.Add(tile2);
+                }
+
+                // Boxplot - Temperature Comparison
+                if (settings.ShowTempComparison)
+                {
+                    // Boxplot generation goes here
+                }
+
             }
         }
 
+        private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
+        {
+            if (userScreenReady)
+            {
+                RefreshDashboard();
+            }
+        }
+        /// <summary>
+        /// Changes the room checkbox automatically when its floor is ticked or not ticked.
+        /// e.g. if you seleccted or deselect a floor it will change all rooms under it apporopriately.
+        /// </summary>
+        /// <param name="sender">if a floor checkbox is ticked.</param>
+        /// <param name="e">The data for floor checkbox ticked.</param>
+        private void FloorCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox)
+            {
+                var floorKey = checkBox.Tag;
+                if (checkBox.IsChecked == true)
+                {
+                    foreach (TreeViewItem floorItem in LocationTreeView.Items)
+                    {
+                        if (floorItem.Header is CheckBox floorCheckBox && floorCheckBox.Tag.Equals(floorKey))
+                        {
+                            foreach (TreeViewItem roomItem in floorItem.Items)
+                            {
+                                if (roomItem.Header is CheckBox roomCheckBox)
+                                {
+                                    roomCheckBox.IsChecked = true;
+                                    roomCheckBox.Click += RoomCheckBox_Click;
 
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                }
+                else if (checkBox.IsChecked == false)
+                {
+                    foreach (TreeViewItem floorItem in LocationTreeView.Items)
+                    {
+                        if (floorItem.Header is CheckBox floorCheckBox && floorCheckBox.Tag.Equals(floorKey))
+                        {
+                            foreach (TreeViewItem roomItem in floorItem.Items)
+                            {
+                                if (roomItem.Header is CheckBox roomCheckBox)
+                                {
+                                    roomCheckBox.IsChecked = false;
+                                    roomCheckBox.Click -= RoomCheckBox_Click;
+
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Changes the floor checkbox automatically when its rooms are changed
+        /// e.g. if a you deselect a room its floor will alsoo be deselected with other rooms selected.
+        /// e.g. if you select all rooms under a floor it will then be selected.
+        /// </summary>
+        /// <param name="sender">if a room checkbox is ticked.</param>
+        /// <param name="e">The data for room checkbox ticked.</param>
+        private void RoomCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox roomCheckBox)
+            {
+                var roomItem = roomCheckBox.Parent as TreeViewItem;
+                var floorItem = roomItem?.Parent as TreeViewItem;
+                if (floorItem != null)
+                {
+                    bool allRoomsChecked = true;
+                    foreach (TreeViewItem item in floorItem.Items)
+                    {
+                        if (item.Header is CheckBox cb && cb.IsChecked == false)
+                        {
+                            allRoomsChecked = false;
+                            break;
+                        }
+                    }
+                    if (floorItem.Header is CheckBox floorCheckBox)
+                    {
+                        floorCheckBox.IsChecked = allRoomsChecked;
+                    }
+                }
+            }
+
+        }
+        /// <summary>
+        /// This will return a list for all the selected room location ints.
+        /// </summary>
+        /// <returns> room int locations.</returns>
+        public List<int> SelectedLocations()
+        {
+            var selectedLocations = new List<int>();
+            foreach (TreeViewItem floorItem in LocationTreeView.Items)
+            {
+                foreach (TreeViewItem roomItem in floorItem.Items)
+                {
+                    if (roomItem.Header is CheckBox roomCheckBox && roomCheckBox.IsChecked == true)
+                    {
+                        if (roomItem.Tag is LocationRecord location)
+                        {
+                            selectedLocations.Add(location.Id);
+                        }
+                    }
+                }
+            }
+            return selectedLocations;
+        }   
     }
 }
-
-
