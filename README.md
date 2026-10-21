@@ -23,4 +23,5 @@ The app stores data in a database, including:
 - `dotnet test "./Assign2.sln" --logger "trx;LogFileName=test-results.trx"` (run tests and export results)
 - `mkdir ""` (create new folder)
 - `cd ""` (go to new folder)
+- `dotnet restore .\Assign2.sln --verbosity diagnostic` (Run this if api.nuget.org is unable to load)
 - `dotnet new xunit3` (create xnit 3 template)
