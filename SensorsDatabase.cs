@@ -99,7 +99,7 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.DashboardSettings
                     (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading)
-                    VALUES (1, 3, 'Monthly', 1, 1, 1);");
+                    VALUES (1, 'Monthly', 1, 1, 1);");
             }
 
             // 5. Create DashboardLog table
@@ -401,7 +401,7 @@ namespace Assign_2
             using var connection = UserDatabase.OpenConnection();
             using var command = new SqlCommand(@"
                 INSERT INTO dbo.DashboardLog (ViewedBy, Location, Granularity, AvgTemp)
-                VALUES (@by, @loc, @gran, @graphs, @avg);", connection);
+                VALUES (@by, @loc, @gran, @avg);", connection);
 
             command.Parameters.AddWithValue("@by", snapshot.ViewedBy);
             command.Parameters.AddWithValue("@loc", snapshot.Location);
@@ -430,7 +430,7 @@ namespace Assign_2
                     ViewedAt = reader.GetDateTime(1),
                     Location = reader.GetString(2),
                     Granularity = reader.GetString(3),
-                    AvgTemp = Math.Round(reader.GetDouble(5), 2)
+                    AvgTemp = Math.Round(reader.GetDouble(4), 2)
                 });
             }
             return log;
