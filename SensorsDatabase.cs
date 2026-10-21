@@ -8,6 +8,11 @@ namespace Assign_2
 {
     public static class SensorsDatabase
     {
+        public static int SeedHours = 24; // number of hours to pre-seed database.
+                                          // Default 24 (1 day)
+                                          // 168 == 1 week
+                                          // 720 == 1 month
+                                          // time in hours, starting from 0 to t
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -189,14 +194,12 @@ namespace Assign_2
             }
 
             RandomTemp random = new RandomTemp();
+            int t = SeedHours; 
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
                 Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
-                int t = 24; // number of hours to pre-seed database.
-                             // Default 24 (1 day)
-                             // 168 == 1 week
-                             // 720 == 1 month
+                
 
                 using var command = new SqlCommand(
                     @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 

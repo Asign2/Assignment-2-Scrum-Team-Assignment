@@ -13,10 +13,10 @@ namespace Assign_2
         public MainWindow()
         {
             InitializeComponent();
-
-
             SensorsDatabase.Initialize();
 
+            Generation generator = new Generation(this);
+            generator.generatePeriodicTemperature(SensorsDatabase.SeedHours);
         }
         /// <summary>
         /// Compares users account input to the database account credentials.
@@ -563,7 +563,7 @@ namespace Assign_2
         /// Loads the aggregated readings for the selected location/interval and
         /// fills the chart tiles, sized by the admin's graph count setting.
         /// </summary>
-        private void RefreshDashboard()
+        public void RefreshDashboard()
         {
             List<int> locations = SelectedLocations();
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
