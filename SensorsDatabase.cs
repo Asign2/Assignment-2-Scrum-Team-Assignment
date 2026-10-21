@@ -357,12 +357,12 @@ namespace Assign_2
 
             return new DashboardSettings
             {
-                DefaultGranularity = reader.GetString(1),
-                ShowCurrentTemp = reader.GetBoolean(2),
-                ShowTempComparison = reader.GetBoolean(3),
-                ShowTempReading = reader.GetBoolean(4),
-                UpdatedBy = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                UpdatedAt = reader.GetDateTime(6)
+                DefaultGranularity = reader.GetString(0),
+                ShowCurrentTemp = reader.GetBoolean(1),
+                ShowTempComparison = reader.GetBoolean(2),
+                ShowTempReading = reader.GetBoolean(3),
+                UpdatedBy = reader.IsDBNull(4) ? "" : reader.GetString(4),
+                UpdatedAt = reader.GetDateTime(5)
             };
         }
 
