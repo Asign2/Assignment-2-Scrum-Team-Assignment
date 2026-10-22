@@ -164,7 +164,7 @@ namespace Assign_2
 
             Sparkline.Points = points;
         }
-
+        //Creates the paramters for the EnlargedCopy
         public ChartTile CreateEnlargedCopy(double width = 850, double height = 350)
         {
             ChartTile copy = new ChartTile { Width = width, Height = height };
@@ -172,6 +172,7 @@ namespace Assign_2
             return copy;
         }
 
+        //Shows the temp of the hovered Point on the line
         private void SparklineHost_MouseMove(object sender, MouseEventArgs e)
         {
             if (values.Count < 2) return;
