@@ -54,6 +54,8 @@ namespace Assign_2
 
         public string UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public int Tick { get; set; }
     }
 
     /// <summary>A record of a dashboard that was actually displayed to a user.</summary>

@@ -16,7 +16,8 @@ namespace Assign_2
             SensorsDatabase.Initialize();
 
             Generation generator = new Generation(this);
-            generator.generatePeriodicTemperature(SensorsDatabase.SeedHours);
+            DashboardSettings settings = SensorsDatabase.GetSettings();
+            generator.generatePeriodicTemperature();
         }
         /// <summary>
         /// Compares users account input to the database account credentials.

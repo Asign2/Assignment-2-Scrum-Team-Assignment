@@ -21,11 +21,11 @@ namespace Assign_2
         /// Periodically generates temperature readings for all sensors in the database and inserts them into the Database.
         /// Ticks every 20 seconds.
         /// Each tick is an hour.
-        /// <param name="time">The time the database is up to from seeded data.</param>
         /// </summary>
-        public async Task generatePeriodicTemperature(int time)
+        public async Task generatePeriodicTemperature()
         {
             using var connection = UserDatabase.OpenConnection();
+            DashboardSettings settings = SensorsDatabase.GetSettings();
 
             RandomTemp random = new RandomTemp();
             while (true)
@@ -36,7 +36,7 @@ namespace Assign_2
                 {
                     Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
 
-                    double temp = random.randomTemp(time, sensor.Room);
+                    double temp = random.randomTemp(settings.Tick , sensor.Variance);
 
                     using var command = new SqlCommand(
                         @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
@@ -55,7 +55,10 @@ namespace Assign_2
                     command.ExecuteNonQuery();
                 }
 
-                time++;
+
+                settings.Tick++;
+                Debug.WriteLine($"Settings Tick: {settings.Tick}");
+                SensorsDatabase.UpdateSettings(settings);
 
                 mainWindow.Dispatcher.Invoke(() =>
                 {
