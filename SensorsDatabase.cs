@@ -99,13 +99,9 @@ namespace Assign_2
                         ShowTempComparison BIT NOT NULL DEFAULT 1,
                         ShowTempReading BIT NOT NULL DEFAULT 1,
                         UpdatedBy NVARCHAR(255) NULL,
-                        UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
+                        UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        Tick INT
                     );");
-
-                RunNonQuery(connection, @"
-                    INSERT INTO dbo.DashboardSettings
-                    (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading)
-                    VALUES (1, 'Monthly', 1, 1, 1);");
             }
 
             // 5. Create DashboardLog table
@@ -192,12 +188,23 @@ namespace Assign_2
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
+            bool settingsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.DashboardSettings;"); 
+            if (!settingsHaveRows)
+            {
+                using var command = new SqlCommand(@"
+                    INSERT INTO dbo.DashboardSettings (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading,Tick)
+                    VALUES (1, 'Monthly', 1, 1, 1, @SeededHours);", connection);
+                command.Parameters.Add("@SeededHours", System.Data.SqlDbType.Int);
+                command.Parameters["@SeededHours"].Value = SeedHours;
+
+                command.ExecuteNonQuery();
+            }
 
             RandomTemp random = new RandomTemp();
-            int t = SeedHours; 
+            
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
-                Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
+                Debug.WriteLine($"{ sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
                 
 
@@ -212,7 +219,7 @@ namespace Assign_2
                 command.Parameters["@temperature"].Precision = 5;
                 command.Parameters["@temperature"].Scale = 2;
 
-                for (int i = 1; i <= t; i++)
+                for (int i = 0; i < SeedHours; i++)
                 {
                     double temp = random.randomTemp(i, sensor.Variance);
                     Debug.WriteLine($"{i}, {sensor.Variance}, {temp}");
@@ -341,7 +348,7 @@ namespace Assign_2
             using var command = new SqlCommand(@"
         SELECT DefaultGranularity,
                ShowCurrentTemp, ShowTempComparison, ShowTempReading,
-               UpdatedBy, UpdatedAt
+               UpdatedBy, UpdatedAt, Tick
         FROM dbo.DashboardSettings
         WHERE Id = 1;", connection);
 
@@ -354,7 +361,9 @@ namespace Assign_2
                     DefaultGranularity = "Monthly",
                     ShowCurrentTemp = true,
                     ShowTempComparison = true,
-                    ShowTempReading = true
+                    ShowTempReading = true,
+                    Tick = SeedHours
+
                 };
             }
 
@@ -365,7 +374,10 @@ namespace Assign_2
                 ShowTempComparison = reader.GetBoolean(2),
                 ShowTempReading = reader.GetBoolean(3),
                 UpdatedBy = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                UpdatedAt = reader.GetDateTime(5)
+                UpdatedAt = reader.GetDateTime(5),
+                Tick = reader.GetInt32(6)
+
+
             };
         }
 
@@ -489,5 +501,16 @@ namespace Assign_2
 
             return readings;
         }
+        public static void UpdateSettings(DashboardSettings settings)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+                UPDATE dbo.DashboardSettings
+                SET 
+                    Tick = @tick
+                WHERE Id = 1;", connection);
+            command.Parameters.AddWithValue("@tick", settings.Tick);
+            command.ExecuteNonQuery();
+        }   
     }
 }

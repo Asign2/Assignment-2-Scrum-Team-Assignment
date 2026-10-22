@@ -21,41 +21,50 @@ namespace Assign_2
         /// Periodically generates temperature readings for all sensors in the database and inserts them into the Database.
         /// Ticks every 20 seconds.
         /// Each tick is an hour.
-        /// <param name="time">The time the database is up to from seeded data.</param>
         /// </summary>
-        public async Task generatePeriodicTemperature(int time)
+        public async Task generatePeriodicTemperature()
         {
             using var connection = UserDatabase.OpenConnection();
+            DashboardSettings settings = SensorsDatabase.GetSettings();
 
             RandomTemp random = new RandomTemp();
             while (true)
             {
 
-                await Task.Delay(20000); // Wait for 20 seconds before generating the next set of readings
+                await Task.Delay(20000); // Wait for 20 seconds before generating the next set of 
+                using var command = new SqlCommand(
+                   @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
+                        VALUES (
+                            @timestamp,
+                            @temperature,
+                            @sensorId
+                        );", connection);
+                using var timeStampCommand = new SqlCommand(
+                    @"SELECT DATEADD(hour, 1, MAX(Timestamp)) FROM dbo.Data;", connection);
+                DateTime timeStamp = (DateTime)timeStampCommand.ExecuteScalar();
+
                 foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
                 {
                     Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
 
-                    double temp = random.randomTemp(time, sensor.Room);
+                    double temp = random.randomTemp(settings.Tick , sensor.Variance);
+                    command.Parameters.Clear();
 
-                    using var command = new SqlCommand(
-                        @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
-                        VALUES (
-                            DATEADD(hour, 1, (SELECT MAX(Timestamp) FROM dbo.Data)),
-                            @temperature,
-                            @sensorId
-                        );", connection);
+                    command.Parameters.Add("@timestamp", System.Data.SqlDbType.DateTime).Value = timeStamp;
 
                     command.Parameters.Add("@temperature", System.Data.SqlDbType.Decimal).Value = temp;
-                    command.Parameters.Add("@sensorId", System.Data.SqlDbType.Int).Value = sensor.Id;
-
                     command.Parameters["@temperature"].Precision = 5;
                     command.Parameters["@temperature"].Scale = 2;
+
+                    command.Parameters.Add("@sensorId", System.Data.SqlDbType.Int).Value = sensor.Id;
 
                     command.ExecuteNonQuery();
                 }
 
-                time++;
+
+                settings.Tick++;
+                Debug.WriteLine($"Settings Tick: {settings.Tick}");
+                SensorsDatabase.UpdateSettings(settings);
 
                 mainWindow.Dispatcher.Invoke(() =>
                 {
