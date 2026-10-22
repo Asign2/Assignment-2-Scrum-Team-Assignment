@@ -2,9 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Border CornerRadius="10" 
-            Margin="0,12,12,0" 
+            Margin="0,0,12,0" 
             Padding="20,16" 
-            Background="#1E1E22">
+            Background="#1E1E22" Height="Auto">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -12,7 +12,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Thermometer Bar Graph Visual -->
-            <Viewbox Grid.Column="0" Width="60" Height="130" Margin="10,0,20,0">
+            <Viewbox Grid.Column="0" Width="60" Height="130" Margin="39,-20,39,20" Grid.ColumnSpan="2">
                 <Canvas Width="60" Height="140">
                     <!-- Outer Glass Background -->
                     <Rectangle Canvas.Left="20" Width="20" Height="110" Fill="#2A2A30" RadiusX="10" RadiusY="10"/>
@@ -31,9 +31,9 @@
             <!-- Text Display -->
             <StackPanel Grid.Column="1" 
                         Orientation="Horizontal" 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center">
-                <TextBlock x:Name="CurrentValueText" Text="--" Foreground="White" FontSize="48" FontWeight="Light"/>
+                        VerticalAlignment="Top" 
+                        HorizontalAlignment="Center" Margin="0,160,0,0">
+                <TextBlock x:Name="CurrentValueText" Text="--" Foreground="White" FontSize="45" FontWeight="Light"/>
                 <TextBlock Text="°C" Foreground="#A0A0A5" FontSize="20" VerticalAlignment="Top" Margin="4,10,0,0"/>
             </StackPanel>
         </Grid>

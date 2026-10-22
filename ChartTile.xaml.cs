@@ -1,26 +1,18 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using VectSharp.Plots;
 
 namespace Assign_2
 {
-    /// <summary>
-    /// A stat-card tile styled after a live temperature dashboard: current
-    /// value, a recent-history sparkline, and a Min/Avg/Max footer — drawn
-    /// entirely with native WPF vector shapes, so it scales crisply at any
-    /// size with no rasterisation step.
-    ///
-    /// Keeps the same public methods as the old VectSharp version
-    /// (ShowLine/ShowBand/ShowBars/ShowPlaceholder) so callers in
-    /// MainWindow.xaml.cs don't need to change what they pass in.
-    /// </summary>
     public partial class ChartTile : UserControl
     {
-        private enum ChartKind { None, Line, Band, Bars}
+        private enum ChartKind { None, Line, Band, Bars }
 
         public event EventHandler Clicked;
 
@@ -30,6 +22,10 @@ namespace Assign_2
         private List<double> values = new List<double>();
         private List<double> minValues = new List<double>();
         private List<double> maxValues = new List<double>();
+
+        public string Title { get; private set; }
+        public List<string> Labels { get; private set; }
+        public List<double> Values { get; private set; }
 
         public ChartTile()
         {
@@ -44,6 +40,12 @@ namespace Assign_2
             kind = ChartKind.Line;
             labels = xLabels;
             values = data;
+
+            // Correctly set public properties after updating fields
+            Title = title;
+            Labels = labels;
+            Values = values;
+
             minValues = new List<double>();
             maxValues = new List<double>();
             Redraw();
@@ -59,6 +61,11 @@ namespace Assign_2
             minValues = mins;
             maxValues = maxs;
             values = avgs;
+
+            Title = title;
+            Labels = labels;
+            Values = values;
+
             Redraw();
         }
 
@@ -68,6 +75,11 @@ namespace Assign_2
             kind = ChartKind.Bars;
             labels = xLabels;
             values = data;
+
+            Title = title;
+            Labels = labels;
+            Values = values;
+
             minValues = new List<double>();
             maxValues = new List<double>();
             Redraw();
@@ -78,6 +90,9 @@ namespace Assign_2
             chartTitle = title;
             kind = ChartKind.None;
             values = new List<double>();
+            Title = title;
+            Labels = new List<string>();
+            Values = new List<double>();
             Redraw();
         }
 
@@ -99,8 +114,6 @@ namespace Assign_2
 
             NoDataText.Visibility = Visibility.Collapsed;
 
-            // Band mode has real min/max series; every other mode derives
-            // min/max/avg straight from the main values list.
             bool hasBand = kind == ChartKind.Band && minValues.Count > 0 && maxValues.Count > 0;
 
             double minTemp = hasBand ? minValues.Min() : values.Min();
@@ -152,64 +165,31 @@ namespace Assign_2
             Sparkline.Points = points;
         }
 
-        public void EnlargeChart(object sender, MouseButtonEventArgs e)
-        {
-            if (kind == ChartKind.None || values.Count == 0) return;
-            Clicked?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Builds a second tile with the same data at a larger size, for the
-        /// enlarge-on-click overlay. Vector rendering stays crisp at any
-        /// size, unlike the old PNG upscale.
-        /// </summary>
-        public ChartTile CreateEnlargedCopy(double width = 420, double height = 320)
+        public ChartTile CreateEnlargedCopy(double width = 850, double height = 350)
         {
             ChartTile copy = new ChartTile { Width = width, Height = height };
-
-            switch (kind)
-            {
-                case ChartKind.Band:
-                    copy.ShowBand(chartTitle, labels, minValues, maxValues, values, null, null);
-                    break;
-                case ChartKind.Bars:
-                    copy.ShowBars(chartTitle, labels, values);
-                    break;
-                case ChartKind.Line:
-                    copy.ShowLine(chartTitle, labels, values, null, null);
-                    break;
-                default:
-                    copy.ShowPlaceholder(chartTitle);
-                    break;
-            }
-
+            copy.ShowLine(this.Title, this.Labels, this.Values, null, null);
             return copy;
         }
+
         private void SparklineHost_MouseMove(object sender, MouseEventArgs e)
         {
             if (values.Count < 2) return;
 
             Point pos = e.GetPosition(SparklineHost);
-
-            // How far across the chart the mouse is, from 0.0 (left edge) to 1.0 (right edge)
             double fraction = pos.X / SparklineHost.ActualWidth;
-
-            // Turn that into a data point number.
             int lastIndex = values.Count - 1;
             int i = (int)Math.Round(fraction * lastIndex);
 
-            // Keep it in range in case the mouse is slightly past an edge
             if (i < 0) i = 0;
             if (i > lastIndex) i = lastIndex;
 
             TooltipTemperature.Text = $"{values[i]:0.0} °C";
             TooltipTime.Text = LabelAt(i);
 
-            // Fixed tooltip size (adjust if your text is wider or taller) Could be changed later for dynamic sizing
             double tipWidth = 70;
             double tipHeight = 40;
 
-            // Centre the tooltip on the mouse, then stop it going off either edge
             double left = pos.X - tipWidth / 2;
             double maxLeft = SparklineHost.ActualWidth - tipWidth;
             if (left > maxLeft) left = maxLeft;
@@ -223,6 +203,10 @@ namespace Assign_2
         private void SparklineHost_MouseLeave(object sender, MouseEventArgs e)
         {
             TemperatureTooltip.Visibility = Visibility.Collapsed;
+        }
+        private void EnlargeChart(object sender, MouseButtonEventArgs e)
+        {
+            Clicked?.Invoke(this, EventArgs.Empty);
         }
     }
 }
