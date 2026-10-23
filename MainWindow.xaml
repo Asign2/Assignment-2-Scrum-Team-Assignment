@@ -6,8 +6,17 @@
         mc:Ignorable="av" 
         x:Class="Assign_2.MainWindow"
         Title="MainWindow" Height="450" Width="800"
-        WindowState="Maximized"
-        >
+        WindowState="Maximized">
+
+    <Window.Resources>
+        <!-- CENTRALIZED XAML SIZING STYLES -->
+        <!-- Uniform height and spacing for all dashboard graph controls -->
+        <Style TargetType="{x:Type UserControl}" x:Key="DashboardGraphStyle">
+            <Setter Property="Height" Value="160"/>
+            <Setter Property="Margin" Value="3,4,3,4"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
 
         <!-- LOGIN VIEW -->
@@ -32,25 +41,15 @@
             </Grid.RowDefinitions>
 
             <TabControl Grid.Row="0">
-
                 <!-- USERS TAB -->
                 <TabItem Header="Users">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <!-- DataGrid gets remaining space -->
                             <RowDefinition Height="*" />
-                            <!-- Edit Form panel below DataGrid -->
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!-- Top: Users Table -->
-                        <DataGrid x:Name="UsersGrid"
-                  Grid.Row="0"
-                  AutoGenerateColumns="False"
-                  SelectionMode="Single"
-                  SelectionChanged="UsersGrid_SelectionChanged"
-                  IsReadOnly="True"
-                  Margin="0,0,0,10">
+                        <DataGrid x:Name="UsersGrid" Grid.Row="0" AutoGenerateColumns="False" SelectionMode="Single" SelectionChanged="UsersGrid_SelectionChanged" IsReadOnly="True" Margin="0,0,0,10">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50" />
                                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="155" />
@@ -61,10 +60,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <!-- Bottom: User Edit Section -->
                         <StackPanel Grid.Row="1" Orientation="Vertical">
-
-                            <!-- Grid for Form Inputs (Clean 2-Column Layout) -->
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="300" />
@@ -76,29 +72,24 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <!-- Row 0: Username & First Name -->
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
                                         <AccessText Text="_Username:"/>
                                     </Label>
                                     <TextBox x:Name="EditUsernameBox" Width="180" IsReadOnly="True" />
                                 </StackPanel>
-                    
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=first_name}">
                                         <AccessText Text="_First Name:"/>
                                     </Label>
                                     <TextBox x:Name="EditFirstNameBox" Width="180" IsReadOnly="True" />
                                 </StackPanel>
-
-                                <!-- Row 1: Last Name & Role -->
                                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=last_name}">
                                         <AccessText Text="_Last Name:"/>
                                     </Label>
                                     <TextBox x:Name="EditLastNameBox" Width="180" IsReadOnly="True" />
                                 </StackPanel>
-
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
                                         <AccessText Text="_Role:"/>
@@ -108,8 +99,6 @@
                                         <ComboBoxItem Content="User" />
                                     </ComboBox>
                                 </StackPanel>
-                            
-                                <!-- Row 2: Reset Password -->
                                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=NewPasswordBox}">
                                         <AccessText Text="New _Password:"/>
@@ -118,12 +107,10 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Bottom Action Buttons -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
                                 <Button Content="Update Details" Click="SaveChanges_Click" Width="110" Height="28" Margin="0,0,10,0" />
                                 <Button Content="Delete User" Click="DeleteUser_Click" Width="110" Height="28" />
                             </StackPanel>
-
                         </StackPanel>
                     </Grid>
                 </TabItem>
@@ -139,21 +126,17 @@
                         <Border Grid.Row="0" BorderBrush="#CCCCCC" BorderThickness="1" Padding="10" Margin="0,0,0,10">
                             <StackPanel>
                                 <TextBlock Text="Dashboard Configuration" FontWeight="Bold" Margin="0,0,0,8"/>
-
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=MinTempBox}">
                                         <AccessText Text="_Min Temp (°C):"/>
                                     </Label>
                                     <TextBox x:Name="MinTempBox" Width="70" Margin="0,0,20,0"/>
-
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=MaxTempBox}">
                                         <AccessText Text="Ma_x Temp (°C):"/>
                                     </Label>
                                     <TextBox x:Name="MaxTempBox" Width="70"/>
                                 </StackPanel>
-
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                  
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=DefaultGranularityBox}">
                                         <AccessText Text="Default _Interval:"/>
                                     </Label>
@@ -164,7 +147,6 @@
                                         <ComboBoxItem Content="Yearly"/>
                                     </ComboBox>
                                 </StackPanel>
-
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Save Settings" Width="120" Click="SaveSettings_Click" Margin="0,0,10,0"/>
                                     <TextBlock x:Name="SettingsUpdatedText" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
@@ -172,10 +154,7 @@
                             </StackPanel>
                         </Border>
 
-                        <DataGrid x:Name="SensorsGrid"
-                                  Grid.Row="1"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True">
+                        <DataGrid x:Name="SensorsGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
                                 <DataGridTextColumn Header="Make" Binding="{Binding Make}" Width="120"/>
@@ -200,14 +179,8 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-
-                        <Button Grid.Row="0" Content="Refresh Log" Width="100" HorizontalAlignment="Left"
-                                Margin="0,0,0,10" Click="RefreshLog_Click"/>
-
-                        <DataGrid x:Name="LogGrid"
-                                  Grid.Row="1"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True">
+                        <Button Grid.Row="0" Content="Refresh Log" Width="100" HorizontalAlignment="Left" Margin="0,0,0,10" Click="RefreshLog_Click"/>
+                        <DataGrid x:Name="LogGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Viewed At" Binding="{Binding ViewedAt}" Width="140"/>
                                 <DataGridTextColumn Header="Viewed By" Binding="{Binding ViewedBy}" Width="120"/>
@@ -218,7 +191,6 @@
                         </DataGrid>
                     </Grid>
                 </TabItem>
-
             </TabControl>
 
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
@@ -251,14 +223,8 @@
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewRole}">
                 <AccessText Text="New _Role"/>
             </Label>
-            <ComboBox x:Name="NewRole" 
-          Height="25" 
-          Margin="0,0,0,10"
-          IsEditable="True"
-          IsReadOnly="True"
-          Text="Select a role..."
-          StaysOpenOnEdit="True">
-              <ComboBoxItem Content="Admin"/>
+            <ComboBox x:Name="NewRole" Height="25" Margin="0,0,0,10" IsEditable="True" IsReadOnly="True" Text="Select a role..." StaysOpenOnEdit="True">
+                <ComboBoxItem Content="Admin"/>
                 <ComboBoxItem Content="User"/>
             </ComboBox>
             <Button Content="Register New User" Width="auto" Height="30" Click="RegisterButton_Click"/>
@@ -266,41 +232,28 @@
         </StackPanel>
 
         <!-- USER VIEW -->
-        <StackPanel x:Name="UserScreen" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Width="740">
+        <StackPanel x:Name="UserScreen" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0">
             <TextBlock Text="Temperature Dashboard" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
                 <Label VerticalAlignment="Center" Target="{Binding ElementName=LocationFilterBox}">
                     <AccessText Text="_Location:"/>
                 </Label>
-                
-                
+
                 <!--Tree View multi select combo box-->
-                <ToggleButton 
-                    x:Name="LocationToggleButton" 
-                    Width="110" Height="25" 
-                    Content="Select Locations"/>
-                <Popup 
-                      PlacementTarget="{Binding ElementName=LocationToggleButton}" 
-                    Placement="Bottom" 
-                    IsOpen="{Binding IsChecked, ElementName=LocationToggleButton}"
-                    StaysOpen="False">
+                <ToggleButton x:Name="LocationToggleButton" Width="110" Height="25" Content="Select Locations"/>
+                <Popup PlacementTarget="{Binding ElementName=LocationToggleButton}" Placement="Bottom" IsOpen="{Binding IsChecked, ElementName=LocationToggleButton}" StaysOpen="False">
                     <Border BorderBrush="Gray" BorderThickness="1" Background="White">
                         <ScrollViewer Height="200" Width="200">
-                            <TreeView x:Name="LocationTreeView" SelectedItemChanged="LocationTreeView_SelectedItemChanged">
-                                <!-- TreeView items will be populated in code-behind -->
-                            </TreeView>
+                            <TreeView x:Name="LocationTreeView" SelectedItemChanged="LocationTreeView_SelectedItemChanged"/>
                         </ScrollViewer>
                     </Border>
                 </Popup>
 
-
-
                 <Label VerticalAlignment="Center" Target="{Binding ElementName=UserGranularityBox}">
                     <AccessText Text="_Interval:"/>
                 </Label>
-                <ComboBox x:Name="UserGranularityBox" Width="110"
-                          SelectionChanged="ReadingFilter_Changed">
+                <ComboBox x:Name="UserGranularityBox" Width="110" SelectionChanged="ReadingFilter_Changed">
                     <ComboBoxItem Content="Daily"/>
                     <ComboBoxItem Content="Weekly"/>
                     <ComboBoxItem Content="Monthly"/>
@@ -308,49 +261,37 @@
                 </ComboBox>
             </StackPanel>
 
-            <!-- Small, fixed-height area — grows only by scrolling as more graphs are added -->
-            <Border BorderBrush="#DDDDDD" BorderThickness="1" Height="500" Width="720">
+            <!-- WIDER 1000px CONTAINER CONTROLLED VIA XAML -->
+            <Border BorderBrush="#DDDDDD" BorderThickness="1" Height="625" Width="Auto">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <WrapPanel x:Name="ChartHost" Orientation="Horizontal"/>
+                    <Grid x:Name="ChartHost" Margin="10">
+                        <Grid.Resources>
+                            <!-- Applies the sizing style to every graph control automatically -->
+                            <Style TargetType="UserControl" BasedOn="{StaticResource DashboardGraphStyle}"/>
+                        </Grid.Resources>
+                    </Grid>
                 </ScrollViewer>
             </Border>
 
             <WrapPanel HorizontalAlignment="Right" Margin="0,10,0,0">
-                <Button Content="Export simplified Data"
-            Padding="10,4"
-            Height="28"
-            Margin="0,0,10,5"
-            Click="ExportTemperatureData_Click"/>
-
-                <Button Content="Export Full Data"
-            Padding="10,4"
-            Height="28"
-            Margin="0,0,10,5"
-            Click="ExportAllDataJson_Click"/>
-
-                <Button Content="Logout"
-            Padding="15,4"
-            Height="28"
-            Margin="0,0,0,5"
-            Click="LogoutButton_Click"/>
+                <Button Content="Export simplified Data" Padding="10,4" Height="28" Margin="0,0,10,5" Click="ExportTemperatureData_Click"/>
+                <Button Content="Export Full Data" Padding="10,4" Height="28" Margin="0,0,10,5" Click="ExportAllDataJson_Click"/>
+                <Button Content="Logout" Padding="15,4" Height="28" Margin="0,0,0,5" Click="LogoutButton_Click"/>
             </WrapPanel>
         </StackPanel>
 
         <!-- CHART OVERLAY -->
+ 
         <Grid x:Name="ChartOverlay" Visibility="Collapsed" Background="#AA000000">
-            <Border Background="White" CornerRadius="6" Padding="10"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Width="600" Height="450">
+            <Border Background="White" CornerRadius="6" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Width="1000" Height="450">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0">
-                        <Button Content="X" Width="28" Height="20" DockPanel.Dock="Right" Margin="0,20,0,0"
-                                Click="CloseChartOverlay_Click"/>
-                        <TextBlock x:Name="OverlayTitleText" FontWeight="Bold" FontSize="14"
-                                   VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        <Button Content="X" Width="28" Height="20" DockPanel.Dock="Right" Margin="0,20,0,0" Click="CloseChartOverlay_Click"/>
+                        <TextBlock x:Name="OverlayTitleText" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Margin="4,0,0,0"/>
                     </DockPanel>
                     <Grid Grid.Row="1" x:Name="OverlayContentHost" Margin="0,10,0,0"/>
                 </Grid>

@@ -506,7 +506,17 @@ namespace Assign_2
             }
 
             var granularity = Enum.Parse<Granularity>(granularityItem.Content.ToString());
-            var series = SensorsDatabase.GetAggregates(locations, granularity);
+
+            // Project and explicitly round each value
+            var series = SensorsDatabase.GetAggregates(locations, granularity)
+                .Select(r => new
+                {
+                    r.Period,
+                    AvgTemp = Math.Round(r.AvgTemp, 2),
+                    MinTemp = Math.Round(r.MinTemp, 2),
+                    MaxTemp = Math.Round(r.MaxTemp, 2),
+                    r.Samples
+                }).ToList();
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
@@ -544,6 +554,7 @@ namespace Assign_2
         private void CloseChartOverlay_Click(object sender, RoutedEventArgs e)
         {
             ChartOverlay.Visibility = Visibility.Collapsed;
+            OverlayContentHost.Children.Clear();
         }
 
 
@@ -641,11 +652,14 @@ namespace Assign_2
         /// <param name="granularity">the granularity of the data (e.g., Daily, Weekly, Monthly)</param>
         private void BuildChartTiles(List<int> locations, Granularity granularity)
         {
-            List<(DateTime Period, double Temperature)> readings;
             ChartHost.Children.Clear();
+            ChartHost.RowDefinitions.Clear();
+            ChartHost.ColumnDefinitions.Clear();
+
+            int rowIndex = 0;
             foreach (int location in locations)
             {
-
+                List<(DateTime Period, double Temperature)> readings;
                 try
                 {
                     readings = SensorsDatabase.GetChartReadings(location, granularity);
@@ -656,12 +670,7 @@ namespace Assign_2
                     return;
                 }
 
-                //Checks if a location has relevant temperature data.
-                if (readings.Count == 0)
-                {
-                    Console.WriteLine($"No readings for location {location}.");
-                    continue;
-                }
+                if (readings.Count == 0) continue;
 
                 string granularityName = granularity.ToString();
 
@@ -671,57 +680,57 @@ namespace Assign_2
                     granularityName == "Monthly" ? "MMM yyyy" :
                     "yyyy")).ToList();
 
-                List<double> temperatures = readings
-                    .Select(reading => reading.Temperature)
-                    .ToList();
-
+                List<double> temperatures = readings.Select(reading => reading.Temperature).ToList();
                 DashboardSettings settings = SensorsDatabase.GetSettings();
 
-                // Line - Temperature Reading
+                // 1. Add row to main host
+                ChartHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                // 2. Create sub-grid with your 5* (Line), 1.5* (Bar), 1.5* (Box Plot) proportions
+                Grid roomGrid = new Grid();
+                roomGrid.Margin = new Thickness(0, 0, 0, 10);
+                roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) });   // Line (Wide)
+                roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Bar
+                roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Box Plot
+
+                // --- Column 0: Line Graph ---
                 if (settings.ShowTempReading)
                 {
                     ChartTile topTile = new ChartTile();
-
-                    topTile.ShowLine(
-                        $"Graph {location}",
-                        labels,
-                        temperatures,
-                        null,
-                        null
-                    );
-
+                    topTile.ShowLine($"Graph {location}", labels, temperatures, null, null);
                     topTile.Clicked += ChartTile_Clicked;
 
-                    Grid.SetRow(topTile, 0);
-                    Grid.SetColumnSpan(topTile, 2);
-
-                    ChartHost.Children.Add(topTile);
+                    Grid.SetColumn(topTile, 0);
+                    roomGrid.Children.Add(topTile);
                 }
 
-                // Bar - Current Temperature
+                // --- Column 1: Bar / Current Temperature ---
                 if (settings.ShowCurrentTemp)
                 {
                     ChartTile2 tile2 = new ChartTile2();
-
                     if (temperatures.Count > 0)
                     {
-                        double latestTemp = temperatures.Last();
-
-                        tile2.UpdateValue(latestTemp);
+                        tile2.UpdateValue(temperatures.Last());
                     }
 
-                    Grid.SetRow(tile2, 1);
-                    Grid.SetColumn(tile2, 0);
-
-                    ChartHost.Children.Add(tile2);
+                    Grid.SetColumn(tile2, 1);
+                    roomGrid.Children.Add(tile2);
                 }
 
-                // Boxplot - Temperature Comparison
+                // --- Column 2: Box Plot ---
                 if (settings.ShowTempComparison)
                 {
-                    // Boxplot generation goes here
+                    BoxPlot boxPlotTile = new BoxPlot();
+                    boxPlotTile.ShowBoxPlot(temperatures);
+
+                    Grid.SetColumn(boxPlotTile, 2);
+                    roomGrid.Children.Add(boxPlotTile);
                 }
 
+                Grid.SetRow(roomGrid, rowIndex);
+                ChartHost.Children.Add(roomGrid);
+
+                rowIndex++;
             }
         }
 
