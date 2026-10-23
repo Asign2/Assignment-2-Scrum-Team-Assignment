@@ -13,6 +13,10 @@ This app provides the following features:
 
 The app supports Administrator and User roles, password login authentication and encryption of user credentials.
 
+### Data
+
+The app simulation for temperature activates every 20 seconds, and that activation will generate the temperature readings for an hour. This means that data will get tracked into the future.
+
 ### Database Storage
 
 The app stores data in a database, including:
