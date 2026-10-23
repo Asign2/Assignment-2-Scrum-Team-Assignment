@@ -656,6 +656,8 @@ namespace Assign_2
             ChartHost.RowDefinitions.Clear();
             ChartHost.ColumnDefinitions.Clear();
 
+            List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
+
             int rowIndex = 0;
             foreach (int location in locations)
             {
@@ -697,7 +699,7 @@ namespace Assign_2
                 if (settings.ShowTempReading)
                 {
                     ChartTile topTile = new ChartTile();
-                    topTile.ShowLine($"Graph {location}", labels, temperatures, null, null);
+                    topTile.ShowLine($"Floor {allLocations.First(l => l.Id == location).Floor}. Room {allLocations.First(l => l.Id == location).Room}", labels, temperatures, null, null);
                     topTile.Clicked += ChartTile_Clicked;
 
                     Grid.SetColumn(topTile, 0);
