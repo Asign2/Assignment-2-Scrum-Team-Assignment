@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using VectSharp.Plots;
 
 namespace Assign_2
 {
@@ -27,33 +26,42 @@ namespace Assign_2
         public List<string> Labels { get; private set; }
         public List<double> Values { get; private set; }
 
+        private double _lastWidth = -1;
+        private double _lastHeight = -1;
+
         public ChartTile()
         {
             InitializeComponent();
-            SparklineHost.SizeChanged += (s, e) => DrawSparkline();
+            SparklineHost.SizeChanged += (s, e) =>
+            {
+                // Only redraw if the size actually changed significantly to avoid layout thrashing
+                if (Math.Abs(SparklineHost.ActualWidth - _lastWidth) > 1 ||
+                    Math.Abs(SparklineHost.ActualHeight - _lastHeight) > 1)
+                {
+                    _lastWidth = SparklineHost.ActualWidth;
+                    _lastHeight = SparklineHost.ActualHeight;
+                    DrawSparkline();
+                }
+            };
         }
 
-        public void ShowLine(string title, List<string> xLabels,
-                             List<double> data, double? low, double? high)
+        public void ShowLine(string title, List<string> xLabels, List<double> data, double? low, double? high)
         {
             chartTitle = title;
             kind = ChartKind.Line;
             labels = xLabels;
             values = data;
 
-            // Correctly set public properties after updating fields
             Title = title;
             Labels = labels;
             Values = values;
 
-            minValues = new List<double>();
-            maxValues = new List<double>();
+            minValues.Clear();
+            maxValues.Clear();
             Redraw();
         }
 
-        public void ShowBand(string title, List<string> xLabels,
-                             List<double> mins, List<double> maxs, List<double> avgs,
-                             double? low, double? high)
+        public void ShowBand(string title, List<string> xLabels, List<double> mins, List<double> maxs, List<double> avgs, double? low, double? high)
         {
             chartTitle = title;
             kind = ChartKind.Band;
@@ -80,8 +88,8 @@ namespace Assign_2
             Labels = labels;
             Values = values;
 
-            minValues = new List<double>();
-            maxValues = new List<double>();
+            minValues.Clear();
+            maxValues.Clear();
             Redraw();
         }
 
@@ -116,9 +124,31 @@ namespace Assign_2
 
             bool hasBand = kind == ChartKind.Band && minValues.Count > 0 && maxValues.Count > 0;
 
-            double minTemp = hasBand ? minValues.Min() : values.Min();
-            double maxTemp = hasBand ? maxValues.Max() : values.Max();
-            double avgTemp = values.Average();
+            // OPTIMIZATION: Compute Min, Max, and Average in a single efficient pass instead of multiple LINQ scans
+            double minTemp = double.MaxValue, maxTemp = double.MinValue, sum = 0;
+            int targetCount = values.Count;
+
+            if (hasBand)
+            {
+                for (int i = 0; i < targetCount; i++)
+                {
+                    if (minValues[i] < minTemp) minTemp = minValues[i];
+                    if (maxValues[i] > maxTemp) maxTemp = maxValues[i];
+                    sum += values[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < targetCount; i++)
+                {
+                    double val = values[i];
+                    if (val < minTemp) minTemp = val;
+                    if (val > maxTemp) maxTemp = val;
+                    sum += val;
+                }
+            }
+
+            double avgTemp = sum / targetCount;
 
             int minIndex = hasBand ? minValues.IndexOf(minTemp) : values.IndexOf(minTemp);
             int maxIndex = hasBand ? maxValues.IndexOf(maxTemp) : values.IndexOf(maxTemp);
@@ -149,14 +179,31 @@ namespace Assign_2
             double width = SparklineHost.ActualWidth;
             double height = SparklineHost.ActualHeight;
 
-            double min = values.Min();
-            double max = values.Max();
+            // Single pass min/max for sparkline scaling
+            double min = values[0];
+            double max = values[0];
+            for (int i = 1; i < values.Count; i++)
+            {
+                if (values[i] < min) min = values[i];
+                if (values[i] > max) max = values[i];
+            }
+
             double range = (max - min) < 0.01 ? 1 : (max - min);
 
             var points = new PointCollection();
-            for (int i = 0; i < values.Count; i++)
+            int count = values.Count;
+
+            // OPTIMIZATION: If there are more data points than horizontal pixels, 
+            // downsample to avoid processing unnecessary overhead on the UI thread.
+            int step = 1;
+            if (count > width)
             {
-                double x = width * i / (values.Count - 1);
+                step = (int)Math.Ceiling((double)count / width);
+            }
+
+            for (int i = 0; i < count; i += step)
+            {
+                double x = width * i / (count - 1);
                 double normalized = (values[i] - min) / range;
                 double y = height - (normalized * height);
                 points.Add(new Point(x, y));
@@ -164,7 +211,7 @@ namespace Assign_2
 
             Sparkline.Points = points;
         }
-        //Creates the paramters for the EnlargedCopy
+
         public ChartTile CreateEnlargedCopy(double width = 850, double height = 350)
         {
             ChartTile copy = new ChartTile { Width = width, Height = height };
@@ -172,7 +219,6 @@ namespace Assign_2
             return copy;
         }
 
-        //Shows the temp of the hovered Point on the line
         private void SparklineHost_MouseMove(object sender, MouseEventArgs e)
         {
             if (values.Count < 2) return;
@@ -205,9 +251,11 @@ namespace Assign_2
         {
             TemperatureTooltip.Visibility = Visibility.Collapsed;
         }
+
         private void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
             Clicked?.Invoke(this, EventArgs.Empty);
         }
     }
 }
+  
