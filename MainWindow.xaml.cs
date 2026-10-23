@@ -506,7 +506,17 @@ namespace Assign_2
             }
 
             var granularity = Enum.Parse<Granularity>(granularityItem.Content.ToString());
-            var series = SensorsDatabase.GetAggregates(locations, granularity);
+
+            // Project and explicitly round each value
+            var series = SensorsDatabase.GetAggregates(locations, granularity)
+                .Select(r => new
+                {
+                    r.Period,
+                    AvgTemp = Math.Round(r.AvgTemp, 2),
+                    MinTemp = Math.Round(r.MinTemp, 2),
+                    MaxTemp = Math.Round(r.MaxTemp, 2),
+                    r.Samples
+                }).ToList();
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
