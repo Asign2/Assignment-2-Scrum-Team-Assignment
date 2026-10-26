@@ -162,7 +162,7 @@
                                 <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="120"/>
                                 <DataGridTextColumn Header="Room" Binding="{Binding Room}" Width="120"/>
                                 <DataGridTextColumn Header="Active" Binding="{Binding Active}" Width="80"/>
-                                <DataGridTemplateColumn Header="Toggle" Width="150">
+                                <DataGridTemplateColumn Header="Activate/Deactivate" Width="150">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Content="Toggle" Click="ToggleSensor_Click" />
