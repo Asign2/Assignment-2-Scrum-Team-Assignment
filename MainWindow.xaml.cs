@@ -148,12 +148,6 @@ namespace Assign_2
                 return;
             }
 
-            if (NewPasswordBox.Password == "")
-            {
-                MessageBox.Show("Enter a new password.");
-                return;
-            }
-
             string newRole = chosenRole.Content.ToString();
 
             // Pull remaining values directly from form controls or keep original values from selectedUser

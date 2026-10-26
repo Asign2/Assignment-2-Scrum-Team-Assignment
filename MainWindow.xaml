@@ -76,19 +76,19 @@
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
                                         <AccessText Text="_Username:"/>
                                     </Label>
-                                    <TextBox x:Name="EditUsernameBox" Width="180" IsReadOnly="True" />
+                                    <TextBox x:Name="EditUsernameBox" Width="180"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=first_name}">
                                         <AccessText Text="_First Name:"/>
                                     </Label>
-                                    <TextBox x:Name="EditFirstNameBox" Width="180" IsReadOnly="True" />
+                                    <TextBox x:Name="EditFirstNameBox" Width="180"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=last_name}">
                                         <AccessText Text="_Last Name:"/>
                                     </Label>
-                                    <TextBox x:Name="EditLastNameBox" Width="180" IsReadOnly="True" />
+                                    <TextBox x:Name="EditLastNameBox" Width="180"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
