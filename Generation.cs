@@ -31,7 +31,7 @@ namespace Assign_2
             while (true)
             {
 
-                await Task.Delay(20000); // Wait for 20 seconds before generating the next set of 
+                await Task.Delay(60000); // Wait for 60 seconds before generating the next set of 
                 using var command = new SqlCommand(
                    @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
                         VALUES (
@@ -45,6 +45,10 @@ namespace Assign_2
 
                 foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
                 {
+                    if (!sensor.Active)
+                    {
+                        continue;
+                    }
                     Debug.WriteLine($"{sensor.Id}, {sensor.Room}, {sensor.Variance}");
 
                     double temp = random.randomTemp(settings.Tick , sensor.Variance);

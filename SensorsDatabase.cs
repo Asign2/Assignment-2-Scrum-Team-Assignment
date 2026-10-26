@@ -174,17 +174,17 @@ namespace Assign_2
             if (!sensorsHaveRows)
             {
                 RunNonQuery(connection, @"
-                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance)
+                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
-                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3),
-                        (GETDATE(), 'Bosch', 'BME280', 2, 5),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10),
-                        (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8);
+                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
+                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
+                        (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
@@ -204,6 +204,10 @@ namespace Assign_2
             
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
+                if (!sensor.Active)
+                {
+                    continue;
+                }
                 Debug.WriteLine($"{ sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
                 
