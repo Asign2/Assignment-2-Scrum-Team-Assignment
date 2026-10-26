@@ -603,7 +603,7 @@ namespace Assign_2
             List<int> locations = SelectedLocations();
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
 
-            if ( locations.Count == 0 || granularityItem == null)
+            if ( granularityItem == null)
             {
                 return;
             }

@@ -32,7 +32,7 @@ namespace Assign_2
             while (true)
             {
 
-                await Task.Delay(20000); // Wait for 60 seconds before generating the next set of 
+                await Task.Delay(60000); // Wait for 60 seconds before generating the next set of 
                 using var command = new SqlCommand(
                    @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
                         VALUES (
