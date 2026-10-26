@@ -21,8 +21,9 @@ namespace Assign_2
             generator.generatePeriodicTemperature();
 
         }
-
+        //Stores existing graphs, for updating their temp.
         private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
+
         /// <summary>
         /// Compares users account input to the database account credentials.
         /// If matches then sends user to their account role's screen.
@@ -900,16 +901,16 @@ namespace Assign_2
             DashboardSettings settings = SensorsDatabase.GetSettings();
 
             foreach (LocationRecord location in allLocations) {
+
                 List<(DateTime Period, double Temperature)> readings = SensorsDatabase.GetChartReadings(location.Id, granularity);
+                //Checks if a location has readings but no graph.
+                //if true then calls BuildChartTiles
                 if (!chartTiles.ContainsKey(location.Id) && readings.Count > 0) 
                 {
-                    Debug.WriteLine($"Missing graph for Location ID: {location.Id}");
-                       
-
-                    Debug.WriteLine($"Readings found: {readings.Count}");
                     BuildChartTiles(locations, granularity);
                     return;
                 }
+                //Checks if a Location has 0 readings, continues if not.
                 if (readings.Count == 0) { 
                     continue;
                 }
