@@ -8,11 +8,11 @@ namespace Assign_2
 {
     public static class SensorsDatabase
     {
-        public static int SeedHours = 24; // number of hours to pre-seed database.
-                                          // Default 24 (1 day)
-                                          // 168 == 1 week
-                                          // 720 == 1 month
-                                          // time in hours, starting from 0 to t
+        public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
+                                            // 60 = 1 hour
+                                            // 1440 = 1 day
+                                            // no == 1 week
+                                            // your crazy == 1 month
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -174,17 +174,17 @@ namespace Assign_2
             if (!sensorsHaveRows)
             {
                 RunNonQuery(connection, @"
-                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance)
+                    INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
-                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3),
-                        (GETDATE(), 'Bosch', 'BME280', 2, 5),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10),
-                        (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8);
+                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
+                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
+                        (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
             }
@@ -193,9 +193,9 @@ namespace Assign_2
             {
                 using var command = new SqlCommand(@"
                     INSERT INTO dbo.DashboardSettings (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading,Tick)
-                    VALUES (1, 'Monthly', 1, 1, 1, @SeededHours);", connection);
-                command.Parameters.Add("@SeededHours", System.Data.SqlDbType.Int);
-                command.Parameters["@SeededHours"].Value = SeedHours;
+                    VALUES (1, 'Monthly', 1, 1, 1, @SeededMinutes);", connection);
+                command.Parameters.Add("@SeededMinutes", System.Data.SqlDbType.Int);
+                command.Parameters["@SeededMinutes"].Value = SeedMinutes;
 
                 command.ExecuteNonQuery();
             }
@@ -204,27 +204,31 @@ namespace Assign_2
             
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
+                if (sensor.Active == false) {
+                    continue; 
+                } // skip inactive sensors
                 Debug.WriteLine($"{ sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
                 
 
                 using var command = new SqlCommand(
                     @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
-                    VALUES (DATEADD(hour, @hours, GETDATE()), @temperature, @sensorId);", connection);
+                    VALUES (DATEADD(minute, @minute, DATEADD(minute, -@SeededMinutes, GETDATE())) , @temperature, @sensorId);", connection);
 
-                command.Parameters.Add("@hours", System.Data.SqlDbType.Int);
+                command.Parameters.Add("@minute", System.Data.SqlDbType.Int);
                 command.Parameters.Add("@temperature", System.Data.SqlDbType.Decimal);
                 command.Parameters.Add("@sensorId", System.Data.SqlDbType.Int);
+                command.Parameters.AddWithValue("@SeededMinutes", SeedMinutes);
 
                 command.Parameters["@temperature"].Precision = 5;
                 command.Parameters["@temperature"].Scale = 2;
 
-                for (int i = 0; i < SeedHours; i++)
+                for (int i = 0; i < SeedMinutes; i++)
                 {
                     double temp = random.randomTemp(i, sensor.Variance);
                     Debug.WriteLine($"{i}, {sensor.Variance}, {temp}");
 
-                    command.Parameters["@hours"].Value = i; 
+                    command.Parameters["@minute"].Value = i; 
                     command.Parameters["@temperature"].Value = temp;
                     command.Parameters["@sensorId"].Value = sensor.Id;
                     command.ExecuteNonQuery();
@@ -362,7 +366,7 @@ namespace Assign_2
                     ShowCurrentTemp = true,
                     ShowTempComparison = true,
                     ShowTempReading = true,
-                    Tick = SeedHours
+                    Tick = SeedMinutes
 
                 };
             }
