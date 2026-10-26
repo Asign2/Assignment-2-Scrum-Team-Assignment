@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Assign_2
@@ -18,7 +19,10 @@ namespace Assign_2
             Generation generator = new Generation(this);
             DashboardSettings settings = SensorsDatabase.GetSettings();
             generator.generatePeriodicTemperature();
+
         }
+        //Stores existing graphs, for updating their temp.
+        private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
 
         /// <summary>
         /// Compares users account input to the database account credentials.
@@ -675,6 +679,8 @@ namespace Assign_2
             ChartHost.RowDefinitions.Clear();
             ChartHost.ColumnDefinitions.Clear();
 
+            chartTiles.Clear();
+
             List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
 
             int rowIndex = 0;
@@ -714,10 +720,13 @@ namespace Assign_2
                 roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Bar
                 roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Box Plot
 
+                ChartTile topTile = null;
+                ChartTile2 tile2 = null;
+                BoxPlot boxPlotTile = null;
                 // --- Column 0: Line Graph ---
                 if (settings.ShowTempReading)
                 {
-                    ChartTile topTile = new ChartTile();
+                    topTile = new ChartTile();
                     topTile.ShowLine($"Floor {allLocations.First(l => l.Id == location).Floor}. Room {allLocations.First(l => l.Id == location).Room}", labels, temperatures, null, null);
                     topTile.Clicked += ChartTile_Clicked;
 
@@ -728,7 +737,7 @@ namespace Assign_2
                 // --- Column 1: Bar / Current Temperature ---
                 if (settings.ShowCurrentTemp)
                 {
-                    ChartTile2 tile2 = new ChartTile2();
+                    tile2 = new ChartTile2();
                     if (temperatures.Count > 0)
                     {
                         tile2.UpdateValue(temperatures.Last());
@@ -741,12 +750,15 @@ namespace Assign_2
                 // --- Column 2: Box Plot ---
                 if (settings.ShowTempComparison)
                 {
-                    BoxPlot boxPlotTile = new BoxPlot();
+                    boxPlotTile = new BoxPlot();
                     boxPlotTile.ShowBoxPlot(temperatures);
 
                     Grid.SetColumn(boxPlotTile, 2);
                     roomGrid.Children.Add(boxPlotTile);
                 }
+                
+                
+                chartTiles[location] = (topTile, tile2, boxPlotTile);
 
                 Grid.SetRow(roomGrid, rowIndex);
                 ChartHost.Children.Add(roomGrid);
@@ -877,5 +889,83 @@ namespace Assign_2
             }
             return selectedLocations;
         }   
+
+        private void ToggleSensor_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is SensorRecord sensor) 
+            {
+                bool newStatus;
+                if (sensor.Active)
+                {
+                    newStatus = false;
+                }
+                else
+                {
+                    newStatus = true;
+                }
+                SensorsDatabase.UpdateActivity(newStatus, sensor.Id);
+
+                SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+            }
+        }
+        /// <summary>
+        /// Redraws the graphs that are already generated.
+        /// </summary>
+        public void RedrawChartTiles()
+        {
+            List<int> locations = SelectedLocations();
+            ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
+            if (locations.Count == 0 || granularityItem == null)
+            {
+                return;
+            }
+            Granularity granularity = (Granularity)Enum.Parse(
+                typeof(Granularity), granularityItem.Content.ToString());
+
+            List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
+            DashboardSettings settings = SensorsDatabase.GetSettings();
+
+            foreach (LocationRecord location in allLocations) {
+
+                List<(DateTime Period, double Temperature)> readings = SensorsDatabase.GetChartReadings(location.Id, granularity);
+                //Checks if a location has readings but no graph.
+                //if true then calls BuildChartTiles
+                if (!chartTiles.ContainsKey(location.Id) && readings.Count > 0) 
+                {
+                    BuildChartTiles(locations, granularity);
+                    return;
+                }
+                //Checks if a Location has 0 readings, continues if not.
+                if (readings.Count == 0) { 
+                    continue;
+                }
+
+                var tiles = chartTiles[location.Id];
+                List<string> labels = readings.Select(reading => reading.Period.ToString(
+                 granularity.ToString() == "Daily" ? "HH:mm" :
+                 granularity.ToString() == "Weekly" ? "dd MMM" :
+                 granularity.ToString() == "Monthly" ? "MMM yyyy" :
+                 "yyyy")).ToList();
+
+                List<double> temperatures = readings.Select(reading => reading.Temperature).ToList();
+
+                if (tiles.Line != null && settings.ShowTempReading) { 
+                    string Title = $"Floor {allLocations.First(l => l.Id == location.Id).Floor}." +
+                                   $"Room {allLocations.First(l => l.Id == location.Id).Room}";
+
+                    tiles.Line.ShowLine(Title, labels, temperatures, null, null);
+                }
+
+                if(tiles.Bar != null && settings.ShowCurrentTemp && temperatures.Count > 0)
+                {
+                    tiles.Bar.UpdateValue(temperatures.Last());
+                }
+
+                if(tiles.Box != null && settings.ShowTempComparison)
+                {
+                    tiles.Box.ShowBoxPlot(temperatures);
+                }
+            }
+        }
     }
 }

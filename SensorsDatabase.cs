@@ -516,5 +516,19 @@ namespace Assign_2
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
         }   
+
+        public static void UpdateActivity(bool newStatus, int sensorId)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+                UPDATE dbo.Sensors
+                SET Active = @Activity
+                WHERE Id = @Id", connection);
+
+            command.Parameters.AddWithValue("@Activity", newStatus);
+            command.Parameters.AddWithValue("@Id", sensorId);
+            command.ExecuteNonQuery();
+
+        }
     }
 }

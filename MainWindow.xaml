@@ -163,6 +163,14 @@
                                 <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="120"/>
                                 <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="120"/>
                                 <DataGridTextColumn Header="Room" Binding="{Binding Room}" Width="120"/>
+                                <DataGridTextColumn Header="Active" Binding="{Binding Active}" Width="80"/>
+                                <DataGridTemplateColumn Header="Activate/Deactivate" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Toggle" Click="ToggleSensor_Click" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                         <StackPanel Orientation="Horizontal" Margin="420,0,0,50">
