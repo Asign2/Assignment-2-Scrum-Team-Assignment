@@ -19,6 +19,7 @@ namespace Assign_2
             DashboardSettings settings = SensorsDatabase.GetSettings();
             generator.generatePeriodicTemperature();
         }
+
         /// <summary>
         /// Compares users account input to the database account credentials.
         /// If matches then sends user to their account role's screen.
@@ -58,7 +59,6 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
-
 
         /// <summary>
         /// Redundant method
@@ -230,6 +230,7 @@ namespace Assign_2
         {
             ShowScreen(NewUserScreen);
         }
+
         /// <summary>
         /// Registers a new user to the database with the inputted values from the new user registration screen.
         /// </summary>
@@ -268,6 +269,7 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
+
         /// <summary>
         /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
@@ -277,6 +279,7 @@ namespace Assign_2
         {
             OpenAdminScreen();
         }
+
         /// <summary>
         /// Returns the display to the login screen from any other screen and clears the input boxes.
         /// </summary>
@@ -303,9 +306,9 @@ namespace Assign_2
             screenToShow.Visibility = Visibility.Visible;
         }
 
-        // ---------------- Sensor Settings (Admin) ----------------
-
-        /// <summary>Loads the saved dashboard settings into the admin form fields.</summary>
+        /// <summary>
+        /// Loads the saved dashboard settings into the admin form fields.
+        /// </summary>
         private void LoadSettingsIntoForm()
         {
             try
@@ -391,8 +394,6 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
-
-        // ---------------- Dashboard (User) ----------------
 
         /// <summary>
         /// Shows the user screen, loads locations once, and applies admin defaults.
@@ -494,7 +495,11 @@ namespace Assign_2
             RefreshDashboard();
         }
 
-        //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
+        /// <summary>
+        /// Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export Temperature Data button</param>
+        /// <param name="e">The button was clicked.</param>
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
             List<int> locations = SelectedLocations();
@@ -526,7 +531,12 @@ namespace Assign_2
                 Readings = series
             });
         }
-        //Exports all Temprature Data from the database to a JSON file.
+
+        /// <summary>
+        /// Exports all Temprature Data from the database to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export all data json</param>
+        /// <param name="e">The button was clicked.</param>
         private void ExportAllDataJson_Click(object sender, RoutedEventArgs e)
         {
             JsonExport.SaveJson("AllSensorData.json", new
@@ -536,11 +546,22 @@ namespace Assign_2
                 Data = JsonExport.Query("SELECT * FROM dbo.Data")
             });
         }
-        //Uses Existing Table to export the dashboard log to a JSON file.
+
+        /// <summary>
+        /// Uses Existing Table to export the dashboard log to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export user log was exported</param>
+        /// <param name="e">The button was clicked</param>
         private void ExportUserLog(object sender, RoutedEventArgs e)
         {
             JsonExport.SaveJson("DashboardLog.json", JsonExport.Query("SELECT * FROM dbo.DashboardLog"));
         }
+
+        /// <summary>
+        /// The chart gets enlarged in an overlay.
+        /// </summary>
+        /// <param name="sender">Chart Clicked</param>
+        /// <param name="e">Event data.</param>
         private void ChartTile_Clicked(object sender, EventArgs e)
         {
             ChartTile source = sender as ChartTile;
@@ -551,12 +572,16 @@ namespace Assign_2
             ChartOverlay.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Closes the enlarged chart overlay.
+        /// </summary>
+        /// <param name="sender">Exit button clicked.</param>
+        /// <param name="e">Event data</param>
         private void CloseChartOverlay_Click(object sender, RoutedEventArgs e)
         {
             ChartOverlay.Visibility = Visibility.Collapsed;
             OverlayContentHost.Children.Clear();
         }
-
 
         /// <summary>
         /// Re-runs the dashboard whenever the location or interval filter changes.
@@ -643,9 +668,9 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Rebuilds the ChartHost panel with as many tiles as the admin's
-        /// graph count allows. The first two slots are the average/min/max
-        /// band and the sample-count bars; extra slots are placeholders
+        /// Rebuilds the ChartHost panel with as many tiles as the admin's.
+        /// graph count allows. The first two slots are the average/min/max.
+        /// band and the sample-count bars; extra slots are placeholders.
         /// ready for future visualisations.
         /// </summary>
         /// <param name="locations">list of locations that the charts will represent</param>
@@ -736,6 +761,11 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// When the selected items in the tree view change it gets called to refresh the dashboard.
+        /// </summary>
+        /// <param name="sender">Changes in the tvmscb.</param>
+        /// <param name="e">The event data.</param>
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
             if (userScreenReady)
@@ -743,6 +773,7 @@ namespace Assign_2
                 RefreshDashboard();
             }
         }
+
         /// <summary>
         /// Changes the room checkbox automatically when its floor is ticked or not ticked.
         /// e.g. if you seleccted or deselect a floor it will change all rooms under it apporopriately.
@@ -829,6 +860,7 @@ namespace Assign_2
             }
 
         }
+
         /// <summary>
         /// This will return a list for all the selected room location ints.
         /// </summary>
