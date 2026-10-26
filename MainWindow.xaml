@@ -126,7 +126,7 @@
                         <Border Grid.Row="0" BorderBrush="#CCCCCC" BorderThickness="1" Padding="10" Margin="0,0,0,10">
                             <StackPanel>
                                 <TextBlock Text="Dashboard Configuration" FontWeight="Bold" Margin="0,0,0,8"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <!--<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=MinTempBox}">
                                         <AccessText Text="_Min Temp (°C):"/>
                                     </Label>
@@ -136,6 +136,8 @@
                                     </Label>
                                     <TextBox x:Name="MaxTempBox" Width="70"/>
                                 </StackPanel>
+                                </StackPanel>--> 
+                                <!-- removed Max and Min temp options as these serve no function --> 
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=DefaultGranularityBox}">
                                         <AccessText Text="Default _Interval:"/>
