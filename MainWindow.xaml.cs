@@ -851,5 +851,24 @@ namespace Assign_2
             }
             return selectedLocations;
         }   
+
+        private void ToggleSensor_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is SensorRecord sensor) 
+            {
+                bool newStatus;
+                if (sensor.Active)
+                {
+                    newStatus = false;
+                }
+                else
+                {
+                    newStatus = true;
+                }
+                SensorsDatabase.UpdateActivity(newStatus, sensor.Id);
+
+                SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+            }
+        }
     }
 }
