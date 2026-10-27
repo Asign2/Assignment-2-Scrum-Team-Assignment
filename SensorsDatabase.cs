@@ -176,14 +176,14 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
-                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, ),
+                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 0),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 0),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 0),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
@@ -469,31 +469,31 @@ namespace Assign_2
             int location,
             Granularity granularity)
         {
-            int hours = granularity switch
+            int minutes = granularity switch
             {
-                Granularity.Daily => 24,
-                Granularity.Weekly => 168,
-                Granularity.Monthly => 720,
-                Granularity.Yearly => 8760,
+                Granularity.Daily => 1440,
+                Granularity.Weekly => 13440,
+                Granularity.Monthly => 43200,
+                Granularity.Yearly => 525600,
                 _ => throw new ArgumentOutOfRangeException(nameof(granularity))
             };
 
             string query = @"
-                SELECT TOP(@Hours)
-                    DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
+                SELECT TOP(@Minutes)
+                    DATEADD(MINUTE, DATEDIFF(MINUTE, 0, d.Timestamp), 0) AS Period,
                     CAST(AVG(d.Temperature) AS DECIMAL(5, 2)) AS Temperature
                 FROM dbo.Data d
                 INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                 INNER JOIN dbo.Locations l ON s.Location_id = l.Id
                 WHERE l.Id = @LocationId
-                    AND d.Timestamp >= DATEADD(HOUR, -@Hours, (SELECT MAX(Timestamp) FROM dbo.Data))
-                GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
+                    AND d.Timestamp >= DATEADD(MINUTE, -@Minutes, (SELECT MAX(Timestamp) FROM dbo.Data))
+                GROUP BY DATEADD(MINUTE, DATEDIFF(MINUTE, 0, d.Timestamp), 0)
                 ORDER BY Period;";
 
             using SqlConnection connection = UserDatabase.OpenConnection();
             using SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@LocationId", location);
-            command.Parameters.AddWithValue("@Hours", hours);
+            command.Parameters.AddWithValue("@Minutes", minutes);
             // @LocationId and @Hours are parameters for parameterised query
             // reduces SQL SELECT code to just one statement, with Granularity & location as input
 
