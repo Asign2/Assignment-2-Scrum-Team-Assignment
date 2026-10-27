@@ -176,7 +176,7 @@ namespace Assign_2
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
-                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, ),
+                        (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
                         (GETDATE(), 'Bosch', 'BME280', 2, 5, 0),
                         (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 0),
                         (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 0),
