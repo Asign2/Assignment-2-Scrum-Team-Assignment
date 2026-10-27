@@ -469,10 +469,10 @@ namespace Assign_2
         {
             int hours = granularity switch
             {
-                Granularity.Daily => 24,
-                Granularity.Weekly => 168,
-                Granularity.Monthly => 720,
-                Granularity.Yearly => 8760,
+                Granularity.Daily => 23,
+                Granularity.Weekly => 167,
+                Granularity.Monthly => 719,
+                Granularity.Yearly => 8759,
                 _ => throw new ArgumentOutOfRangeException(nameof(granularity))
             };
 
