@@ -39,6 +39,8 @@ public class SprintFeatureTests : IDisposable
         }
     }
 
+    //Locally Creats a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
+    //The method registers the user in the UserDatabase and returns the user's ID and username for further testing.   
     private (int Id, string Username) CreateTestUser()
     {
         string username = "sprint_" + Guid.NewGuid().ToString("N")[..10];
@@ -48,7 +50,7 @@ public class SprintFeatureTests : IDisposable
         _createdUserIds.Add(user.Id);
         return (user.Id, username);
     }
-
+    //Grabs the Current Seededlocations for testing.
     private static List<LocationRecord> GetSeededLocations()
     {
         SensorsDatabase.Initialize();
