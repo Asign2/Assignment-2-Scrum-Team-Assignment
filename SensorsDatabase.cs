@@ -186,7 +186,6 @@ namespace Assign_2
                         (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
-                // need more sensors feel free to add more sensors shoudn't break anything
             }
             bool settingsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.DashboardSettings;"); 
             if (!settingsHaveRows)

@@ -188,7 +188,7 @@ namespace Assign_2
         // =========================================================
         // SEED DEFAULT USERS
         // =========================================================
-        //The Datetime stuff mostlikely has to be changed to the current date and time when the program is run, but I don't know how to do that yet (its weird).
+        
         private static void SeedDefaultUsers(SqlConnection connection)
         {
             // Define the tuple with explicit names so user.Username, user.Password, etc., work

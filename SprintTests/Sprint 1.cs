@@ -15,7 +15,7 @@ public class UserDatabaseTests : IDisposable
         foreach (int id in _testUserIds)
             UserDatabase.DeleteUser(id);
     }
-    //Locally Creats a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
+    //Locally Creates a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
     //The method registers the user in the UserDatabase and returns the user's ID and username for further testing.    
     private (int Id, string Username) CreateTestUser(string password = "user123")
     {
