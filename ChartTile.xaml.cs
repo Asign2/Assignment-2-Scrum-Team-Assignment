@@ -191,7 +191,7 @@ namespace Assign_2
             Sparkline.Points = points;
         }
         //Creates the paramters for the EnlargedCopy
-        public ChartTile CreateEnlargedCopy(double width = 850, double height = 350)
+        public ChartTile CreateEnlargedCopy(double width = 1100, double height = 550)
         {
             activeEnlargedCopy = new ChartTile { Width = width, Height = height };
             UpdateEnlargedCopy();
