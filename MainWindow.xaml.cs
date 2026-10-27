@@ -11,15 +11,25 @@ namespace Assign_2
         private bool adminScreenReady;
         private bool userScreenReady;
 
-        public MainWindow()
+        public MainWindow() : this(true)
+        {
+        }
+
+        // Allows tests to create the window without starting
+        // the database initialization and generation loop.
+        //Means that Tests will still run fast and not require the database to be initialized.
+        public MainWindow(bool startGeneration)
         {
             InitializeComponent();
-            SensorsDatabase.Initialize();
 
-            Generation generator = new Generation(this);
-            DashboardSettings settings = SensorsDatabase.GetSettings();
-            generator.generatePeriodicTemperature();
+            if (startGeneration)
+            {
+                SensorsDatabase.Initialize();
 
+                Generation generator = new Generation(this);
+                //Discards the first generated temperature to avoid wrong readings for future use.
+                _ = generator.generatePeriodicTemperature();
+            }
         }
         //Stores existing graphs, for updating their temp.
         private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
