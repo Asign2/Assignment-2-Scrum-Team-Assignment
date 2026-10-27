@@ -34,6 +34,7 @@ namespace Assign_2
     /// <summary>One aggregated time bucket of temperature readings.</summary>
     public class ReadingAggregate
     {
+        public int Location {  get; set; }
         public string Period { get; set; }
         public double AvgTemp { get; set; }
         public double MinTemp { get; set; }

@@ -324,6 +324,7 @@ namespace Assign_2
                     DateTime start = reader.GetDateTime(0);
                     rows.Add(new ReadingAggregate
                     {
+                        Location = location,
                         Period = FormatPeriod(start, granularity),
                         AvgTemp = Math.Round(reader.GetDouble(1), 2),
                         MinTemp = Math.Round(reader.GetDouble(2), 2),

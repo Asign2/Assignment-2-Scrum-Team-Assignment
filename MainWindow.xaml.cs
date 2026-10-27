@@ -514,6 +514,7 @@ namespace Assign_2
             var series = SensorsDatabase.GetAggregates(locations, granularity)
                 .Select(r => new
                 {
+                    r.Location,
                     r.Period,
                     AvgTemp = Math.Round(r.AvgTemp, 2),
                     MinTemp = Math.Round(r.MinTemp, 2),
@@ -523,6 +524,7 @@ namespace Assign_2
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
+
                 Location = string.Join(", ", locations),
                 Granularity = granularity.ToString(),
                 ExportedAt = DateTime.UtcNow,
