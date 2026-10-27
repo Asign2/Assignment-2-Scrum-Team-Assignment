@@ -114,6 +114,7 @@ namespace Assign_2
             }
 
             // Populate the form fields with selected user data
+            ShowIDBox.Text = selectedUser.Id.ToString();
             EditUsernameBox.Text = selectedUser.Username;
             EditFirstNameBox.Text = selectedUser.first_name;
             EditLastNameBox.Text = selectedUser.last_name;

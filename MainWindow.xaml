@@ -71,14 +71,19 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=Id}">
+                                        <AccessText Text="_Id"/>
+                                    </Label>
+                                    <TextBox x:Name="ShowIDBox" Width="180"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=EditUsernameBox}">
                                         <AccessText Text="_Username:"/>
                                     </Label>
                                     <TextBox x:Name="EditUsernameBox" Width="180"/>
                                 </StackPanel>
-                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=first_name}">
                                         <AccessText Text="_First Name:"/>
                                     </Label>
@@ -90,7 +95,7 @@
                                     </Label>
                                     <TextBox x:Name="EditLastNameBox" Width="180"/>
                                 </StackPanel>
-                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
                                     <Label Width="110" VerticalAlignment="Center" Target="{Binding ElementName=RoleBox}">
                                         <AccessText Text="_Role:"/>
                                     </Label>
