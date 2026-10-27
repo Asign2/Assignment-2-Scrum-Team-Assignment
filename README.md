@@ -24,7 +24,7 @@ The app stores data in a database, including:
 
 ## Commands
 
-- `dotnet test "./Assign2.sln" --logger "html;LogFileName=test-results.html"` (run tests and exports results through html as a .md)
+- `dotnet test "./Assign2.sln" --logger "html;LogFileName=test-results.md"` (run tests and exports results through html as a .md)
 - `mkdir ""` (create new folder)
 - `cd ""` (go to new folder)
 - `dotnet restore .\Assign2.sln --verbosity diagnostic` (Run this if api.nuget.org is unable to load)
