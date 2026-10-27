@@ -22,7 +22,8 @@ namespace Assign_2
         private List<double> values = new List<double>();
         private List<double> minValues = new List<double>();
         private List<double> maxValues = new List<double>();
-
+        // Track the active enlarged copy linked to this tile
+        private ChartTile activeEnlargedCopy;
         public string Title { get; private set; }
         public List<string> Labels { get; private set; }
         public List<double> Values { get; private set; }
@@ -49,6 +50,7 @@ namespace Assign_2
             minValues = new List<double>();
             maxValues = new List<double>();
             Redraw();
+            UpdateEnlargedCopy();
         }
 
         public void ShowBand(string title, List<string> xLabels,
@@ -67,6 +69,7 @@ namespace Assign_2
             Values = values;
 
             Redraw();
+            UpdateEnlargedCopy();
         }
 
         public void ShowBars(string title, List<string> xLabels, List<double> data)
@@ -83,6 +86,7 @@ namespace Assign_2
             minValues = new List<double>();
             maxValues = new List<double>();
             Redraw();
+            UpdateEnlargedCopy();
         }
 
         public void ShowPlaceholder(string title)
@@ -94,6 +98,7 @@ namespace Assign_2
             Labels = new List<string>();
             Values = new List<double>();
             Redraw();
+            UpdateEnlargedCopy();
         }
 
         private void Redraw()
@@ -130,8 +135,29 @@ namespace Assign_2
             MaxTimeText.Text = LabelAt(maxIndex);
 
             DrawSparkline();
+            UpdateEnlargedCopy();
         }
+        private void UpdateEnlargedCopy()
+        {
+            if (activeEnlargedCopy == null) return;
 
+            // Mirror the exact data type to the enlarged copy
+            switch (kind)
+            {
+                case ChartKind.Line:
+                    activeEnlargedCopy.ShowLine(chartTitle, labels, values, null, null);
+                    break;
+                case ChartKind.Band:
+                    activeEnlargedCopy.ShowBand(chartTitle, labels, minValues, maxValues, values, null, null);
+                    break;
+                case ChartKind.Bars:
+                    activeEnlargedCopy.ShowBars(chartTitle, labels, values);
+                    break;
+                case ChartKind.None:
+                    activeEnlargedCopy.ShowPlaceholder(chartTitle);
+                    break;
+            }
+        }
         private string LabelAt(int index)
         {
             return (index >= 0 && index < labels.Count) ? labels[index] : "";
@@ -165,11 +191,11 @@ namespace Assign_2
             Sparkline.Points = points;
         }
         //Creates the paramters for the EnlargedCopy
-        public ChartTile CreateEnlargedCopy(double width = 850, double height = 350)
+        public ChartTile CreateEnlargedCopy(double width = 1100, double height = 550)
         {
-            ChartTile copy = new ChartTile { Width = width, Height = height };
-            copy.ShowLine(this.Title, this.Labels, this.Values, null, null);
-            return copy;
+            activeEnlargedCopy = new ChartTile { Width = width, Height = height };
+            UpdateEnlargedCopy();
+            return activeEnlargedCopy;
         }
 
         //Shows the temp of the hovered Point on the line

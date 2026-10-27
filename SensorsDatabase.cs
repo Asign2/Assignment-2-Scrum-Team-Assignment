@@ -180,10 +180,10 @@ namespace Assign_2
                         (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
                         (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
                         (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
                 // need more sensors feel free to add more sensors shoudn't break anything
@@ -204,9 +204,10 @@ namespace Assign_2
             
             foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
             {
-                if (sensor.Active == false) {
-                    continue; 
-                } // skip inactive sensors
+                if (!sensor.Active)
+                {
+                    continue;
+                }
                 Debug.WriteLine($"{ sensor.Id}, {sensor.Room}, {sensor.Variance}");
                 int n = sensor.Variance;
                 
@@ -324,6 +325,7 @@ namespace Assign_2
                     DateTime start = reader.GetDateTime(0);
                     rows.Add(new ReadingAggregate
                     {
+                        Location = location,
                         Period = FormatPeriod(start, granularity),
                         AvgTemp = Math.Round(reader.GetDouble(1), 2),
                         MinTemp = Math.Round(reader.GetDouble(2), 2),
@@ -477,7 +479,7 @@ namespace Assign_2
             };
 
             string query = @"
-                SELECT
+                SELECT TOP(@Hours)
                     DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
                     CAST(AVG(d.Temperature) AS DECIMAL(5, 2)) AS Temperature
                 FROM dbo.Data d
@@ -516,5 +518,19 @@ namespace Assign_2
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
         }   
+
+        public static void UpdateActivity(bool newStatus, int sensorId)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+                UPDATE dbo.Sensors
+                SET Active = @Activity
+                WHERE Id = @Id", connection);
+
+            command.Parameters.AddWithValue("@Activity", newStatus);
+            command.Parameters.AddWithValue("@Id", sensorId);
+            command.ExecuteNonQuery();
+
+        }
     }
 }

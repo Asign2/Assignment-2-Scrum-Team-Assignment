@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Assign_2
 
                 foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
                 {
-                    if (sensor.Active == false)
+                    if (!sensor.Active)
                     {
                         continue;
                     }
@@ -72,9 +73,8 @@ namespace Assign_2
 
                 mainWindow.Dispatcher.Invoke(() =>
                 {
-                    //mainWindow.RefreshDashboard();
+                    mainWindow.RedrawChartTiles();
                 });
-
             }
         }
     }

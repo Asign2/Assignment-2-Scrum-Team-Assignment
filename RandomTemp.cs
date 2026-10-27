@@ -8,10 +8,11 @@ namespace Assign_2
 {
     internal class RandomTemp
     {
+
         /// <summary>
         /// random temperature generator for testing the graphing functions.
         /// </summary>
-        /// <param name="x">time for the temperatures.</param>
+        /// <param name="x">time frame for the temperatures.</param>
         /// <param name="n">additional parameter to modify the temperature.</param>
         /// <returns>double for temp.</returns>
         public double randomTemp(int x, int n)

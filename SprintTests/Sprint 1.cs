@@ -1,16 +1,31 @@
-using Xunit;
-using Assign_2;
 using System;
+using System.Collections.Generic;
+using Assign_2;
+using Xunit;
 
 namespace SprintUnitTests;
 
 public class UserDatabaseTests : IDisposable
 {
+    private readonly List<int> _testUserIds = new();
+
+    // Delete ONLY the test accounts created by this test instance.
     public void Dispose()
     {
-        // This automatically runs after EVERY test method finishes, 
-        // clearing any new users added and putting the DB back to its default state.
-        UserDatabase.ResetDatabase();
+        foreach (int id in _testUserIds)
+            UserDatabase.DeleteUser(id);
+    }
+    //Locally Creats a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
+    //The method registers the user in the UserDatabase and returns the user's ID and username for further testing.    
+    private (int Id, string Username) CreateTestUser(string password = "user123")
+    {
+        string username = "s1_" + Guid.NewGuid().ToString("N")[..10];
+        Assert.True(UserDatabase.Register(username, password, "User", "", "", ""));
+
+        UserRecord record = Assert.Single(UserDatabase.GetAllUsers(),
+            u => u.Username == username);
+        _testUserIds.Add(record.Id);
+        return (record.Id, username);
     }
 
     [Fact]
@@ -24,7 +39,8 @@ public class UserDatabaseTests : IDisposable
     [Fact]
     public void Login_ValidUserCredentials_ReturnsTrueAndUserRole()
     {
-        bool success = UserDatabase.Login("alex", "user123", out string role);
+        var (_, username) = CreateTestUser();
+        bool success = UserDatabase.Login(username, "user123", out string role);
         Assert.True(success);
         Assert.Equal("User", role);
     }
@@ -39,18 +55,16 @@ public class UserDatabaseTests : IDisposable
     [Fact]
     public void Login_NonExistentUser_ReturnsFalse()
     {
-        bool success = UserDatabase.Login("nonexistentuser", "password", out string role);
+        string username = "missing_" + Guid.NewGuid().ToString("N");
+        bool success = UserDatabase.Login(username, "password", out string role);
         Assert.False(success);
     }
 
     [Fact]
     public void Register_NewUser_SuccessfullyAddsUser()
     {
-        string uniqueUser = "testuser_" + Guid.NewGuid().ToString().Substring(0, 6);
-        bool registered = UserDatabase.Register(uniqueUser, "pass123", "User", "", "", "");
-        bool loginSuccess = UserDatabase.Login(uniqueUser, "pass123", out string role);
-
-        Assert.True(registered);
+        var (_, username) = CreateTestUser("pass123");
+        bool loginSuccess = UserDatabase.Login(username, "pass123", out string role);
         Assert.True(loginSuccess);
         Assert.Equal("User", role);
     }
@@ -58,11 +72,8 @@ public class UserDatabaseTests : IDisposable
     [Fact]
     public void Register_DuplicateUsername_ThrowsException()
     {
-        string duplicateUser = "admin";
-
-        Assert.Throws<System.Exception>(() =>
-        {
-            UserDatabase.Register(duplicateUser, "somepassword", "User", "", "", "");
-        });
+        var (_, username) = CreateTestUser();
+        Assert.Throws<Exception>(() =>
+            UserDatabase.Register(username, "somepassword", "User", "", "", ""));
     }
 }

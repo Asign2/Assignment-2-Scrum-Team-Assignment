@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Assign_2
@@ -18,7 +19,11 @@ namespace Assign_2
             Generation generator = new Generation(this);
             DashboardSettings settings = SensorsDatabase.GetSettings();
             generator.generatePeriodicTemperature();
+
         }
+        //Stores existing graphs, for updating their temp.
+        private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
+
         /// <summary>
         /// Compares users account input to the database account credentials.
         /// If matches then sends user to their account role's screen.
@@ -58,7 +63,6 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
-
 
         /// <summary>
         /// Redundant method
@@ -110,6 +114,7 @@ namespace Assign_2
             }
 
             // Populate the form fields with selected user data
+            ShowIDBox.Text = selectedUser.Id.ToString();
             EditUsernameBox.Text = selectedUser.Username;
             EditFirstNameBox.Text = selectedUser.first_name;
             EditLastNameBox.Text = selectedUser.last_name;
@@ -145,12 +150,6 @@ namespace Assign_2
             if (newUsername == "" || chosenRole == null)
             {
                 MessageBox.Show("Username and role are required.");
-                return;
-            }
-
-            if (NewPasswordBox.Password == "")
-            {
-                MessageBox.Show("Enter a new password.");
                 return;
             }
 
@@ -230,6 +229,7 @@ namespace Assign_2
         {
             ShowScreen(NewUserScreen);
         }
+
         /// <summary>
         /// Registers a new user to the database with the inputted values from the new user registration screen.
         /// </summary>
@@ -268,6 +268,7 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
+
         /// <summary>
         /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
@@ -277,6 +278,7 @@ namespace Assign_2
         {
             OpenAdminScreen();
         }
+
         /// <summary>
         /// Returns the display to the login screen from any other screen and clears the input boxes.
         /// </summary>
@@ -303,9 +305,9 @@ namespace Assign_2
             screenToShow.Visibility = Visibility.Visible;
         }
 
-        // ---------------- Sensor Settings (Admin) ----------------
-
-        /// <summary>Loads the saved dashboard settings into the admin form fields.</summary>
+        /// <summary>
+        /// Loads the saved dashboard settings into the admin form fields.
+        /// </summary>
         private void LoadSettingsIntoForm()
         {
             try
@@ -391,8 +393,6 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
-
-        // ---------------- Dashboard (User) ----------------
 
         /// <summary>
         /// Shows the user screen, loads locations once, and applies admin defaults.
@@ -494,7 +494,11 @@ namespace Assign_2
             RefreshDashboard();
         }
 
-        //Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
+        /// <summary>
+        /// Exports a simplified version of the temperature data for a specific location and granularity to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export Temperature Data button</param>
+        /// <param name="e">The button was clicked.</param>
         private void ExportTemperatureData_Click(object sender, RoutedEventArgs e)
         {
             List<int> locations = SelectedLocations();
@@ -511,6 +515,7 @@ namespace Assign_2
             var series = SensorsDatabase.GetAggregates(locations, granularity)
                 .Select(r => new
                 {
+                    r.Location,
                     r.Period,
                     AvgTemp = Math.Round(r.AvgTemp, 2),
                     MinTemp = Math.Round(r.MinTemp, 2),
@@ -520,13 +525,19 @@ namespace Assign_2
 
             JsonExport.SaveJson($"TemperatureData_{granularity}.json", new
             {
+
                 Location = string.Join(", ", locations),
                 Granularity = granularity.ToString(),
                 ExportedAt = DateTime.UtcNow,
                 Readings = series
             });
         }
-        //Exports all Temprature Data from the database to a JSON file.
+
+        /// <summary>
+        /// Exports all Temprature Data from the database to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export all data json</param>
+        /// <param name="e">The button was clicked.</param>
         private void ExportAllDataJson_Click(object sender, RoutedEventArgs e)
         {
             JsonExport.SaveJson("AllSensorData.json", new
@@ -536,11 +547,22 @@ namespace Assign_2
                 Data = JsonExport.Query("SELECT * FROM dbo.Data")
             });
         }
-        //Uses Existing Table to export the dashboard log to a JSON file.
+
+        /// <summary>
+        /// Uses Existing Table to export the dashboard log to a JSON file.
+        /// </summary>
+        /// <param name="sender">Export user log was exported</param>
+        /// <param name="e">The button was clicked</param>
         private void ExportUserLog(object sender, RoutedEventArgs e)
         {
             JsonExport.SaveJson("DashboardLog.json", JsonExport.Query("SELECT * FROM dbo.DashboardLog"));
         }
+
+        /// <summary>
+        /// The chart gets enlarged in an overlay.
+        /// </summary>
+        /// <param name="sender">Chart Clicked</param>
+        /// <param name="e">Event data.</param>
         private void ChartTile_Clicked(object sender, EventArgs e)
         {
             ChartTile source = sender as ChartTile;
@@ -551,12 +573,16 @@ namespace Assign_2
             ChartOverlay.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Closes the enlarged chart overlay.
+        /// </summary>
+        /// <param name="sender">Exit button clicked.</param>
+        /// <param name="e">Event data</param>
         private void CloseChartOverlay_Click(object sender, RoutedEventArgs e)
         {
             ChartOverlay.Visibility = Visibility.Collapsed;
             OverlayContentHost.Children.Clear();
         }
-
 
         /// <summary>
         /// Re-runs the dashboard whenever the location or interval filter changes.
@@ -580,7 +606,7 @@ namespace Assign_2
             List<int> locations = SelectedLocations();
             ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
 
-            if ( locations.Count == 0 || granularityItem == null)
+            if ( granularityItem == null)
             {
                 return;
             }
@@ -643,9 +669,9 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Rebuilds the ChartHost panel with as many tiles as the admin's
-        /// graph count allows. The first two slots are the average/min/max
-        /// band and the sample-count bars; extra slots are placeholders
+        /// Rebuilds the ChartHost panel with as many tiles as the admin's.
+        /// graph count allows. The first two slots are the average/min/max.
+        /// band and the sample-count bars; extra slots are placeholders.
         /// ready for future visualisations.
         /// </summary>
         /// <param name="locations">list of locations that the charts will represent</param>
@@ -655,6 +681,8 @@ namespace Assign_2
             ChartHost.Children.Clear();
             ChartHost.RowDefinitions.Clear();
             ChartHost.ColumnDefinitions.Clear();
+
+            chartTiles.Clear();
 
             List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
 
@@ -695,10 +723,13 @@ namespace Assign_2
                 roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Bar
                 roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // Box Plot
 
+                ChartTile topTile = null;
+                ChartTile2 tile2 = null;
+                BoxPlot boxPlotTile = null;
                 // --- Column 0: Line Graph ---
                 if (settings.ShowTempReading)
                 {
-                    ChartTile topTile = new ChartTile();
+                    topTile = new ChartTile();
                     topTile.ShowLine($"Floor {allLocations.First(l => l.Id == location).Floor}. Room {allLocations.First(l => l.Id == location).Room}", labels, temperatures, null, null);
                     topTile.Clicked += ChartTile_Clicked;
 
@@ -709,7 +740,7 @@ namespace Assign_2
                 // --- Column 1: Bar / Current Temperature ---
                 if (settings.ShowCurrentTemp)
                 {
-                    ChartTile2 tile2 = new ChartTile2();
+                    tile2 = new ChartTile2();
                     if (temperatures.Count > 0)
                     {
                         tile2.UpdateValue(temperatures.Last());
@@ -722,12 +753,15 @@ namespace Assign_2
                 // --- Column 2: Box Plot ---
                 if (settings.ShowTempComparison)
                 {
-                    BoxPlot boxPlotTile = new BoxPlot();
+                    boxPlotTile = new BoxPlot();
                     boxPlotTile.ShowBoxPlot(temperatures);
 
                     Grid.SetColumn(boxPlotTile, 2);
                     roomGrid.Children.Add(boxPlotTile);
                 }
+                
+                
+                chartTiles[location] = (topTile, tile2, boxPlotTile);
 
                 Grid.SetRow(roomGrid, rowIndex);
                 ChartHost.Children.Add(roomGrid);
@@ -736,6 +770,11 @@ namespace Assign_2
             }
         }
 
+        /// <summary>
+        /// When the selected items in the tree view change it gets called to refresh the dashboard.
+        /// </summary>
+        /// <param name="sender">Changes in the tvmscb.</param>
+        /// <param name="e">The event data.</param>
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
             if (userScreenReady)
@@ -743,6 +782,7 @@ namespace Assign_2
                 RefreshDashboard();
             }
         }
+
         /// <summary>
         /// Changes the room checkbox automatically when its floor is ticked or not ticked.
         /// e.g. if you seleccted or deselect a floor it will change all rooms under it apporopriately.
@@ -829,6 +869,7 @@ namespace Assign_2
             }
 
         }
+
         /// <summary>
         /// This will return a list for all the selected room location ints.
         /// </summary>
@@ -851,5 +892,83 @@ namespace Assign_2
             }
             return selectedLocations;
         }   
+
+        private void ToggleSensor_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is SensorRecord sensor) 
+            {
+                bool newStatus;
+                if (sensor.Active)
+                {
+                    newStatus = false;
+                }
+                else
+                {
+                    newStatus = true;
+                }
+                SensorsDatabase.UpdateActivity(newStatus, sensor.Id);
+
+                SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+            }
+        }
+        /// <summary>
+        /// Redraws the graphs that are already generated.
+        /// </summary>
+        public void RedrawChartTiles()
+        {
+            List<int> locations = SelectedLocations();
+            ComboBoxItem granularityItem = UserGranularityBox.SelectedItem as ComboBoxItem;
+            if (locations.Count == 0 || granularityItem == null)
+            {
+                return;
+            }
+            Granularity granularity = (Granularity)Enum.Parse(
+                typeof(Granularity), granularityItem.Content.ToString());
+
+            List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
+            DashboardSettings settings = SensorsDatabase.GetSettings();
+
+            foreach (LocationRecord location in allLocations) {
+
+                List<(DateTime Period, double Temperature)> readings = SensorsDatabase.GetChartReadings(location.Id, granularity);
+                //Checks if a location has readings but no graph.
+                //if true then calls BuildChartTiles
+                if (!chartTiles.ContainsKey(location.Id) && readings.Count > 0) 
+                {
+                    BuildChartTiles(locations, granularity);
+                    return;
+                }
+                //Checks if a Location has 0 readings, continues if not.
+                if (readings.Count == 0) { 
+                    continue;
+                }
+
+                var tiles = chartTiles[location.Id];
+                List<string> labels = readings.Select(reading => reading.Period.ToString(
+                 granularity.ToString() == "Daily" ? "HH:mm" :
+                 granularity.ToString() == "Weekly" ? "dd MMM" :
+                 granularity.ToString() == "Monthly" ? "MMM yyyy" :
+                 "yyyy")).ToList();
+
+                List<double> temperatures = readings.Select(reading => reading.Temperature).ToList();
+
+                if (tiles.Line != null && settings.ShowTempReading) { 
+                    string Title = $"Floor {allLocations.First(l => l.Id == location.Id).Floor}." +
+                                   $"Room {allLocations.First(l => l.Id == location.Id).Room}";
+
+                    tiles.Line.ShowLine(Title, labels, temperatures, null, null);
+                }
+
+                if(tiles.Bar != null && settings.ShowCurrentTemp && temperatures.Count > 0)
+                {
+                    tiles.Bar.UpdateValue(temperatures.Last());
+                }
+
+                if(tiles.Box != null && settings.ShowTempComparison)
+                {
+                    tiles.Box.ShowBoxPlot(temperatures);
+                }
+            }
+        }
     }
 }
