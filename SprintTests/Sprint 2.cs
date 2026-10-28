@@ -23,6 +23,7 @@ public class Sprint_2
     [Fact]
     public void GetAllLocations_ReturnsLocations()
     {
+        SensorsDatabase.Initialize();
         var locations = SensorsDatabase.GetAllLocations();
         Assert.NotNull(locations);
         Assert.NotEmpty(locations);
@@ -31,6 +32,7 @@ public class Sprint_2
     [Fact]
     public void GetAllSensors_ReturnsSensors()
     {
+        SensorsDatabase.Initialize();
         var sensors = SensorsDatabase.GetAllSensors();
         Assert.NotNull(sensors);
         Assert.NotEmpty(sensors);
@@ -39,6 +41,7 @@ public class Sprint_2
     [Fact]
     public void GetAllSensors_SensorsHaveLocationInformation()
     {
+        SensorsDatabase.Initialize();
         var sensors = SensorsDatabase.GetAllSensors();
         Assert.NotEmpty(sensors);
         foreach (var sensor in sensors)

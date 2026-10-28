@@ -1,11 +1,12 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Windows.Controls.Primitives;
 using Assign_2;
+using Microsoft.Data.SqlClient;
 using Xunit;
 
 namespace SprintUnitTests;
-
 public class ChartDataTests
 {
 
@@ -111,4 +112,36 @@ public class ChartDataTests
 
         Assert.Empty(aggregates);
     }
+    private int GetReadingCount()
+    {
+        using var connection = UserDatabase.OpenConnection();
+
+        using var command = new SqlCommand(
+            "SELECT COUNT(*) FROM dbo.Data;",
+            connection);
+        return (int)command.ExecuteScalar();
+    }
+    [Fact]
+    public async Task GeneratePeriodicTemperature_InsertsReadings()
+    {
+        using var cts = new CancellationTokenSource();
+
+        SensorsDatabase.Initialize();
+
+        int readingsBefore = GetReadingCount();
+
+        Generation generator = new Generation( 10);
+
+        var generationTask = generator.generatePeriodicTemperature(cts.Token);
+        await Task.Delay(100);
+        cts.Cancel();
+
+        int readingsAfter = GetReadingCount();
+
+        Assert.True(readingsAfter > readingsBefore);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            async () => await generationTask);
+    }
+
+   
 }
