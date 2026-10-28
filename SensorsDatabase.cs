@@ -11,8 +11,6 @@ namespace Assign_2
         public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
                                             // 60 = 1 hour
                                             // 1440 = 1 day
-                                            // no == 1 week
-                                            // your crazy == 1 month
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -173,19 +171,20 @@ namespace Assign_2
             bool sensorsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Sensors;");
             if (!sensorsHaveRows)
             {
+                //Sensor 9 is deactivated to show how activation works.
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
                         (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 0),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 0),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 0),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
+                        (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
-                ");
+                ");/
             }
             bool settingsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.DashboardSettings;"); 
             if (!settingsHaveRows)
