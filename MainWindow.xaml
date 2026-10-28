@@ -252,22 +252,22 @@
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateMake}">
         <AccessText Text="Update _Make"/>
     </Label>
-    <TextBox x:Name="UpdateMake" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
+    <TextBox x:Name="UpdateMake" Height="25" Margin="0,0,0,10"/>
 
     <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateModel}">
         <AccessText Text="Update _Model"/>
     </Label>
-            <TextBox x:Name="UpdateModel" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
+            <TextBox x:Name="UpdateModel" Height="25" Margin="0,0,0,10" />
 
     <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateFloor}">
-        <AccessText Text="Update _Floor"/>
+        <AccessText Text="_Floor" />
     </Label>
-    <TextBox x:Name="UpdateFloor" Height="25" Margin="0,0,0,10"/>
+            <TextBox x:Name="UpdateFloor" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
 
     <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateRoom}">
-        <AccessText Text="Update _Room"/>
+        <AccessText Text="_Room"/>
     </Label>
-    <TextBox x:Name="UpdateRoom" Height="25" Margin="0,0,0,10"/>
+            <TextBox x:Name="UpdateRoom" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
 
     <Button Content="Update Sensor Details" Width="auto" Height="30" Margin="0,10,0,5" Click="RegisterSensorUpdate_Click"/>
     <Button Content="Return" Width="auto" Height="30" Click="ReturnButton_Click"/>

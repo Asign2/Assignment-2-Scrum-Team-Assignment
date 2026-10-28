@@ -157,14 +157,14 @@ namespace Assign_2
             else
             {
                 // Insert new location if it doesn't exist yet
-                using var locInsertCommand = new SqlCommand(
+                using var insertdata = new SqlCommand(
                     @"INSERT INTO dbo.Locations (Floor, Room) OUTPUT INSERTED.Id VALUES (@floor, @room);",
                     connection);
 
-                locInsertCommand.Parameters.AddWithValue("@floor", floor);
-                locInsertCommand.Parameters.AddWithValue("@room", room);
+                insertdata.Parameters.AddWithValue("@floor", floor);
+                insertdata.Parameters.AddWithValue("@room", room);
 
-                locationId = Convert.ToInt32(locInsertCommand.ExecuteScalar());
+                locationId = Convert.ToInt32(insertdata.ExecuteScalar());
             }
 
             // 2. Insert the new Sensor into dbo.Sensors
@@ -364,48 +364,18 @@ namespace Assign_2
             }
             return sensors;
         }
-        public static void UpdateSensor(int sensorId, string make, string model, int floor, int room)
+        public static void UpdateSensor(int sensorId, string make, string model)
         {
             using var connection = UserDatabase.OpenConnection();
 
-            // 1. Find or create the Location Id for the given Floor and Room
-            int locationId;
-            using var Select = new SqlCommand(
-                @"SELECT Id FROM dbo.Locations WHERE Floor = @floor AND Room = @room;",
-                connection);
-
-            Select.Parameters.AddWithValue("@floor", floor);
-            Select.Parameters.AddWithValue("@room", room);
-
-            object result = Select.ExecuteScalar();
-
-            if (result != null)
-            {
-                locationId = Convert.ToInt32(result);
-            }
-            else
-            {
-                using var locInsertCommand = new SqlCommand(
-                    @"INSERT INTO dbo.Locations (Floor, Room) OUTPUT INSERTED.Id VALUES (@floor, @room);",
-                    connection);
-
-                locInsertCommand.Parameters.AddWithValue("@floor", floor);
-                locInsertCommand.Parameters.AddWithValue("@room", room);
-
-                locationId = Convert.ToInt32(locInsertCommand.ExecuteScalar());
-            }
-
-            // 2. Update the Sensor record in dbo.Sensors
             using var command = new SqlCommand(@"
         UPDATE dbo.Sensors
         SET Make = @Make,
-            Model = @Model,
-            Location_Id = @LocationId
+            Model = @Model
         WHERE Id = @Id;", connection);
 
             command.Parameters.AddWithValue("@Make", make);
             command.Parameters.AddWithValue("@Model", model);
-            command.Parameters.AddWithValue("@LocationId", locationId);
             command.Parameters.AddWithValue("@Id", sensorId);
 
             command.ExecuteNonQuery();

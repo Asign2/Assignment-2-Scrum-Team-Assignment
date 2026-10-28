@@ -361,7 +361,7 @@ namespace Assign_2
 
         private void RegisterSensorUpdate_Click(object sender, RoutedEventArgs e)
         {
-            // Ensure a sensor is actually selected from your ComboBox
+            // Ensure a sensor is selected from your ComboBox
             if (SensorIDComboBox.SelectedValue == null)
             {
                 MessageBox.Show("Please select a sensor to update.");
@@ -371,26 +371,19 @@ namespace Assign_2
             int sensorId = Convert.ToInt32(SensorIDComboBox.SelectedValue);
             string make = UpdateMake.Text.Trim();
             string model = UpdateModel.Text.Trim();
-            string floorStr = UpdateFloor.Text.Trim();
-            string roomStr = UpdateRoom.Text.Trim();
 
-            if (make == "" || model == "" || floorStr == "" || roomStr == "")
+            if (make == "" || model == "")
             {
-                MessageBox.Show("All Fields are required.");
-                return;
-            }
-
-            if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room))
-            {
-                MessageBox.Show("Floor and Room must be valid numbers.");
+                MessageBox.Show("Make and Model are required.");
                 return;
             }
 
             try
             {
-                SensorsDatabase.UpdateSensor(sensorId, make, model, floor, room);
+                SensorsDatabase.UpdateSensor(sensorId, make, model);
                 MessageBox.Show("Sensor updated successfully.");
 
+                // Refresh the ComboBox list
                 LoadSensorIds();
             }
             catch (Exception ex)
