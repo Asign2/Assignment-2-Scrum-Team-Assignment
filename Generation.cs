@@ -21,7 +21,7 @@ namespace Assign_2
 
         /// <summary>
         /// Periodically generates temperature readings for all sensors in the database and inserts them into the Database.
-        /// Ticks every 20 seconds.
+        /// Ticks every 60 seconds.
         /// Each tick is a minute.
         /// </summary>
         public async Task generatePeriodicTemperature(CancellationToken cancellationToken = default)
