@@ -146,10 +146,11 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Save Settings" Width="120" Click="SaveSettings_Click" Margin="0,0,10,0"/>
                                     <TextBlock x:Name="SettingsUpdatedText" VerticalAlignment="Center" Foreground="Gray" FontSize="11"/>
+                                    <Button Content="Add new Sensor" Width="120" Click="NewSensor_Click" Margin="0,0,10,0"></Button>
+                                    <Button Content="Update Sensor" Width="120" Click="UpdateSensor_Click" Margin="0,0,10,0"></Button>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <DataGrid x:Name="SensorsGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
@@ -175,7 +176,6 @@
                         </StackPanel>
                     </Grid>
                 </TabItem>
-
                 <!-- DASHBOARD LOG TAB -->
                 <TabItem Header="Dashboard Log">
                     <Grid Margin="10">
@@ -204,7 +204,70 @@
                 <Button Content="Export Full Data" Margin="0,0,10,0" Click="ExportAllDataJson_Click"/>
             </StackPanel>
         </Grid>
+        <!-- New Sensor View-->
+        <StackPanel x:Name="NewSensorScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Create Sensor Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewMake}">
+                <AccessText Text="New _Make"/>
+            </Label>
+            <TextBox x:Name="NewMake" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewModel}">
+                <AccessText Text="New _Model"/>
+            </Label>
+            <TextBox x:Name="NewModel" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewFloor}">
+                <AccessText Text="New _Floor"/>
+            </Label>
+            <TextBox x:Name="NewFloor" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewRoom}">
+                <AccessText Text="New _Room"/>
+            </Label>
+            <TextBox x:Name="NewRoom" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewBool}">
+                <AccessText Text="Actived/Deactivate"/>
+            </Label>
+            <ComboBox x:Name="NewBool" Height="25" Margin="0,0,0,10" IsEditable="True" IsReadOnly="True" Text="Select If Active or not" StaysOpenOnEdit="True">
+                <ComboBoxItem Content="True"/>
+                <ComboBoxItem Content="False"/>
+            </ComboBox>
+            <Button Content="Register New Sensor" Width="auto" Height="30" Click="RegisterSensor_Click"/>
+            <Button Content="Return" Width="auto" Height="30" Click="ReturnButton_Click"/>
+        </StackPanel>
+        <!-- Update Sensors View -->
+        <StackPanel x:Name="UpdateSensorScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Width="320">
+    <TextBlock Text="Update Sensor Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+    
+    <Label HorizontalAlignment="Left" Target="{Binding ElementName=SensorIDComboBox}">
+        <AccessText Text="Select _Sensor ID"/>
+    </Label>
+            <ComboBox x:Name="SensorIDComboBox" Height="25" Margin="0,0,0,10" 
+          DisplayMemberPath="Id" 
+          SelectedValuePath="Id"
+          SelectionChanged="SensorIDComboBox_SelectionChanged"/>
 
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateMake}">
+        <AccessText Text="Update _Make"/>
+    </Label>
+    <TextBox x:Name="UpdateMake" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
+
+    <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateModel}">
+        <AccessText Text="Update _Model"/>
+    </Label>
+            <TextBox x:Name="UpdateModel" Height="25" Margin="0,0,0,10" IsReadOnly="True"/>
+
+    <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateFloor}">
+        <AccessText Text="Update _Floor"/>
+    </Label>
+    <TextBox x:Name="UpdateFloor" Height="25" Margin="0,0,0,10"/>
+
+    <Label HorizontalAlignment="Left" Target="{Binding ElementName=UpdateRoom}">
+        <AccessText Text="Update _Room"/>
+    </Label>
+    <TextBox x:Name="UpdateRoom" Height="25" Margin="0,0,0,10"/>
+
+    <Button Content="Update Sensor Details" Width="auto" Height="30" Margin="0,10,0,5" Click="RegisterSensorUpdate_Click"/>
+    <Button Content="Return" Width="auto" Height="30" Click="ReturnButton_Click"/>
+</StackPanel>
         <!-- NEW USER VIEW -->
         <StackPanel x:Name="NewUserScreen" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock Text="Create User Below" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>

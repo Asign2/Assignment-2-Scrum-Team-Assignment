@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
+using System.Windows.Controls;
 using System.Xaml.Schema;
 
 namespace Assign_2
@@ -127,6 +129,84 @@ namespace Assign_2
 
             SeedSampleData(connection);
         }
+        public static bool Register(
+     string make,
+     string model,
+     int floor,
+     int room,
+     bool active,
+     int variance = 0)
+        {
+            using var connection = UserDatabase.OpenConnection();
+
+            // 1. Find or create the Location Id for the given Floor and Room
+            int locationId;
+            using var locCheckCommand = new SqlCommand(
+                @"SELECT Id FROM dbo.Locations WHERE Floor = @floor AND Room = @room;",
+                connection);
+
+            locCheckCommand.Parameters.AddWithValue("@floor", floor);
+            locCheckCommand.Parameters.AddWithValue("@room", room);
+
+            object locResult = locCheckCommand.ExecuteScalar();
+
+            if (locResult != null)
+            {
+                locationId = Convert.ToInt32(locResult);
+            }
+            else
+            {
+                // Insert new location if it doesn't exist yet
+                using var locInsertCommand = new SqlCommand(
+                    @"INSERT INTO dbo.Locations (Floor, Room) OUTPUT INSERTED.Id VALUES (@floor, @room);",
+                    connection);
+
+                locInsertCommand.Parameters.AddWithValue("@floor", floor);
+                locInsertCommand.Parameters.AddWithValue("@room", room);
+
+                locationId = Convert.ToInt32(locInsertCommand.ExecuteScalar());
+            }
+
+            // 2. Insert the new Sensor into dbo.Sensors
+            using var command = new SqlCommand(
+                @"INSERT INTO dbo.Sensors
+        (
+            Date_Installed,
+            Make,
+            Model,
+            Variance,
+            Location_Id,
+            Active
+        )
+        VALUES
+        (
+            @date_installed,
+            @make,
+            @model,
+            @variance,
+            @locationId,
+            @active
+        );",
+                connection);
+
+            command.Parameters.AddWithValue("@date_installed", DateTime.Now.Date);
+            command.Parameters.AddWithValue("@make", make);
+            command.Parameters.AddWithValue("@model", model);
+            command.Parameters.AddWithValue("@variance", variance);
+            command.Parameters.AddWithValue("@locationId", locationId);
+            command.Parameters.AddWithValue("@active", active);
+
+            try
+            {
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (SqlException)
+            {
+                throw new Exception("Error registering sensor.");
+            }
+        }
+
 
         private static void RunNonQuery(SqlConnection connection, string sql)
         {

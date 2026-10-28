@@ -21,7 +21,7 @@ namespace Assign_2
         public MainWindow(bool startGeneration)
         {
             InitializeComponent();
-
+            LoadSensorIds();
             if (startGeneration)
             {
                 SensorsDatabase.Initialize();
@@ -140,7 +140,30 @@ namespace Assign_2
                 }
             }
         }
+        // Call this method when opening the Update Sensor screen or in Window_Loaded
+        private void LoadSensorIds()
+        {
+            // Fetch all sensors using your existing static database method
+            List<SensorRecord> sensorList = SensorsDatabase.GetAllSensors();
 
+            // Bind the list to your ComboBox
+            SensorIDComboBox.ItemsSource = sensorList;
+            SensorIDComboBox.DisplayMemberPath = "Id";
+            SensorIDComboBox.SelectedValuePath = "Id";
+        }
+
+        private void SensorIDComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Ensure an item is selected and cast it to your SensorRecord
+            if (SensorIDComboBox.SelectedItem is SensorRecord selectedSensor)
+            {
+                // Populate the fields with the selected sensor's data (matching your user form style)
+                UpdateMake.Text = selectedSensor.Make;
+                UpdateModel.Text = selectedSensor.Model;
+                UpdateFloor.Text = selectedSensor.Floor.ToString();
+                UpdateRoom.Text = selectedSensor.Room.ToString();
+            }
+        }
         /// <summary>
         /// Commit the changes that were in the edit/update account input boxes.
         /// </summary>
@@ -239,6 +262,15 @@ namespace Assign_2
         {
             ShowScreen(NewUserScreen);
         }
+        private void NewSensor_Click(object sender, RoutedEventArgs e)
+        {
+            ShowScreen(NewSensorScreen);
+        }
+
+        private void UpdateSensor_Click(Object sender, RoutedEventArgs e)
+        {
+            ShowScreen(UpdateSensorScreen);
+        }
 
         /// <summary>
         /// Registers a new user to the database with the inputted values from the new user registration screen.
@@ -278,7 +310,57 @@ namespace Assign_2
                 MessageBox.Show(ex.Message);
             }
         }
+        private void RegisterSensor_Click(object sender, RoutedEventArgs e)
+        {
+            string make = NewMake.Text.Trim();
+            string model = NewModel.Text.Trim();
+            string floorStr = NewFloor.Text.Trim();
+            string roomStr = NewRoom.Text.Trim();
+            ComboBoxItem chosenState = NewBool.SelectedItem as ComboBoxItem;
 
+            if (make == "" || model == "" || floorStr == "" || roomStr == "" || chosenState == null)
+            {
+                MessageBox.Show("All Fields are required.");
+                return;
+            }
+
+            if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room))
+            {
+                MessageBox.Show("Floor and Room must be valid numbers.");
+                return;
+            }
+
+            string stateText = chosenState.Content.ToString();
+            bool active = stateText.Equals("Active", StringComparison.OrdinalIgnoreCase) ||
+                          stateText.Equals("True", StringComparison.OrdinalIgnoreCase) ||
+                          stateText.Equals("1");
+
+            try
+            {
+                // This will now throw an exception if the floor/room already has a sensor
+                SensorsDatabase.Register(make, model, floor, room, active);
+
+                MessageBox.Show("Sensor registered successfully.");
+
+                // Clear form fields
+                NewMake.Clear();
+                NewModel.Clear();
+                NewFloor.Clear();
+                NewRoom.Clear();
+                NewBool.SelectedItem = null;
+            }
+            catch (Exception ex)
+            {
+                // Catches the duplicate room error or any other DB exception and displays it
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void RegisterSensorUpdate_Click(object sender, EventArgs e)
+        {
+           
+
+        }
         /// <summary>
         /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
@@ -310,6 +392,8 @@ namespace Assign_2
             LoginScreen.Visibility = Visibility.Collapsed;
             AdminScreen.Visibility = Visibility.Collapsed;
             NewUserScreen.Visibility = Visibility.Collapsed;
+            UpdateSensorScreen.Visibility = Visibility.Collapsed;
+            NewSensorScreen.Visibility = Visibility.Collapsed;
             UserScreen.Visibility = Visibility.Collapsed;
 
             screenToShow.Visibility = Visibility.Visible;
@@ -437,7 +521,6 @@ namespace Assign_2
                 });
                
                 LocationTreeView.Items.Clear();
-                
                 foreach (var floorGroup in locations.GroupBy(l => l.Floor))
                 {
                     CheckBox floorCheckBox = new CheckBox

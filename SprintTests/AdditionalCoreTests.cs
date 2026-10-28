@@ -1,7 +1,8 @@
 ﻿
+using Assign_2;
 using System;
 using System.Collections.Generic;
-using Assign_2;
+using System.Text.Json;
 using Xunit;
 
 namespace SprintUnitTests;
@@ -168,4 +169,11 @@ public class AdditionalCoreTests : IDisposable
 
         Assert.Equal("User", role);
     }
+
+//    [Fact]
+//    public void CompareGraphinfo_WithJsonGeneratedFile()
+//    {
+//        public static readonly JsonSerializerOptions Pretty = new() { WriteIndented = true };
+        
+//}
 }
