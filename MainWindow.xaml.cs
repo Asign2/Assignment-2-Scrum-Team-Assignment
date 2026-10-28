@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -317,7 +318,6 @@ namespace Assign_2
             string floorStr = NewFloor.Text.Trim();
             string roomStr = NewRoom.Text.Trim();
             ComboBoxItem chosenState = NewBool.SelectedItem as ComboBoxItem;
-
             if (make == "" || model == "" || floorStr == "" || roomStr == "" || chosenState == null)
             {
                 MessageBox.Show("All Fields are required.");
@@ -356,10 +356,44 @@ namespace Assign_2
             }
         }
 
-        private void RegisterSensorUpdate_Click(object sender, EventArgs e)
+        private void RegisterSensorUpdate_Click(object sender, RoutedEventArgs e)
         {
-           
+            // Ensure a sensor is actually selected from your ComboBox
+            if (SensorIDComboBox.SelectedValue == null)
+            {
+                MessageBox.Show("Please select a sensor to update.");
+                return;
+            }
 
+            int sensorId = Convert.ToInt32(SensorIDComboBox.SelectedValue);
+            string make = UpdateMake.Text.Trim();
+            string model = UpdateModel.Text.Trim();
+            string floorStr = UpdateFloor.Text.Trim();
+            string roomStr = UpdateRoom.Text.Trim();
+
+            if (make == "" || model == "" || floorStr == "" || roomStr == "")
+            {
+                MessageBox.Show("All Fields are required.");
+                return;
+            }
+
+            if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room))
+            {
+                MessageBox.Show("Floor and Room must be valid numbers.");
+                return;
+            }
+
+            try
+            {
+                SensorsDatabase.UpdateSensor(sensorId, make, model, floor, room);
+                MessageBox.Show("Sensor updated successfully.");
+
+                LoadSensorIds();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         /// <summary>
         /// Returns the display to the admin screen from the new user registration screen.

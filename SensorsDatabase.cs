@@ -364,7 +364,52 @@ namespace Assign_2
             }
             return sensors;
         }
+        public static void UpdateSensor(int sensorId, string make, string model, int floor, int room)
+        {
+            using var connection = UserDatabase.OpenConnection();
 
+            // 1. Find or create the Location Id for the given Floor and Room
+            int locationId;
+            using var Select = new SqlCommand(
+                @"SELECT Id FROM dbo.Locations WHERE Floor = @floor AND Room = @room;",
+                connection);
+
+            Select.Parameters.AddWithValue("@floor", floor);
+            Select.Parameters.AddWithValue("@room", room);
+
+            object result = Select.ExecuteScalar();
+
+            if (result != null)
+            {
+                locationId = Convert.ToInt32(result);
+            }
+            else
+            {
+                using var locInsertCommand = new SqlCommand(
+                    @"INSERT INTO dbo.Locations (Floor, Room) OUTPUT INSERTED.Id VALUES (@floor, @room);",
+                    connection);
+
+                locInsertCommand.Parameters.AddWithValue("@floor", floor);
+                locInsertCommand.Parameters.AddWithValue("@room", room);
+
+                locationId = Convert.ToInt32(locInsertCommand.ExecuteScalar());
+            }
+
+            // 2. Update the Sensor record in dbo.Sensors
+            using var command = new SqlCommand(@"
+        UPDATE dbo.Sensors
+        SET Make = @Make,
+            Model = @Model,
+            Location_Id = @LocationId
+        WHERE Id = @Id;", connection);
+
+            command.Parameters.AddWithValue("@Make", make);
+            command.Parameters.AddWithValue("@Model", model);
+            command.Parameters.AddWithValue("@LocationId", locationId);
+            command.Parameters.AddWithValue("@Id", sensorId);
+
+            command.ExecuteNonQuery();
+        }
         public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
         {
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
