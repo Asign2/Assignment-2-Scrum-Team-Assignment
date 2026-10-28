@@ -317,18 +317,20 @@ namespace Assign_2
             string model = NewModel.Text.Trim();
             string floorStr = NewFloor.Text.Trim();
             string roomStr = NewRoom.Text.Trim();
+            string variance = Newvariance.Text.Trim();
             ComboBoxItem chosenState = NewBool.SelectedItem as ComboBoxItem;
-            if (make == "" || model == "" || floorStr == "" || roomStr == "" || chosenState == null)
+            if (make == "" || model == "" || floorStr == "" || roomStr == "" || chosenState == null || variance == null)
             {
                 MessageBox.Show("All Fields are required.");
                 return;
             }
 
-            if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room))
+            if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room) || !int.TryParse(variance, out int Variance))
             {
                 MessageBox.Show("Floor and Room must be valid numbers.");
                 return;
             }
+            
 
             string stateText = chosenState.Content.ToString();
             bool active = stateText.Equals("Active", StringComparison.OrdinalIgnoreCase) ||
@@ -338,7 +340,7 @@ namespace Assign_2
             try
             {
                 // This will now throw an exception if the floor/room already has a sensor
-                SensorsDatabase.Register(make, model, floor, room, active);
+                SensorsDatabase.Register(make, model, floor, room, active, Variance);
 
                 MessageBox.Show("Sensor registered successfully.");
 
@@ -347,6 +349,7 @@ namespace Assign_2
                 NewModel.Clear();
                 NewFloor.Clear();
                 NewRoom.Clear();
+                Newvariance.Clear();
                 NewBool.SelectedItem = null;
             }
             catch (Exception ex)

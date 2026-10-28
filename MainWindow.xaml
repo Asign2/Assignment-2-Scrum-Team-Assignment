@@ -223,6 +223,10 @@
                 <AccessText Text="New _Room"/>
             </Label>
             <TextBox x:Name="NewRoom" Height="25" Margin="0,0,0,10"/>
+            <Label HorizontalAlignment="Left" Target="{Binding ElementName=Newvariance}">
+                <AccessText Text="New _Variance"/>
+            </Label>
+            <TextBox x:Name="Newvariance" Height="25" Margin="0,0,0,10"/>
             <Label HorizontalAlignment="Left" Target="{Binding ElementName=NewBool}">
                 <AccessText Text="Actived/Deactivate"/>
             </Label>
