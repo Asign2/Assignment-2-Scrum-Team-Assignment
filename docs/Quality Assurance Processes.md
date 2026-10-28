@@ -11,14 +11,17 @@
 - Encourage creation of major features into separate branches
 	- Introduced by Nick from Sprint 3 onwards, encouraging Gene to move their work on graphs to a separate branch, ['Feat-RT-Graph-Sensors'](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/tree/Feat-RT-Graph-Sensors)
 
-### Unit Testing
+### Software Testing
+
+Our testing practices evolved throughout development. Testing was originally conducted on an ad-hoc basis, with no defined timeframe or procedure for when to conduct it. In early sprints, breaking commits were even pushed to Main without testing the app. By Sprint 4, we were running unit tests throughout development before committing as well as running the app to manually test changes every time, and these tests were often done by other team members as code reviews.
+
+#### Unit Testing
 - Use [xUnit](https://xunit.net/?tabs=cs) for unit testing
-- Unit test files were divided by their sprint (`Sprint 1.cs`, `Sprint 2.cs` etc).
+- Unit test files were originally divided by their sprint (e.g., `Sprint 1.cs`, `Sprint 2.cs` etc). From Sprint 4, new unit test files were instead divided functionally (e.g., `ChartDataTests.cs`, `MainWindowTests.cs` etc) for better clarity of purpose.
 - Logging of unit test results introduced in Sprint 4 (commit [9453d77](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/9453d778c14fffb91b60bad1d4869c38353492df))
 - [Fine Code Coverage](https://github.com/FortuneN/FineCodeCoverage) to calculate unit test code coverage (introduced in Sprint 4)
-- Testing was conducted on an ad-hoc basis, with no defined timeframe or procedure for when to conduct it.
 
-### Manual Testing
+#### Manual Testing
 - Manual testing focused on UI, leaving unit tests for the majority of our testing
 - Manual tests cases were created in Sprint 4 with our [Manual Test Cases](https://ucol-my.sharepoint.com/:w:/r/personal/24374442_studentmail_ucol_ac_nz/Documents/D202/Manual%20Test%20Cases.docx?d=w41ccc5d6713d4eb78a7ec2a34e19e22d&csf=1&web=1&e=bqthZx) document.
 	- issues [#78](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/78) and [#82](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/82)
