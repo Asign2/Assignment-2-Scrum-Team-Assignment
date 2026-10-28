@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Assign_2
 {
-    internal class JsonExport
+    public class JsonExport
     {
         public static readonly JsonSerializerOptions Pretty = new() { WriteIndented = true };
 
@@ -14,7 +14,7 @@ namespace Assign_2
         {
             var dialog = new SaveFileDialog { Filter = "JSON files (*.json)|*.json", FileName = fileName };
             if (dialog.ShowDialog() == true)
-                File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(data, Pretty));
+                WriteJson(dialog.FileName, data);
         }
 
         /// Runs a SELECT and returns each row as a column-name and adds the  value dictionary. Helps bypass a bug i had.
@@ -29,6 +29,10 @@ namespace Assign_2
                 rows.Add(Enumerable.Range(0, reader.FieldCount)
                     .ToDictionary(i => reader.GetName(i), i => reader.IsDBNull(i) ? null : reader.GetValue(i)));
             return rows;
+        }
+        public static void WriteJson(string fileName, object data) 
+        {
+            File.WriteAllText(fileName, JsonSerializer.Serialize(data, Pretty));
         }
     }
 }
