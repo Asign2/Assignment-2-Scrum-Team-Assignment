@@ -18,6 +18,8 @@ This app provides the following features:
 
 The app has two types of user roles: the **Admin** and the **User**. Each has different functionality.
 
+In practice, the administrator would have a separate user account with only user-level permissions to do day-to-day sensor monitoring, keeping their admin account only for admin duties.
+
 ### Admin capabilities
 
 Admins have access to three screens:
