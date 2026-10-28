@@ -34,20 +34,26 @@ As above
 
 ### [Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) Feat: Ability to add or update sensors (admin)
 
-Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.
+We realised today upon reviewing our [requirements](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Requirements.md) that we had not achieved FR3 as functionality had not been implemented for admins to update or add new sensors. We will attempt to implement this before the due date tomorrow. 
 
-To implement, requires redesigning the database and ERD.
+Planning notes below on the challenges ([source](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86#issuecomment-6462357671)):
 
-A quick-fix would be to only add functionality to *add new sensors*. Since existing sensors can be deactivated, an 'update' could be done by deactivating a sensor and making a new one with changed attributes. Temps recorded at 'previous' location would be retained. The issue with this is that there's no database link between the deactivated sensor and the 'updated' (new) sensor.
+> Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.
+>
+> To implement, requires redesigning the database and ERD.
+>
+> A quick-fix would be to only add functionality to *add new sensors*. Since existing sensors can be deactivated, an 'update' could be done by deactivating a sensor and making a new one with changed attributes. Temps recorded at 'previous' location would be retained. The issue with this is that there's no database link between the deactivated sensor and the 'updated' (new) sensor.
+>
+> We will retain ability to update sensor Make and Model. Other fields need to be read-only.
 
-We will retain ability to update sensor Make and Model. Other fields need to be read-only.
+## Requirements review
 
-### Requirements review
 - [x] FR1 - missing a user.
-	- Added in 95f9431
+	- Added in [95f9431](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/95f9431d17fca9f431f338ecd7d5aaf3ff0cd584)
 - [x] FR2 - clarified in the Readme that admin intentionally doesn't have user permissions
-	- ba73d0d
-- [x] FR3 - "admin to manage access permissions for users and **roles**" — role-based permission management is implicit, not explicit. They cannot make updates explicitly to a type of user role, but they can affect it (i.e., via change Sensor Settings).
+	- [ba73d0d](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/ba73d0dff08cea17afe25820319afa68c607d423)
+- [/] FR3 - "admin to manage access permissions for users and **roles**" — role-based permission management is implicit, not explicit. They cannot make updates explicitly to a type of user role, but they can affect it (i.e., via change Sensor Settings).
+  - half-done, as admin does not yet have functionality to add or edit sensors - [Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86)
 - [x] FR4 - yes, 9 sensors (8 active ,1 deactivated)
 - [x] FR5
 - [x] FR6

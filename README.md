@@ -31,8 +31,8 @@ Admins have access to three screens:
 	- Delete users
 2. **Sensor Settings** screen (Sensor management)
 	- View sensor details
-	- Update sensor details
-	- Add new sensors
+	- ~~Update sensor details~~
+	- ~~Add new sensors~~
 	- Deactivate or reactivate sensors
 	- Change default interval of temperature reading graphs
 	- Toggle which graphs are viewable to users
@@ -53,6 +53,14 @@ Users can access a single screen: the **Temperature Dashboard**. They can perfor
 - Export temperature readings of the selected sensors and selected interval: <kbd>Export simplified data</kbd>
 - Export all temperature readings: <kbd>Export Full Data</kbd>
 - <kbd>Logout</kbd>
+
+### Roadmap
+
+Functionality we wish to implement if possible before final release
+
+- Add new Sensors
+- Update existing Sensors
+
 
 ## Development
 
