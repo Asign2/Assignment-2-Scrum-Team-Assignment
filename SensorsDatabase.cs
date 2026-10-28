@@ -184,7 +184,7 @@ namespace Assign_2
                         (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
                         (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
-                ");/
+                ");
             }
             bool settingsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.DashboardSettings;"); 
             if (!settingsHaveRows)
