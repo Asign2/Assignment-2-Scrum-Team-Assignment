@@ -11,15 +11,32 @@ namespace Assign_2
         private bool adminScreenReady;
         private bool userScreenReady;
 
-        public MainWindow()
+        public MainWindow() : this(true)
+        {
+        }
+
+        // Allows tests to create the window without starting
+        // the database initialization and generation loop.
+        //Means that Tests will still run fast and not require the database to be initialized.
+        public MainWindow(bool startGeneration)
         {
             InitializeComponent();
-            SensorsDatabase.Initialize();
 
-            Generation generator = new Generation(this);
-            DashboardSettings settings = SensorsDatabase.GetSettings();
-            generator.generatePeriodicTemperature();
+            if (startGeneration)
+            {
+                SensorsDatabase.Initialize();
 
+                Generation generator = new Generation();
+                generator.DataGenerated += () =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        RedrawChartTiles();
+                    });
+                };
+                //Discards the first generated temperature to avoid wrong readings for future use.
+                _ = generator.generatePeriodicTemperature();
+            }
         }
         //Stores existing graphs, for updating their temp.
         private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
@@ -176,7 +193,7 @@ namespace Assign_2
                     MessageBox.Show("Failed to update user");
                     return;
                 }
-                //Reuses Old Reset Password Code now inbedded inside SaveChanges 
+                //Reuses Old Reset Password Code now embedded inside SaveChanges 
                 if (!string.IsNullOrEmpty(NewPasswordBox.Password)) {
                     UserDatabase.UpdatePassword(selectedUser.Id, NewPasswordBox.Password);
                     NewPasswordBox.Password = "";
@@ -272,7 +289,7 @@ namespace Assign_2
         /// <summary>
         /// Returns the display to the admin screen from the new user registration screen.
         /// </summary>
-        /// <param name="sender">The retunr button that was Clicked</param>
+        /// <param name="sender">The return button that was Clicked</param>
         /// <param name="e">The event data.</param>
         private void ReturnButton_Click(object sender, RoutedEventArgs e)
         {
@@ -534,7 +551,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Exports all Temprature Data from the database to a JSON file.
+        /// Exports all Temperature Data from the database to a JSON file.
         /// </summary>
         /// <param name="sender">Export all data json</param>
         /// <param name="e">The button was clicked.</param>
@@ -773,7 +790,7 @@ namespace Assign_2
         /// <summary>
         /// When the selected items in the tree view change it gets called to refresh the dashboard.
         /// </summary>
-        /// <param name="sender">Changes in the tvmscb.</param>
+        /// <param name="sender">Changes in the tree-view multi-select.</param>
         /// <param name="e">The event data.</param>
         private void LocationTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
@@ -785,7 +802,7 @@ namespace Assign_2
 
         /// <summary>
         /// Changes the room checkbox automatically when its floor is ticked or not ticked.
-        /// e.g. if you seleccted or deselect a floor it will change all rooms under it apporopriately.
+        /// e.g. if you select or deselect a floor it will change all rooms under it appropriately.
         /// </summary>
         /// <param name="sender">if a floor checkbox is ticked.</param>
         /// <param name="e">The data for floor checkbox ticked.</param>
@@ -839,7 +856,7 @@ namespace Assign_2
 
         /// <summary>
         /// Changes the floor checkbox automatically when its rooms are changed
-        /// e.g. if a you deselect a room its floor will alsoo be deselected with other rooms selected.
+        /// e.g. if a you deselect a room its floor will also be deselected with other rooms selected.
         /// e.g. if you select all rooms under a floor it will then be selected.
         /// </summary>
         /// <param name="sender">if a room checkbox is ticked.</param>

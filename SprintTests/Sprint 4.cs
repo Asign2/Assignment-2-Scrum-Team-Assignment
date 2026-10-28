@@ -14,7 +14,7 @@ public class SprintFeatureTests : IDisposable
     private DashboardSettings? _originalSettings;
 
     // Removes only records created by these tests.
-    //Also Ensures that any settings changed during the tests are revertedd to their original state.
+    //Also Ensures that any settings changed during the tests are reverted to their original state.
     //this is done to avoid issues or wrong behavior in future tests or application use.
 
     public void Dispose()
@@ -39,7 +39,7 @@ public class SprintFeatureTests : IDisposable
         }
     }
 
-    //Locally Creats a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
+    //Locally Creates a test user with a unique username and password. the username is generated using a GUID to ensure uniqueness.
     //The method registers the user in the UserDatabase and returns the user's ID and username for further testing.   
     private (int Id, string Username) CreateTestUser()
     {

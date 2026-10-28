@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assign_2
 {
-    internal class RandomTemp
+    public class RandomTemp
     {
 
         /// <summary>

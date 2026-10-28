@@ -19,4 +19,4 @@
 
 [^1]: Assignment Brief
 [^2]: [Project Requirement Clarifications](https://moodle.ucol.ac.nz/mod/forum/discuss.php?d=82763#p157305) 26/08/2026 (Moodle)
-[^3]: [Scrum Standup 2026-08-26](https://github.com/Dan1el-Terry/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Stand%20Ups/2026-08-26.md)
+[^3]: [Scrum Standup 2026-08-26](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Stand%20Ups/2026-08-26%20Sprint%201.md#product-owner-check-in)
