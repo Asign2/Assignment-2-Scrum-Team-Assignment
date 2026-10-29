@@ -19,6 +19,7 @@ namespace Assign_2
         /// Gets the  collection of temperature values currently populated in the box plot.
         /// </summary>
         private List<double> values = new List<double>();
+
         /// <summary>
         /// Gets the temperature values currently used in the box plot.
         /// </summary>
@@ -32,6 +33,7 @@ namespace Assign_2
             InitializeComponent();
             SizeChanged += (s, e) => DrawNativeBoxPlot();
         }
+
         /// <summary>
         /// Loads temperature values and displays the box plot.
         /// </summary>
@@ -41,6 +43,7 @@ namespace Assign_2
             values = temperatures ?? new List<double>();
             Redraw();
         }
+
         /// <summary>
         /// Displays a placeholder when no temperature data is available.
         /// </summary>
@@ -50,6 +53,7 @@ namespace Assign_2
             values = new List<double>();
             Redraw();
         }
+
         /// <summary>
         /// Refreshes the box plot display.
         /// </summary>
@@ -82,6 +86,7 @@ namespace Assign_2
 
             DrawNativeBoxPlot();
         }
+
         /// <summary>
         /// Draws the box plot using the current temperature values.
         /// </summary>
@@ -186,6 +191,7 @@ namespace Assign_2
             LabelLayer.Children.Add(boxRect);
             LabelLayer.Children.Add(medianLine);
         }
+
         /// <summary>
         /// Calculates the specific percentile value from a sorted dataset.
         /// </summary>
@@ -197,9 +203,11 @@ namespace Assign_2
             int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
             return sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];
         }
+
         /// <summary>
         /// Updates the box plot status based on sensor activity.
         /// </summary>
+        /// <param name="isActive">Status of location sensor's</param>
         public void UpdateStatus(bool isActive)
         {
             Activated.Visibility = System.Windows.Visibility.Visible;

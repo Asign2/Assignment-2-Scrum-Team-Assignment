@@ -15,7 +15,9 @@ namespace Assign_2
     /// </summary>
     public partial class ChartTile : UserControl
     {
+
         private enum ChartKind { None, Line, Band, Bars }
+
         /// <summary>
         /// Occurs when the chart tile is clicked.
         /// </summary>
@@ -26,24 +28,30 @@ namespace Assign_2
         private List<double> values = new List<double>();
         private List<double> minValues = new List<double>();
         private List<double> maxValues = new List<double>();
+
         // Track the active enlarged copy linked to this tile
         private ChartTile activeEnlargedCopy;
+
         /// <summary>
         /// Gets the current chart title.
         /// </summary>
         public string Title { get; private set; }
+
         /// <summary>
         /// Gets the labels used by the current chart.
         /// </summary>
         public List<string> Labels { get; private set; }
+
         /// <summary>
         /// Gets the values used by the current chart.
         /// </summary>
         public List<double> Values { get; private set; }
+
         /// <summary>
         /// Gets whether the chart location is active.
         /// </summary>
         public bool isActive { get; private set; }
+
         /// <summary>
         /// Creates and sets up a new chart tile.
         /// </summary>
@@ -53,14 +61,15 @@ namespace Assign_2
             SparklineHost.SizeChanged += (s, e) => DrawSparkline();
 
         }
+
         /// <summary>
         /// Displays temperature data as a line chart.
         /// </summary>
-        /// <param name="title"></param>
-        /// <param name="xLabels"></param>
-        /// <param name="data"></param>
-        /// <param name="low"></param>
-        /// <param name="high"></param>
+        /// <param name="title">Title for line Graph</param>
+        /// <param name="xLabels">X Axis label</param>
+        /// <param name="data">Temperature data</param>
+        /// <param name="low">Optional minimum data</param>
+        /// <param name="high">Optional maximum data</param>
         public void ShowLine(string title, List<string> xLabels,
                              List<double> data, double? low, double? high)
         {
@@ -79,16 +88,17 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
+
         /// <summary>
         /// Displays the minimum, maximum and average values as a band chart.
         /// </summary>
-        /// <param name="title"></param>
-        /// <param name="xLabels"></param>
-        /// <param name="mins"></param>
-        /// <param name="maxs"></param>
-        /// <param name="avgs"></param>
-        /// <param name="low"></param>
-        /// <param name="high"></param>
+        /// <param name="title">Title for the band</param>
+        /// <param name="xLabels">X Axis label</param>
+        /// <param name="mins">Minimum temperature values for the period</param>
+        /// <param name="maxs">Maximum temperature values for the period</param>
+        /// <param name="avgs">Average temperature values for the period</param>
+        /// <param name="low">Optional minimum data</param>
+        /// <param name="high">Optional maximum data</param>
         public void ShowBand(string title, List<string> xLabels,
                              List<double> mins, List<double> maxs, List<double> avgs,
                              double? low, double? high)
@@ -107,12 +117,13 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
+
         /// <summary>
         /// Displays temperature values as a bar chart.
         /// </summary>
-        /// <param name="title"></param>
-        /// <param name="xLabels"></param>
-        /// <param name="data"></param>
+        /// <param name="title">Title for the bar graph</param>
+        /// <param name="xLabels">label for the horizontal axis</param>
+        /// <param name="data">Temperature data for the bar.</param>
         public void ShowBars(string title, List<string> xLabels, List<double> data)
         {
             chartTitle = title;
@@ -129,10 +140,11 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
+
         /// <summary>
         /// Displays a placeholder when chart data is unavailable.
         /// </summary>
-        /// <param name="title"></param>
+        /// <param name="title">Placeholder title</param>
         public void ShowPlaceholder(string title)
         {
             chartTitle = title;
@@ -234,11 +246,12 @@ namespace Assign_2
 
             Sparkline.Points = points;
         }
+
         /// <summary>
         /// Creates a larger copy of the current chart.
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
+        /// <param name="width">Width of the enlarged copy</param>
+        /// <param name="height">Height of the enlarged copy</param>
         /// <returns></returns>
         public ChartTile CreateEnlargedCopy(double width = 1100, double height = 550)
         {
@@ -282,13 +295,16 @@ namespace Assign_2
         {
             TemperatureTooltip.Visibility = Visibility.Collapsed;
         }
+
         private void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
             Clicked?.Invoke(this, EventArgs.Empty);
         }
+
         /// <summary>
         /// Updates the chart status to show whether its sensor is active.
         /// </summary>
+        /// <param name="isActive">Status of location sensor's</param>
         public void UpdateStatus(bool isActive)
         {
             this.isActive = isActive;

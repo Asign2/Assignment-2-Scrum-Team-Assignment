@@ -19,6 +19,7 @@ namespace Assign_2
         public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
                                               // 60 = 1 hour
                                               // 1440 = 1 day
+
         /// <summary>
         /// Creates missing sensor tables and adds initial sample data.
         /// </summary>
@@ -135,9 +136,18 @@ namespace Assign_2
 
             SeedSampleData(connection);
         }
+
         /// <summary>
         /// Adds a sensor and creates its location if needed.
         /// </summary>
+        /// <param name="make">New sensor make</param>
+        /// <param name="model">New sensor model</param>
+        /// <param name="floor">Assigned floor</param>
+        /// <param name="room">Assigned room</param>
+        /// <param name="active">New sensor activity</param>
+        /// <param name="variance">New sensor variance</param>
+        /// <returns>Sensor creation confirmation</returns>
+        /// <exception cref="Exception">Sensor creation failure</exception>
         public static bool Register(
      string make,
      string model,
@@ -325,10 +335,11 @@ namespace Assign_2
                 }
             }
         }//If you want to test new location just add more data after the final year stuff
+        
         /// <summary>
         /// Gets all available floor and room locations.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>list of locations</returns>
         public static List<LocationRecord> GetAllLocations()
         {
             List<LocationRecord> locations = new List<LocationRecord>();
@@ -349,10 +360,11 @@ namespace Assign_2
             }
             return locations;
         }
+        
         /// <summary>
         /// Gets all sensors along with their location details.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>list of all sensors and information </returns>
         public static List<SensorRecord> GetAllSensors()
         {
             List<SensorRecord> sensors = new List<SensorRecord>();
@@ -381,18 +393,22 @@ namespace Assign_2
             }
             return sensors;
         }
+        
         /// <summary>
         /// Updates the make and model of an existing sensor.
         /// </summary>
+        /// <param name="sensorId">Id of sensor to update</param>
+        /// <param name="make">New make string</param>
+        /// <param name="model">New model string</param>
         public static void UpdateSensor(int sensorId, string make, string model)
         {
             using var connection = UserDatabase.OpenConnection();
 
             using var command = new SqlCommand(@"
-        UPDATE dbo.Sensors
-        SET Make = @Make,
-            Model = @Model
-        WHERE Id = @Id;", connection);
+                UPDATE dbo.Sensors
+                SET Make = @Make,
+                    Model = @Model
+                WHERE Id = @Id;", connection);
 
             command.Parameters.AddWithValue("@Make", make);
             command.Parameters.AddWithValue("@Model", model);
@@ -400,9 +416,13 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+       
         /// <summary>
         /// Gets grouped temperature statistics for the selected locations.
         /// </summary>
+        /// <param name="locations">list of locations.</param>
+        /// <param name="granularity">Time interval used.</param>
+        /// <returns> A list of readings aggregates.</returns>
         public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
         {
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
@@ -463,10 +483,11 @@ namespace Assign_2
                 _ => start.ToString("yyyy")
             };
         }
+       
         /// <summary>
         /// Gets the saved dashboard settings or the default values.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>All Dashboard settings</returns>
         public static DashboardSettings GetSettings()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -505,11 +526,12 @@ namespace Assign_2
 
             };
         }
+       
         /// <summary>
         /// Saves dashboard display settings and who updated them.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="updatedBy"></param>
+        /// <param name="settings">Dashboard settings</param>
+        /// <param name="updatedBy">user that trigger update</param>
         public static void SaveSettings(DashboardSettings settings, string updatedBy)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -532,11 +554,12 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        
         /// <summary>
         /// Gets the latest recorded temperature for a location.
         /// </summary>
-        /// <param name="locationId"></param>
-        /// <returns></returns>
+        /// <param name="locationId">location's Id</param>
+        /// <returns>Latest temperature record, or null if no readings exist.</returns>
         public static double? GetLatestTemp(int locationId)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -551,10 +574,11 @@ namespace Assign_2
             object result = command.ExecuteScalar();
             return result == null ? null : Convert.ToDouble(result);
         }
+        
         /// <summary>
         /// Adds a dashboard viewing record to the log.
         /// </summary>
-        /// <param name="snapshot"></param>
+        /// <param name="snapshot">list of particular information from opening the user dashboard</param>
         public static void RecordDashboard(DashboardSnapshot snapshot)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -569,11 +593,12 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        
         /// <summary>
         /// Gets the most recent dashboard viewing records.
         /// </summary>
-        /// <param name="take"></param>
-        /// <returns></returns>
+        /// <param name="take">max amount of entries returned.</param>
+        /// <returns>List of dashboard log</returns>
         public static List<DashboardSnapshot> GetDashboardLog(int take = 200)
         {
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
@@ -602,10 +627,10 @@ namespace Assign_2
         /// <summary>
         /// Gets temperature readings for a location and time interval.
         /// </summary>
-        /// <param name="location"></param>
-        /// <param name="granularity"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <param name="location">location id</param>
+        /// <param name="granularity">Time frame for data.</param>
+        /// <returns>List of timestamps and their average temp.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when granularity value is not supported</exception>
         public static List<(DateTime Period, double Temperature)> GetChartReadings(
             int location,
             Granularity granularity)
@@ -635,8 +660,6 @@ namespace Assign_2
             using SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@LocationId", location);
             command.Parameters.AddWithValue("@Minutes", minutes);
-            // @LocationId and @Hours are parameters for parameterised query
-            // reduces SQL SELECT code to just one statement, with Granularity & location as input
 
             List<(DateTime Period, double Temperature)> readings = new List<(DateTime, double)>();
 
@@ -648,10 +671,11 @@ namespace Assign_2
 
             return readings;
         }
+        
         /// <summary>
         /// Updates the temperature generation interval setting.
         /// </summary>
-        /// <param name="settings"></param>
+        /// <param name="settings">Updated tick value from temperature generation</param>
         public static void UpdateSettings(DashboardSettings settings)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -663,11 +687,12 @@ namespace Assign_2
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
         }
+        
         /// <summary>
         /// Changes whether a sensor is active.
         /// </summary>
-        /// <param name="newStatus"></param>
-        /// <param name="sensorId"></param>
+        /// <param name="newStatus">Activity status</param>
+        /// <param name="sensorId">Sensor Id</param>
         public static void UpdateActivity(bool newStatus, int sensorId)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -681,9 +706,12 @@ namespace Assign_2
             command.ExecuteNonQuery();
 
         }
+        
         /// <summary>
         /// Checks whether a location has an active sensor.
         /// </summary>
+        /// <param name="locationId">location id</param>
+        /// <returns>true or false if location has sensors that are active</returns>
         public static bool IsLocationActive(int locationId)
         {
             using var connection = UserDatabase.OpenConnection();

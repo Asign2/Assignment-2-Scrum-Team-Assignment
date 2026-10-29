@@ -29,6 +29,9 @@ namespace Assign_2
         /// <summary>
         /// Updates the displayed temperature and bar height.
         /// </summary>
+        /// <param name="currentTemp">Current temp for a location</param>
+        /// <param name="minTemp">Min temp for bar</param>
+        /// <param name="maxTemp">Max temp for bar</param>
         public void UpdateValue(double currentTemp, double minTemp = 0, double maxTemp = 50)
         {
             CurrentTemp = currentTemp;
@@ -50,6 +53,7 @@ namespace Assign_2
         /// <summary>
         /// Updates the thermometer status based on sensor activity.
         /// </summary>
+        /// <param name="isActive">Status of location sensor's</param>
         public void UpdateStatus(bool isActive)
         {
             Activated.Visibility = System.Windows.Visibility.Visible;

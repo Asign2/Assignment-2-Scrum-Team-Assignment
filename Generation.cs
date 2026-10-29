@@ -14,16 +14,17 @@ namespace Assign_2
     /// </summary>
     public class Generation 
     {
-
         private readonly int delay;
+
         /// <summary>
         /// Occurs after new temperature data has been generated.
         /// </summary>
         public event Action? DataGenerated;
+
         /// <summary>
         /// Creates a temperature generator with the specified delay.
         /// </summary>
-        /// <param name="delay"></param>
+        /// <param name="delay">delay for generation.</param>
         public Generation(int delay = 60000)
         {
             this.delay = delay;
@@ -31,9 +32,8 @@ namespace Assign_2
 
         /// <summary>
         /// Periodically generates temperature readings for all sensors in the database and inserts them into the Database.
-        /// Ticks every 60 seconds.
-        /// Each tick is a minute.
         /// </summary>
+        /// <param name="cancellationToken">Cancelation token to stop loop for tests.</param>
         public async Task generatePeriodicTemperature(CancellationToken cancellationToken = default)
         {
             using var connection = UserDatabase.OpenConnection();
