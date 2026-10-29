@@ -14,6 +14,7 @@ namespace Assign_2
         private string currentUsername;
         private bool adminScreenReady;
         private bool userScreenReady;
+
         /// <summary>
         /// Creates the main window and starts normal application setup.
         /// </summary>
@@ -22,10 +23,9 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// <summary>
         /// Creates the main window and optionally starts temperature generation.
         /// </summary>
-        /// <param name="startGeneration"></param>
+        /// <param name="startGeneration">Whether to initialize the sensor database and start periodic temperature generation.</param>
         public MainWindow(bool startGeneration)
         {
             InitializeComponent();
@@ -46,6 +46,7 @@ namespace Assign_2
                 _ = generator.generatePeriodicTemperature();
             }
         }
+
         //Stores existing graphs, for updating their temp.
         private Dictionary<int, (ChartTile Line, ChartTile2 Bar, BoxPlot Box)> chartTiles = new();
 
@@ -277,6 +278,7 @@ namespace Assign_2
         {
             ShowScreen(NewUserScreen);
         }
+
         private void NewSensor_Click(object sender, RoutedEventArgs e)
         {
             ShowScreen(NewSensorScreen);
@@ -1060,10 +1062,6 @@ namespace Assign_2
                 SensorsDatabase.UpdateActivity(newStatus, sensor.Id);
 
                 SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
-                
-                //updates the activty indicator on the graphs,
-                //this is to catch if all sensors are deactivated as then redraw wont be caleld.
-                RedrawChartTiles();
             }
         }
 

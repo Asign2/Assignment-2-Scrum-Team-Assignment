@@ -254,9 +254,9 @@ namespace Assign_2
         /// <summary>
         /// Checks login details and returns the user role if valid.
         /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="role"></param>
+        /// <param name="username">Username for the user logging in</param>
+        /// <param name="password">Password for the user logging in</param>
+        /// <param name="role">Role for the user logging in</param>
         /// <returns></returns>
         public static bool Login(
             string username,
@@ -315,14 +315,14 @@ namespace Assign_2
         /// <summary>
         /// Registers a new user account with the selected role.
         /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="role"></param>
-        /// <param name="firstname"></param>
-        /// <param name="lastname"></param>
-        /// <param name="datecreated"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <param name="username">New username</param>
+        /// <param name="password">New Password</param>
+        /// <param name="role">Role for new user</param>
+        /// <param name="firstname">First name for new user</param>
+        /// <param name="lastname">Last name for new user</param>
+        /// <param name="datecreated"> Date and time created for new user</param>
+        /// <returns>Confirmation that user was created.</returns>
+        /// <exception cref="Exception">Stops if a user already has the same username.</exception>
         public static bool Register(
             string username,
             string password,
@@ -430,7 +430,7 @@ namespace Assign_2
         /// <summary>
         /// Gets all users and their account information.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of all users</returns>
         public static List<UserRecord> GetAllUsers()
         {
             var users = new List<UserRecord>();
@@ -473,14 +473,14 @@ namespace Assign_2
         /// <summary>
         /// Updates an existing user account.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="newUsername"></param>
-        /// <param name="newRole"></param>
-        /// <param name="newFirstName"></param>
-        /// <param name="newLastName"></param>
-        /// <param name="newDateCreated"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+        /// <param name="id">Id of the account being updated</param>
+        /// <param name="newUsername">New username for the account if changed.</param>
+        /// <param name="newRole">New role for the account if changed.</param>
+        /// <param name="newFirstName">New first name for the account if changed.</param>
+        /// <param name="newLastName">New last name for the account if changed.</param>
+        /// <param name="newDateCreated">New date created for the account.</param>
+        /// <returns>If updating user details was successful</returns>
+        /// <exception cref="Exception">Stops if a user already has the same username.</exception>
         public static bool UpdateUser(
             int id,
             string newUsername,
@@ -555,9 +555,9 @@ namespace Assign_2
         /// <summary>
         /// Changes the password for an existing user.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="newPassword"></param>
-        /// <returns></returns>
+        /// <param name="id">Id of the account being updated.</param>
+        /// <param name="newPassword">New password for the account.</param>
+        /// <returns>Password change confirmation.</returns>
         public static bool UpdatePassword(
             int id,
             string newPassword)
@@ -587,8 +587,8 @@ namespace Assign_2
         /// <summary>
         /// Deletes a user account by its ID.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">Id of the account being deleted</param>
+        /// <returns>If deletion was successful</returns>
         public static bool DeleteUser(
             int id)
         {
@@ -611,7 +611,7 @@ namespace Assign_2
         /// <summary>
         /// Opens and returns a connection to the application database.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An open sql server database connection.</returns>
         public static SqlConnection OpenConnection()
         {
             var connection =
@@ -660,6 +660,7 @@ namespace Assign_2
 
             return Convert.ToInt32(result) > 0;
         }
+
         /// <summary>
         /// Deletes all users and restores the default accounts. Use only for testing.
         /// </summary>

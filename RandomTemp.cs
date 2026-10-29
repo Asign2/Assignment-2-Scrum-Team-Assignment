@@ -17,7 +17,7 @@ namespace Assign_2
         /// </summary>
         /// <param name="x">time frame for the temperatures.</param>
         /// <param name="n">additional parameter to modify the temperature.</param>
-        /// <returns>double for temp.</returns>
+        /// <returns>temperature.</returns>
         public double randomTemp(int x, int n)
         {
             //variables to edit the graph.
