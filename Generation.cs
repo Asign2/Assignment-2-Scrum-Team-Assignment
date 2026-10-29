@@ -9,11 +9,21 @@ using System.Threading.Tasks;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Generation 
     {
 
         private readonly int delay;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action? DataGenerated;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delay"></param>
         public Generation(int delay = 60000)
         {
             this.delay = delay;

@@ -4,20 +4,28 @@ using System.Windows.Controls;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class MainWindow : Window
     {
         private UserRecord selectedUser;
         private string currentUsername;
         private bool adminScreenReady;
         private bool userScreenReady;
-
+        /// <summary>
+        /// 
+        /// </summary>
         public MainWindow() : this(true)
         {
         }
 
-        // Allows tests to create the window without starting
-        // the database initialization and generation loop.
-        //Means that Tests will still run fast and not require the database to be initialized.
+        /// <summary>
+        /// Allows tests to create the window without starting
+        /// the database initialization and generation loop.
+        ///Means that Tests will still run fast and not require the database to be initialized.
+        /// </summary>
+        /// <param name="startGeneration"></param>
         public MainWindow(bool startGeneration)
         {
             InitializeComponent();

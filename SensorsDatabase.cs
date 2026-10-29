@@ -6,11 +6,20 @@ using System.Xaml.Schema;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class SensorsDatabase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
                                             // 60 = 1 hour
                                             // 1440 = 1 day
+        /// <summary>
+        /// 
+        /// </summary>
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -234,7 +243,10 @@ namespace Assign_2
                 }
             }
         }//If you want to test new location just add more data after the final year stuff
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static List<LocationRecord> GetAllLocations()
         {
             List<LocationRecord> locations = new List<LocationRecord>();
@@ -255,7 +267,10 @@ namespace Assign_2
             }
             return locations;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static List<SensorRecord> GetAllSensors()
         {
             List<SensorRecord> sensors = new List<SensorRecord>();
@@ -264,7 +279,7 @@ namespace Assign_2
                 SELECT s.Id, s.Make, s.Model, l.Floor, l.Room, s.Variance, s.Active
                     FROM dbo.Sensors s
                     INNER JOIN dbo.Locations l ON l.Id = s.Location_Id
-                    ORDER BY l.Floor, l.Room, s.Id;"
+                    ORDER BY s.Id;"
                 , connection);
 
             using SqlDataReader reader = command.ExecuteReader();
@@ -284,7 +299,12 @@ namespace Assign_2
             }
             return sensors;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locations"></param>
+        /// <param name="granularity"></param>
+        /// <returns></returns>
         public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
         {
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
@@ -345,7 +365,10 @@ namespace Assign_2
                 _ => start.ToString("yyyy")
             };
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static DashboardSettings GetSettings()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -384,7 +407,11 @@ namespace Assign_2
 
             };
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="updatedBy"></param>
         public static void SaveSettings(DashboardSettings settings, string updatedBy)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -407,6 +434,11 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns></returns>
         public static double? GetLatestTemp(int locationId)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -421,6 +453,10 @@ namespace Assign_2
             object result = command.ExecuteScalar();
             return result == null ? null : Convert.ToDouble(result);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="snapshot"></param>
         public static void RecordDashboard(DashboardSnapshot snapshot)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -435,7 +471,11 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="take"></param>
+        /// <returns></returns>
         public static List<DashboardSnapshot> GetDashboardLog(int take = 200)
         {
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
@@ -461,8 +501,13 @@ namespace Assign_2
             return log;
         }
 
-        // Gets chart readings to populate ChartTile graph
-        // uses a switch for the granularity
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="granularity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static List<(DateTime Period, double Temperature)> GetChartReadings(
             int location,
             Granularity granularity)
@@ -505,6 +550,10 @@ namespace Assign_2
 
             return readings;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
         public static void UpdateSettings(DashboardSettings settings)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -516,7 +565,11 @@ namespace Assign_2
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
         }   
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newStatus"></param>
+        /// <param name="sensorId"></param>
         public static void UpdateActivity(bool newStatus, int sensorId)
         {
             using var connection = UserDatabase.OpenConnection();
