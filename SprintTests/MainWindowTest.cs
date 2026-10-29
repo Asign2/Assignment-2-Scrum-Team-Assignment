@@ -432,8 +432,6 @@ public class MainWindowCoverageTests
             Assert.NotEmpty(chartHost.Children);
         });
     }
-    // Paste these methods INSIDE MainWindowCoverageTests, before its final closing brace.
-    // They reuse OnSta(), W, Control<T>(), Call() and MakeFloor().
 
     [Theory]
     [InlineData("NewSensorScreen")]
