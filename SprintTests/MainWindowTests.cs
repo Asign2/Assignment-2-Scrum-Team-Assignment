@@ -884,45 +884,96 @@ public sealed class MainWindowEightHandlersCoverageTests
     // The DispatcherTimer keeps running in its modal dispatcher loop and dismisses
     // dialogs ON THE CURRENT TEST STA THREAD. This avoids leaving modal windows open.
     // This helper must NEVER be used for production code.
+
     private sealed class DismissMessages : IDisposable
     {
         private const uint WM_COMMAND = 0x0111;
-        private readonly DispatcherTimer timer;
-        private readonly uint threadId;
+
+        private readonly uint targetThreadId;
         private readonly int buttonId;
-        private bool clicked;
+        private readonly Thread worker;
 
-        [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
-        [DllImport("user32.dll")] private static extern bool EnumThreadWindows(uint threadId, EnumWindowsProc callback, IntPtr lParam);
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(IntPtr hWnd, StringBuilder className, int maxCount);
-        [DllImport("user32.dll")] private static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
-        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        private volatile bool running = true;
+        private volatile bool clicked = false;
 
-        // IDOK=1, IDYES=6, IDNO=7
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumThreadWindows(
+            uint threadId,
+            EnumWindowsProc callback,
+            IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetClassName(
+            IntPtr hwnd,
+            StringBuilder className,
+            int maxCount);
+
+        [DllImport("user32.dll")]
+        private static extern bool PostMessage(
+            IntPtr hwnd,
+            uint message,
+            IntPtr wParam,
+            IntPtr lParam);
+
+        private delegate bool EnumWindowsProc(
+            IntPtr hwnd,
+            IntPtr lParam);
+
         public DismissMessages(int buttonId = 1)
         {
             this.buttonId = buttonId;
-            threadId = GetCurrentThreadId();
-            timer = new DispatcherTimer(DispatcherPriority.Background)
-            { Interval = TimeSpan.FromMilliseconds(25) };
-            timer.Tick += (_, _) =>
+            targetThreadId = GetCurrentThreadId();
+
+            worker = new Thread(() =>
             {
-                EnumThreadWindows(threadId, (hwnd, _) =>
+                while (running)
                 {
-                    var cls = new StringBuilder(64);
-                    if (GetClassName(hwnd, cls, cls.Capacity) > 0 && cls.ToString() == "#32770")
-                    {
-                        clicked = true;
-                        PostMessage(hwnd, WM_COMMAND, new IntPtr(this.buttonId), IntPtr.Zero);
-                    }
-                    return true;
-                }, IntPtr.Zero);
-            };
-            timer.Start();
+                    EnumThreadWindows(
+                        targetThreadId,
+                        (hwnd, _) =>
+                        {
+                            var className = new StringBuilder(64);
+
+                            GetClassName(
+                                hwnd,
+                                className,
+                                className.Capacity);
+
+                            if (className.ToString() == "#32770")
+                            {
+                                clicked = true;
+
+                                PostMessage(
+                                    hwnd,
+                                    WM_COMMAND,
+                                    new IntPtr(this.buttonId),
+                                    IntPtr.Zero);
+                            }
+
+                            return true;
+                        },
+                        IntPtr.Zero);
+
+                    Thread.Sleep(25);
+                }
+            });
+
+            worker.IsBackground = true;
+            worker.Start();
         }
+
         public bool SawDialog => clicked;
-        public void Dispose() => timer.Stop();
+
+        public void Dispose()
+        {
+            running = false;
+            worker.Join(1000);
+        }
     }
+
 
     private static UserRecord MakeUser(string prefix = "ui_")
     {

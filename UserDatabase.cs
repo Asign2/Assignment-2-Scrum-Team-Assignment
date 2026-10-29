@@ -16,13 +16,21 @@ namespace Assign_2
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"..\..\..\"));
 
-        private static string DbPath =
-    Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Assign_2",
-        "appdatabase.mdf");
 
-        private const string DatabaseName = "UserDb_Root";
+
+        private static readonly bool IsTestDatabase =
+            Environment.GetEnvironmentVariable("ASSIGN2_TEST_DB") == "1";
+
+        private static readonly string DbPath = Path.Combine(
+            Environment.GetFolderPath(
+                Environment.SpecialFolder.LocalApplicationData),
+            "Assign_2",
+            IsTestDatabase ? "testdatabase.mdf" : "appdatabase.mdf");
+
+        private static readonly string DatabaseName =
+            IsTestDatabase ? "UserDb_Test" : "UserDb_Root";
+
+
 
         internal static string ConnectionString =
             $@"Server=(localdb)\mssqllocaldb;
@@ -404,11 +412,19 @@ namespace Assign_2
 
                 return true;
             }
-            catch (SqlException)
+
+
+            catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627)
+            {
+                throw new Exception("Username already exists.", ex);
+            }
+            catch (SqlException ex)
             {
                 throw new Exception(
-                    "Username already exists.");
+                    "A database error occurred while saving the user.", ex);
             }
+
+
         }
 
         /// <summary>
@@ -522,11 +538,18 @@ namespace Assign_2
             {
                 return command.ExecuteNonQuery() > 0;
             }
-            catch (SqlException)
+
+            catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627)
+            {
+                throw new Exception("Username already exists.", ex);
+            }
+            catch (SqlException ex)
             {
                 throw new Exception(
-                    "Username already exists.");
+                    "A database error occurred while saving the user.", ex);
             }
+
+
         }
 
         /// <summary>
@@ -640,16 +663,51 @@ namespace Assign_2
         /// <summary>
         /// Deletes all users and restores the default accounts. Use only for testing.
         /// </summary>
+
+        /// <summary>
+        /// Resets user accounts in a dedicated test database.
+        /// </summary>
         public static void ResetDatabase()
         {
+            // Never reset the normal application database.
+            if (!string.Equals(
+                new SqlConnectionStringBuilder(ConnectionString).InitialCatalog,
+                "UserDb_Test",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "Database reset is only allowed for UserDb_Test.");
+            }
+
             using var connection = OpenConnection();
+            using var transaction = connection.BeginTransaction();
 
-            // Clear existing users and reset identity seed
-            RunNonQuery(connection, "DELETE FROM dbo.Users;");
-            RunNonQuery(connection, "DBCC CHECKIDENT ('dbo.Users', RESEED, 0);");
+            try
+            {
+                using var deleteCommand = new SqlCommand(
+                    "DELETE FROM dbo.Users;",
+                    connection,
+                    transaction);
 
-            // Re-seed default users
-            SeedDefaultUsers(connection);
+                deleteCommand.ExecuteNonQuery();
+
+                using var resetCommand = new SqlCommand(
+                    "DBCC CHECKIDENT ('dbo.Users', RESEED, 0);",
+                    connection,
+                    transaction);
+
+                resetCommand.ExecuteNonQuery();
+
+                // SeedDefaultUsers currently accepts no transaction,
+                // so do not call it until it is updated.
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+
     }
 }

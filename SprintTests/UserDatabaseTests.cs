@@ -78,21 +78,31 @@ public class AdditionalUserDatabaseTests : IDisposable
         Assert.Null(SensorsDatabase.GetLatestTemp(location.Id));
     }
 
+
     [Fact]
-    public void SensorRegister_ExistingLocation_UsesExistingLocationId()
+    public void SensorRegister_ExistingLocation_RejectsDuplicateSensor()
     {
-        SensorRecord first = AddTestSensor(true, 2);
-        int locationId = Assert.Single(SensorsDatabase.GetAllLocations(),
-            l => l.Floor == first.Floor && l.Room == first.Room).Id;
+        int floor = -2776342;
+        int room = 32902;
 
-        Assert.True(SensorsDatabase.Register("SecondTestMake", "SecondTestModel",
-            first.Floor, first.Room, false, 0));
+        // Use an existing sensor's location.
+        var sensor = SensorsDatabase.GetAllSensors().First();
 
-        Assert.Equal(locationId, Assert.Single(SensorsDatabase.GetAllLocations(),
-            l => l.Floor == first.Floor && l.Room == first.Room).Id);
-        Assert.Equal(2, SensorsDatabase.GetAllSensors().Count(s =>
-            s.Floor == first.Floor && s.Room == first.Room));
+        floor = sensor.Floor;
+        room = sensor.Room;
+
+        var ex = Assert.Throws<Exception>(() =>
+            SensorsDatabase.Register(
+                "TestMake",
+                "TestModel",
+                floor,
+                room,
+                true,
+                0));
+
+        Assert.Contains("already has a sensor", ex.Message);
     }
+
 
     [Fact]
     public void UpdateSensor_ExistingSensor_UpdatesOnlyMakeAndModel()

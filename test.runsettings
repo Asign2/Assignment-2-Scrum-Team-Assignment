@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<RunConfiguration>
+		<EnvironmentVariables>
+			<ASSIGN2_TEST_DB>1</ASSIGN2_TEST_DB>
+		</EnvironmentVariables>
+	</RunConfiguration>
+</RunSettings>

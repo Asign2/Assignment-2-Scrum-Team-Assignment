@@ -24,6 +24,7 @@ namespace Assign_2
         /// </summary>
         public static void Initialize()
         {
+
             using var connection = UserDatabase.OpenConnection();
 
             // 1. Create Locations table
@@ -138,83 +139,126 @@ namespace Assign_2
         /// <summary>
         /// Adds a sensor and creates its location if needed.
         /// </summary>
+
         public static bool Register(
-     string make,
-     string model,
-     int floor,
-     int room,
-     bool active,
-     int variance = 0)
+            string make,
+            string model,
+            int floor,
+            int room,
+            bool active,
+            int variance = 0)
         {
             using var connection = UserDatabase.OpenConnection();
-
-            // 1. Find or create the Location Id for the given Floor and Room
-            int locationId;
-            using var locCheckCommand = new SqlCommand(
-                @"SELECT Id FROM dbo.Locations WHERE Floor = @floor AND Room = @room;",
-                connection);
-
-            locCheckCommand.Parameters.AddWithValue("@floor", floor);
-            locCheckCommand.Parameters.AddWithValue("@room", room);
-
-            object locResult = locCheckCommand.ExecuteScalar();
-
-            if (locResult != null)
-            {
-                locationId = Convert.ToInt32(locResult);
-            }
-            else
-            {
-                // Insert new location if it doesn't exist yet
-                using var insertdata = new SqlCommand(
-                    @"INSERT INTO dbo.Locations (Floor, Room) OUTPUT INSERTED.Id VALUES (@floor, @room);",
-                    connection);
-
-                insertdata.Parameters.AddWithValue("@floor", floor);
-                insertdata.Parameters.AddWithValue("@room", room);
-
-                locationId = Convert.ToInt32(insertdata.ExecuteScalar());
-            }
-
-            // 2. Insert the new Sensor into dbo.Sensors
-            using var command = new SqlCommand(
-                @"INSERT INTO dbo.Sensors
-        (
-            Date_Installed,
-            Make,
-            Model,
-            Variance,
-            Location_Id,
-            Active
-        )
-        VALUES
-        (
-            @date_installed,
-            @make,
-            @model,
-            @variance,
-            @locationId,
-            @active
-        );",
-                connection);
-
-            command.Parameters.AddWithValue("@date_installed", DateTime.Now.Date);
-            command.Parameters.AddWithValue("@make", make);
-            command.Parameters.AddWithValue("@model", model);
-            command.Parameters.AddWithValue("@variance", variance);
-            command.Parameters.AddWithValue("@locationId", locationId);
-            command.Parameters.AddWithValue("@active", active);
+            using var transaction = connection.BeginTransaction();
 
             try
             {
+                // 1. Find or create the location
+                int locationId;
+
+                using var locCheckCommand = new SqlCommand(
+                    @"SELECT Id FROM dbo.Locations
+              WHERE Floor = @floor AND Room = @room;",
+                    connection,
+                    transaction);
+
+                locCheckCommand.Parameters.AddWithValue("@floor", floor);
+                locCheckCommand.Parameters.AddWithValue("@room", room);
+
+                object? locResult = locCheckCommand.ExecuteScalar();
+
+                if (locResult != null && locResult != DBNull.Value)
+                {
+                    // Use the existing location
+                    locationId = Convert.ToInt32(locResult);
+                }
+                else
+                {
+                    // Create a new location
+                    using var insertLocation = new SqlCommand(
+                        @"INSERT INTO dbo.Locations (Floor, Room)
+                  OUTPUT INSERTED.Id
+                  VALUES (@floor, @room);",
+                        connection,
+                        transaction);
+
+                    insertLocation.Parameters.AddWithValue("@floor", floor);
+                    insertLocation.Parameters.AddWithValue("@room", room);
+
+                    locationId = Convert.ToInt32(insertLocation.ExecuteScalar());
+                }
+
+                // Check whether the room already has a sensor
+                using var sensorCheck = new SqlCommand(
+                    @"SELECT COUNT(*)
+                    FROM dbo.Sensors
+                    WHERE Location_Id = @locationId;",
+                    connection,
+                    transaction);
+
+                sensorCheck.Parameters.AddWithValue("@locationId", locationId);
+
+                int sensorCount = Convert.ToInt32(sensorCheck.ExecuteScalar());
+
+                if (sensorCount > 0)
+                {
+                    throw new Exception(
+                        $"Floor {floor}, Room {room} already has a sensor.");
+                }
+
+                // 2. Register the sensor
+                using var command = new SqlCommand(
+                    @"INSERT INTO dbo.Sensors
+              (
+                  Date_Installed,
+                  Make,
+                  Model,
+                  Variance,
+                  Location_Id,
+                  Active
+              )
+              VALUES
+              (
+                  @date_installed,
+                  @make,
+                  @model,
+                  @variance,
+                  @locationId,
+                  @active
+              );",
+                    connection,
+                    transaction);
+
+                command.Parameters.AddWithValue(
+                    "@date_installed", DateTime.Now.Date);
+
+                command.Parameters.AddWithValue("@make", make);
+                command.Parameters.AddWithValue("@model", model);
+                command.Parameters.AddWithValue("@variance", variance);
+                command.Parameters.AddWithValue("@locationId", locationId);
+                command.Parameters.AddWithValue("@active", active);
+
                 command.ExecuteNonQuery();
+
+                // 3. Save both changes
+                transaction.Commit();
                 return true;
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
-                throw new Exception("Error registering sensor.");
+                // Undo any changes made during registration
+                transaction.Rollback();
+
+                throw new Exception("Error registering sensor.", ex);
+            }
+            catch
+            {
+                // Also roll back any other errors
+                transaction.Rollback();
+                throw;
             }
         }
+
 
 
         private static void RunNonQuery(SqlConnection connection, string sql)

@@ -333,11 +333,18 @@ namespace Assign_2
             string roomStr = NewRoom.Text.Trim();
             string variance = Newvariance.Text.Trim();
             ComboBoxItem chosenState = NewBool.SelectedItem as ComboBoxItem;
-            if (make == "" || model == "" || floorStr == "" || roomStr == "" || chosenState == null || variance == null)
+
+            if (string.IsNullOrWhiteSpace(make) ||
+                string.IsNullOrWhiteSpace(model) ||
+                string.IsNullOrWhiteSpace(floorStr) ||
+                string.IsNullOrWhiteSpace(roomStr) ||
+                string.IsNullOrWhiteSpace(variance) ||
+                chosenState == null)
             {
-                MessageBox.Show("All Fields are required.");
+                MessageBox.Show("All fields are required.");
                 return;
             }
+
 
             if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room) || !int.TryParse(variance, out int Variance))
             {
@@ -588,6 +595,7 @@ namespace Assign_2
 
                         };
                         TreeViewItem locationItem = new TreeViewItem { Header = roomCheckBox, Tag = location };
+                        roomCheckBox.Click -= RoomCheckBox_Click;
                         roomCheckBox.Click += RoomCheckBox_Click;
                         roomCheckBox.Click += LocationTreeView_SelectedItemChanged;
 

@@ -164,7 +164,7 @@ public class ChartTests
     // TEST 4: Band graph calculates min/max
     [Fact]
     public void ShowBand_ValidData_DisplaysCorrectRange()
-    {
+    { 
         RunSta(() =>
         {
             var chart = new ChartTile();
@@ -189,7 +189,7 @@ public class ChartTests
             Assert.Equal("10.0 °C", min.Text);
             Assert.Equal("20.00 °C", avg.Text);
             Assert.Equal("35.0 °C", max.Text);
-        });
+        } );
     }
 
     // TEST 5: Bar graph stores data correctly

@@ -287,8 +287,8 @@ namespace Assign_2
             Clicked?.Invoke(this, EventArgs.Empty);
         }
         /// <summary>
-        /// Updates the chart status to show whether its sensor is active.
-        /// </summary>
+/// Updates the chart status to show whether its sensor is active.
+/// </summary>
         public void UpdateStatus(bool isActive)
         {
             this.isActive = isActive;
