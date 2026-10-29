@@ -52,7 +52,7 @@ namespace Assign_2
                             @sensorId
                         );", connection);
                 using var timeStampCommand = new SqlCommand(
-                    @"SELECT DATEADD(minute, 1, MAX(Timestamp)) FROM dbo.Data;", connection);
+                    @"SELECT DATEADD(HOUR, 1, MAX(Timestamp)) FROM dbo.Data;", connection);
                 DateTime timeStamp = (DateTime)timeStampCommand.ExecuteScalar();
 
                 foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
