@@ -32,28 +32,25 @@ As above
 
 ## What wasn't completed
 
-### [Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) Feat: Ability to add or update sensors (admin)
+### ~~[Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) Feat: Ability to add or update sensors (admin)~~
 
-We realised today upon reviewing our [requirements](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Requirements.md) that we had not achieved FR3 as functionality had not been implemented for admins to update or add new sensors. We will attempt to implement this before the due date tomorrow. 
-
-Planning notes below on the challenges ([source](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86#issuecomment-6462357671)):
-
-> Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.
+> Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is ~~changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.
 >
 > To implement, requires redesigning the database and ERD.
 >
 > A quick-fix would be to only add functionality to *add new sensors*. Since existing sensors can be deactivated, an 'update' could be done by deactivating a sensor and making a new one with changed attributes. Temps recorded at 'previous' location would be retained. The issue with this is that there's no database link between the deactivated sensor and the 'updated' (new) sensor.
 >
-> We will retain ability to update sensor Make and Model. Other fields need to be read-only.
+> We will retain ability to update sensor Make and Model. Other fields need to be read-only.~~
+
+**Update 29/10/2026:** Issue 86 resolved by commit [3b07e92](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/3b07e92f2d080f89fd2ad8d628da0dda828f2200). Updates can be made to the Make and Model of a temperature sensor, with the use case being correcting typos. Updating the floor or room of a sensor is not implemented as it would require re-designing the database. New sensors can also be added. This fulfills requirement FR3.
 
 ## Requirements review
 
 - [x] FR1 - missing a user.
-	- Added in [95f9431](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/95f9431d17fca9f431f338ecd7d5aaf3ff0cd584)
+	- Added in 95f9431
 - [x] FR2 - clarified in the Readme that admin intentionally doesn't have user permissions
-	- [ba73d0d](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/ba73d0dff08cea17afe25820319afa68c607d423)
-- [/] FR3 - "admin to manage access permissions for users and **roles**" — role-based permission management is implicit, not explicit. They cannot make updates explicitly to a type of user role, but they can affect it (i.e., via change Sensor Settings).
-  - half-done, as admin does not yet have functionality to add or edit sensors - [Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86)
+	- ba73d0d
+- [x] FR3 - "admin to manage access permissions for users and **roles**" — role-based permission management is implicit, not explicit. They cannot make updates explicitly to a type of user role, but they can affect it (i.e., via change Sensor Settings).
 - [x] FR4 - yes, 9 sensors (8 active ,1 deactivated)
 - [x] FR5
 - [x] FR6
@@ -66,8 +63,16 @@ Planning notes below on the challenges ([source](https://github.com/Asign2/Assig
 
 ## Action Items
 
-- [Issue 86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) - optional stretch goal due to scope blowout
-- [Issue 85](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/85)
-- [Issue 82](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/82)
-- [Issue 70](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/70)
-- bring test coverage back above 70%
+- ~~[Issue 86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) - optional stretch goal due to scope blowout~~
+- ~~[Issue 85](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/85)~~
+- ~~[Issue 82](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/82)~~
+- ~~[Issue 70](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/70)~~
+- ~~bring test coverage back above 70%~~
+
+**Revised 29/10/2026** - All tasks complete:
+
+- [x] [Issue 86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) - optional stretch goal due to scope blowout
+- [x] [Issue 85](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/85)
+- [x] [Issue 82](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/82)
+- [x] [Issue 70](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/70)
+- [x] bring test coverage back above 70%
