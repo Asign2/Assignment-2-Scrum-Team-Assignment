@@ -34,13 +34,13 @@ As above
 
 ### ~~[Issue #86](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/issues/86) Feat: Ability to add or update sensors (admin)~~
 
-> Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is ~~changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.
+> ~~Updating sensor - requires location. Problem - temps are tied to sensor ID. Updates are destructive. If floor/room is changed, all the temps recorded for the old floor/room get reassigned to the new floor/location as if they were there all along.~~
 >
-> To implement, requires redesigning the database and ERD.
+> ~~To implement, requires redesigning the database and ERD.~~
 >
-> A quick-fix would be to only add functionality to *add new sensors*. Since existing sensors can be deactivated, an 'update' could be done by deactivating a sensor and making a new one with changed attributes. Temps recorded at 'previous' location would be retained. The issue with this is that there's no database link between the deactivated sensor and the 'updated' (new) sensor.
+> ~~A quick-fix would be to only add functionality to *add new sensors*. Since existing sensors can be deactivated, an 'update' could be done by deactivating a sensor and making a new one with changed attributes. Temps recorded at 'previous' location would be retained. The issue with this is that there's no database link between the deactivated sensor and the 'updated' (new) sensor.~~
 >
-> We will retain ability to update sensor Make and Model. Other fields need to be read-only.~~
+> ~~We will retain ability to update sensor Make and Model. Other fields need to be read-only.~~
 
 **Update 29/10/2026:** Issue 86 resolved by commit [3b07e92](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/commit/3b07e92f2d080f89fd2ad8d628da0dda828f2200). Updates can be made to the Make and Model of a temperature sensor, with the use case being correcting typos. Updating the floor or room of a sensor is not implemented as it would require re-designing the database. New sensors can also be added. This fulfills requirement FR3.
 
