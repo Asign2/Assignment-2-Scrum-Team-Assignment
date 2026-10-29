@@ -437,8 +437,6 @@ public class MainWindowCoverageTests
             Assert.NotEmpty(chartHost.Children);
         });
     }
-    // Paste these methods INSIDE MainWindowCoverageTests, before its final closing brace.
-    // They reuse OnSta(), W, Control<T>(), Call() and MakeFloor().
 
     [Theory]
     [InlineData("NewSensorScreen")]
@@ -845,9 +843,6 @@ public class MainWindowAdditionalBranchTests
     }
 }
 
-// This is a NEW test class. It does not duplicate MainWindowCoverageTests.
-// IMPORTANT: Integration tests modify SQL LocalDB briefly and then clean up.
-// Run on a TEST DATABASE / backup. Do NOT run tests in parallel with the live app.
 [Collection("MainWindowDatabaseSerial")]
 public sealed class MainWindowEightHandlersCoverageTests
 {
@@ -879,11 +874,6 @@ public sealed class MainWindowEightHandlersCoverageTests
         catch (TargetInvocationException ex) when (ex.InnerException != null)
         { ExceptionDispatchInfo.Capture(ex.InnerException).Throw(); }
     }
-
-    // MessageBox.Show opens a native #32770 dialog and blocks the event handler.
-    // The DispatcherTimer keeps running in its modal dispatcher loop and dismisses
-    // dialogs ON THE CURRENT TEST STA THREAD. This avoids leaving modal windows open.
-    // This helper must NEVER be used for production code.
 
     private sealed class DismissMessages : IDisposable
     {
