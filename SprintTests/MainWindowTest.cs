@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Security.Policy;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -429,5 +430,29 @@ public class MainWindowCoverageTests
             Assert.NotEmpty(tree.Items);
             Assert.NotEmpty(chartHost.Children);
         });
+    }
+    [Fact]
+    public void ToggleSensor_Click_ValidData_ActivatesSensor()
+    {
+
+    }
+
+    [Fact]
+    public void RoomCheckBox_Click()
+    {
+
+    }
+    public void FloorCheckBox_Click()
+    {
+        
+    }
+    public void BuildChartTiles()
+    {
+        
+    }
+    [Fact]
+    public void ExportUserLog()
+    {
+        
     }
 }

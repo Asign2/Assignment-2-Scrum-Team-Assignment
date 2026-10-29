@@ -654,30 +654,48 @@ public class ChartTests
         });
     }
 
+
     [Fact]
     public void DrawNativeBoxPlot_Completes_InfoGrab_Successfully()
     {
         STAThreadHelper.Execute(() =>
         {
             var boxPlot = new BoxPlot();
+
+            // Force a size on the control/canvas so ActualWidth and ActualHeight are > 0
+            boxPlot.Width = 400;
+            boxPlot.Height = 300;
+            boxPlot.Measure(new Size(400, 300));
+            boxPlot.Arrange(new Rect(0, 0, 400, 300));
+
             boxPlot.ShowBoxPlot(new List<double> { 10, 20, 30, 40, 50 });
 
             var exception = Record.Exception(() => boxPlot.DrawNativeBoxPlot());
+
             Assert.Null(exception);
             Assert.Equal(5, boxPlot.RawValues.Count);
+            // Verify that elements were actually added to the canvas layer now that size > 0
+            Assert.True(boxPlot.LabelLayer.Children.Count > 0);
         });
     }
 
     [Theory]
-    [InlineData(new double[] { 10, 20, 30, 40, 50 }, 50, 30)] // Median (50th percentile) of 10..50 is 30
+    [InlineData(new double[] { 10, 20, 30, 40, 50 }, 50, 30)]
     public void GetPercentile_Gets_Correct_Percentage(double[] dataArray, double percentile, double expected)
     {
-        List<double> sortedData = new List<double>(dataArray);
-        sortedData.Sort();
+        STAThreadHelper.Execute(() =>
+        {
+            var boxPlot = new BoxPlot();
+            List<double> sortedData = new List<double>(dataArray);
+            sortedData.Sort();
 
-        int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
-        double result = sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];
+            // Call the actual private/internal method via reflection or after making it internal
+            var method = typeof(BoxPlot).GetMethod("GetPercentile",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        Assert.Equal(expected, result);
+            double result = (double)method.Invoke(boxPlot, new object[] { sortedData, percentile });
+
+            Assert.Equal(expected, result);
+        });
     }
 }

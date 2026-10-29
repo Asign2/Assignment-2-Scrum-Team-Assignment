@@ -24,7 +24,7 @@
                 <Grid>
                     <Grid>
                         <Image x:Name="PlotImage" Stretch="Fill"/>
-                        <Canvas x:Name="LabelLayer"/>
+                        <Canvas x:Name="LabelLayer" x:FieldModifier="public"/>
                     </Grid>
                     <TextBlock x:Name="NoDataText" Text="No data" Foreground="Gray" FontSize="12"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
