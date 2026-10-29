@@ -170,10 +170,41 @@ public class AdditionalCoreTests : IDisposable
         Assert.Equal("User", role);
     }
 
-//    [Fact]
-//    public void CompareGraphinfo_WithJsonGeneratedFile()
-//    {
-//        public static readonly JsonSerializerOptions Pretty = new() { WriteIndented = true };
-        
-//}
+    [Fact]
+    public void Query_ReturnsColumnNamesAndValues()
+    {
+        var results = JsonExport.Query(
+            "SELECT 1 AS Id, 'Test' AS Name");
+
+        Assert.Single(results);
+        Assert.Equal(1, results[0]["Id"]);
+        Assert.Equal("Test", results[0]["Name"]);
+    }
+
+    [Fact]
+    public void SaveJsonTest_ExportDataToJson()
+    {
+        string filePath = Path.Combine(
+            Path.GetTempPath(),
+            $"{Guid.NewGuid()}.json");
+        try
+        {
+            var data = new { Id = 1, Name = "Test" };
+
+            JsonExport.WriteJson(filePath, data);
+
+            Assert.True(File.Exists(filePath));
+
+            string json = File.ReadAllText(filePath);
+            Assert.Contains("\"Id\": 1", json);
+            Assert.Contains("\"Name\": \"Test\"", json);
+        }
+        finally
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+    }
 }

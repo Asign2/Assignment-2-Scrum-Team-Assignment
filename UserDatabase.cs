@@ -194,12 +194,13 @@ namespace Assign_2
             // Define the tuple with explicit names so user.Username, user.Password, etc., work
             var defaultUsers = new (string Username, string Password, int RoleId, string Firstname, string Lastname)[]
             {
-        ("admin", "admin123", 1, "Admin", "Account"),
-        ("alex", "user123", 2, "Alex", "User"),
-        ("jordan", "user123", 2, "Jordan", "User"),
-        ("sam", "user123", 2, "Sam", "User"),
-        ("taylor", "user123", 2, "Taylor", "User"),
-        ("bot", "temp", 1, "Backupcharacter1", "")
+                ("admin", "admin123", 1, "Admin", "Account"),
+                ("alex", "user123", 2, "Alex", "User"),
+                ("jordan", "user123", 2, "Jordan", "User"),
+                ("sam", "user123", 2, "Sam", "User"),
+                ("taylor", "user123", 2, "Taylor", "User"),
+                ("tiffany", "tiffmeister2000", 2, "Tiffany", "Masters"),
+                ("backup", "backup123", 1, "Backupcharacter1", "")
             };
 
             foreach (var user in defaultUsers)
@@ -208,23 +209,23 @@ namespace Assign_2
 
                 using var command = new SqlCommand(
                     @"INSERT INTO dbo.Users
-            (
-                Username,
-                PasswordHash,
-                firstnames,
-                lastnames,
-                date_created,
-                RoleId
-            )
-            VALUES
-            (
-                @username,
-                @hash,
-                @firstname,
-                @lastname,
-                @date_created,
-                @roleId
-            );",
+                    (
+                        Username,
+                        PasswordHash,
+                        firstnames,
+                        lastnames,
+                        date_created,
+                        RoleId
+                    )
+                    VALUES
+                    (
+                        @username,
+                        @hash,
+                        @firstname,
+                        @lastname,
+                        @date_created,
+                        @roleId
+                    );",
                     connection);
 
                 command.Parameters.AddWithValue("@username", user.Username);
@@ -369,11 +370,11 @@ namespace Assign_2
 
             command.Parameters.AddWithValue(
                 "@firstname",
-                "");
+                firstname);
 
             command.Parameters.AddWithValue(
                 "@lastname",
-                "");
+                lastname);
 
             command.Parameters.AddWithValue(
                 "@date_created",

@@ -10,11 +10,9 @@ namespace Assign_2
 {
     public static class SensorsDatabase
     {
-        public static int SeedHours = 24; // number of hours to pre-seed database.
-                                          // Default 24 (1 day)
-                                          // 168 == 1 week
-                                          // 720 == 1 month
-                                          // time in hours, starting from 0 to t
+        public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
+                                            // 60 = 1 hour
+                                            // 1440 = 1 day
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -253,6 +251,7 @@ namespace Assign_2
             bool sensorsHaveRows = RunScalarBool(connection, "SELECT COUNT(*) FROM dbo.Sensors;");
             if (!sensorsHaveRows)
             {
+                //Sensor 9 is deactivated to show how activation works.
                 RunNonQuery(connection, @"
                     INSERT INTO dbo.Sensors (Date_Installed, Make, Model, Location_Id, Variance, Active)
                     VALUES 
@@ -272,9 +271,9 @@ namespace Assign_2
             {
                 using var command = new SqlCommand(@"
                     INSERT INTO dbo.DashboardSettings (Id, DefaultGranularity, ShowCurrentTemp, ShowTempComparison, ShowTempReading,Tick)
-                    VALUES (1, 'Monthly', 1, 1, 1, @SeededHours);", connection);
-                command.Parameters.Add("@SeededHours", System.Data.SqlDbType.Int);
-                command.Parameters["@SeededHours"].Value = SeedHours;
+                    VALUES (1, 'Monthly', 1, 1, 1, @SeededMinutes);", connection);
+                command.Parameters.Add("@SeededMinutes", System.Data.SqlDbType.Int);
+                command.Parameters["@SeededMinutes"].Value = SeedMinutes;
 
                 command.ExecuteNonQuery();
             }
@@ -293,21 +292,22 @@ namespace Assign_2
 
                 using var command = new SqlCommand(
                     @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
-                    VALUES (DATEADD(hour, @hours, GETDATE()), @temperature, @sensorId);", connection);
+                    VALUES (DATEADD(minute, @minute, DATEADD(minute, -@SeededMinutes, GETDATE())) , @temperature, @sensorId);", connection);
 
-                command.Parameters.Add("@hours", System.Data.SqlDbType.Int);
+                command.Parameters.Add("@minute", System.Data.SqlDbType.Int);
                 command.Parameters.Add("@temperature", System.Data.SqlDbType.Decimal);
                 command.Parameters.Add("@sensorId", System.Data.SqlDbType.Int);
+                command.Parameters.AddWithValue("@SeededMinutes", SeedMinutes);
 
                 command.Parameters["@temperature"].Precision = 5;
                 command.Parameters["@temperature"].Scale = 2;
 
-                for (int i = 0; i < SeedHours; i++)
+                for (int i = 0; i < SeedMinutes; i++)
                 {
                     double temp = random.randomTemp(i, sensor.Variance);
                     Debug.WriteLine($"{i}, {sensor.Variance}, {temp}");
 
-                    command.Parameters["@hours"].Value = i; 
+                    command.Parameters["@minute"].Value = i; 
                     command.Parameters["@temperature"].Value = temp;
                     command.Parameters["@sensorId"].Value = sensor.Id;
                     command.ExecuteNonQuery();
@@ -461,7 +461,7 @@ namespace Assign_2
                     ShowCurrentTemp = true,
                     ShowTempComparison = true,
                     ShowTempReading = true,
-                    Tick = SeedHours
+                    Tick = SeedMinutes
 
                 };
             }
@@ -562,31 +562,31 @@ namespace Assign_2
             int location,
             Granularity granularity)
         {
-            int hours = granularity switch
+            int minutes = granularity switch
             {
-                Granularity.Daily => 24,
-                Granularity.Weekly => 168,
-                Granularity.Monthly => 720,
-                Granularity.Yearly => 8760,
+                Granularity.Daily => 1440,
+                Granularity.Weekly => 13440,
+                Granularity.Monthly => 43200,
+                Granularity.Yearly => 525600,
                 _ => throw new ArgumentOutOfRangeException(nameof(granularity))
             };
 
             string query = @"
-                SELECT TOP(@Hours)
-                    DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0) AS Period,
+                SELECT TOP(@Minutes)
+                    DATEADD(MINUTE, DATEDIFF(MINUTE, 0, d.Timestamp), 0) AS Period,
                     CAST(AVG(d.Temperature) AS DECIMAL(5, 2)) AS Temperature
                 FROM dbo.Data d
                 INNER JOIN dbo.Sensors s ON d.Sensor_id = s.Id
                 INNER JOIN dbo.Locations l ON s.Location_id = l.Id
                 WHERE l.Id = @LocationId
-                    AND d.Timestamp >= DATEADD(HOUR, -@Hours, (SELECT MAX(Timestamp) FROM dbo.Data))
-                GROUP BY DATEADD(HOUR, DATEDIFF(HOUR, 0, d.Timestamp), 0)
+                    AND d.Timestamp >= DATEADD(MINUTE, -@Minutes, (SELECT MAX(Timestamp) FROM dbo.Data))
+                GROUP BY DATEADD(MINUTE, DATEDIFF(MINUTE, 0, d.Timestamp), 0)
                 ORDER BY Period;";
 
             using SqlConnection connection = UserDatabase.OpenConnection();
             using SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@LocationId", location);
-            command.Parameters.AddWithValue("@Hours", hours);
+            command.Parameters.AddWithValue("@Minutes", minutes);
             // @LocationId and @Hours are parameters for parameterised query
             // reduces SQL SELECT code to just one statement, with Granularity & location as input
 

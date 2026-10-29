@@ -27,7 +27,14 @@ namespace Assign_2
             {
                 SensorsDatabase.Initialize();
 
-                Generation generator = new Generation(this);
+                Generation generator = new Generation();
+                generator.DataGenerated += () =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        RedrawChartTiles();
+                    });
+                };
                 //Discards the first generated temperature to avoid wrong readings for future use.
                 _ = generator.generatePeriodicTemperature();
             }

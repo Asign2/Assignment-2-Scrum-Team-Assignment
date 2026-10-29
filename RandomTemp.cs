@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assign_2
 {
-    internal class RandomTemp
+    public class RandomTemp
     {
 
         /// <summary>
@@ -21,10 +21,10 @@ namespace Assign_2
             int average = 19;
             double pi = Math.PI;
             // sin functions to create a more complex temperature pattern
-            double sin1 = Math.Sin((2 * pi * (x - 8))/ 24 + 0.1 * n);
-            double sin2 = Math.Sin((4 * pi * (x + 10))/ 24 + 0.1 * n);
-            double sin3 = Math.Sin((2 * pi * x)/24);
-            double sin4 = Math.Sin((2 * pi * x)/7 + (0.8 * sin3));
+            double sin1 = Math.Sin((2 * pi * (x - 480))/ 1440 + 0.1 * n);
+            double sin2 = Math.Sin((4 * pi * (x + 600))/ 1440 + 0.1 * n);
+            double sin3 = Math.Sin((2 * pi * x)/1440);
+            double sin4 = Math.Sin((2 * pi * x)/420 + (0.8 * sin3));
 
             // Calculate the temperature using the modified sine functions and the additional parameter n
             double temp = average + (3.2 * sin1) + (0.9 * sin2) + (0.5 * sin4) + 0.3 * n;

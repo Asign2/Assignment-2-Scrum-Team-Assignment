@@ -33,7 +33,7 @@ namespace Assign_2
             Redraw();
         }
 
-        private void Redraw()
+        public void Redraw()
         {   
             RawValues = values;
 
@@ -67,8 +67,12 @@ namespace Assign_2
         {
             RawValues = values;
             LabelLayer.Children.Clear();
-            if (values.Count == 0 || LabelLayer.ActualHeight <= 0 || LabelLayer.ActualWidth <= 0)
+            if (values.Count == 0)
                 return;
+
+            // Fallback dimensions if running in a unit test where ActualHeight/Width are 0
+            double canvasHeight = LabelLayer.ActualHeight > 0 ? LabelLayer.ActualHeight : 300;
+            double canvasWidth = LabelLayer.ActualWidth > 0 ? LabelLayer.ActualWidth : 400;
 
             var sorted = values.OrderBy(v => v).ToList();
             double min = sorted.First();
@@ -82,8 +86,6 @@ namespace Assign_2
             double dataRange = dataMax - dataMin;
             if (dataRange <= 0) dataRange = 1;
 
-            double canvasHeight = LabelLayer.ActualHeight;
-            double canvasWidth = LabelLayer.ActualWidth;
             double centerX = canvasWidth / 2.0;
             double boxWidth = Math.Min(40, canvasWidth * 0.4);
 
@@ -163,7 +165,7 @@ namespace Assign_2
             LabelLayer.Children.Add(medianLine);
         }
 
-        private double GetPercentile(List<double> sortedData, double percentile)
+        internal double GetPercentile(List<double> sortedData, double percentile)
         {
             int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
             return sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];

@@ -9,21 +9,22 @@ using System.Threading.Tasks;
 
 namespace Assign_2
 {
-    internal class Generation 
+    public class Generation 
     {
-        private MainWindow mainWindow;
 
-        public Generation(MainWindow mainWindow)
+        private readonly int delay;
+        public event Action? DataGenerated;
+        public Generation(int delay = 60000)
         {
-            this.mainWindow = mainWindow;
+            this.delay = delay;
         }
 
         /// <summary>
         /// Periodically generates temperature readings for all sensors in the database and inserts them into the Database.
-        /// Ticks every 20 seconds.
-        /// Each tick is an hour.
+        /// Ticks every 60 seconds.
+        /// Each tick is a minute.
         /// </summary>
-        public async Task generatePeriodicTemperature()
+        public async Task generatePeriodicTemperature(CancellationToken cancellationToken = default)
         {
             using var connection = UserDatabase.OpenConnection();
             DashboardSettings settings = SensorsDatabase.GetSettings();
@@ -32,7 +33,7 @@ namespace Assign_2
             while (true)
             {
 
-                await Task.Delay(60000); // Wait for 60 seconds before generating the next set of 
+                await Task.Delay(delay, cancellationToken); // Wait for 60 seconds before generating the next set of 
                 using var command = new SqlCommand(
                    @"INSERT INTO dbo.Data (Timestamp, Temperature, Sensor_Id) 
                         VALUES (
@@ -41,7 +42,7 @@ namespace Assign_2
                             @sensorId
                         );", connection);
                 using var timeStampCommand = new SqlCommand(
-                    @"SELECT DATEADD(hour, 1, MAX(Timestamp)) FROM dbo.Data;", connection);
+                    @"SELECT DATEADD(minute, 1, MAX(Timestamp)) FROM dbo.Data;", connection);
                 DateTime timeStamp = (DateTime)timeStampCommand.ExecuteScalar();
 
                 foreach (SensorRecord sensor in SensorsDatabase.GetAllSensors())
@@ -71,10 +72,7 @@ namespace Assign_2
                 Debug.WriteLine($"Settings Tick: {settings.Tick}");
                 SensorsDatabase.UpdateSettings(settings);
 
-                mainWindow.Dispatcher.Invoke(() =>
-                {
-                    mainWindow.RedrawChartTiles();
-                });
+                DataGenerated?.Invoke();
             }
         }
     }
