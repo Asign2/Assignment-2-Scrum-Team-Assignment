@@ -370,11 +370,11 @@ namespace Assign_2
 
             command.Parameters.AddWithValue(
                 "@firstname",
-                "");
+                firstname);
 
             command.Parameters.AddWithValue(
                 "@lastname",
-                "");
+                lastname);
 
             command.Parameters.AddWithValue(
                 "@date_created",
