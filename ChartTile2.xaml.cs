@@ -44,5 +44,16 @@ namespace Assign_2
             Canvas.SetTop(TempBar, MaxBarHeight - calculatedHeight);
         }
 
+        public void UpdateStatus(bool isActive)
+        {
+            Activated.Visibility = System.Windows.Visibility.Visible;
+            Deactivated.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (!isActive)
+            {
+                Activated.Visibility = System.Windows.Visibility.Collapsed;
+                Deactivated.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
     }
 }

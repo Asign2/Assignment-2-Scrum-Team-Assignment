@@ -187,11 +187,11 @@ namespace Assign_2
                         (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
                         (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
                         (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 0),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
             }
@@ -582,6 +582,22 @@ namespace Assign_2
             command.Parameters.AddWithValue("@Id", sensorId);
             command.ExecuteNonQuery();
 
+        }
+
+        public static bool IsLocationActive(int locationId)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+                SELECT  COUNT(*)
+                FROM dbo.Sensors
+                WHERE Location_Id = @Location_Id
+                AND Active = 1", connection);
+
+            command.Parameters.AddWithValue("@Location_Id", locationId);
+
+            int count = (int)command.ExecuteScalar();
+            
+            return count > 0;
         }
     }
 }

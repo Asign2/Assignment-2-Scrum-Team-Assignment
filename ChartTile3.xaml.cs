@@ -198,5 +198,17 @@ namespace Assign_2
             int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
             return sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];
         }
+
+        public void UpdateStatus(bool isActive)
+        {
+            Activated.Visibility = System.Windows.Visibility.Visible;
+            Deactivated.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (!isActive)
+            {
+                Activated.Visibility = System.Windows.Visibility.Collapsed;
+                Deactivated.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
     }
 }

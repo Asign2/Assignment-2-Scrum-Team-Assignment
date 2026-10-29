@@ -428,7 +428,6 @@ namespace Assign_2
             userScreenReady = false; 
             if (!userScreenReady)
             {
-                userScreenReady = true;
 
                 List<LocationRecord> locations = new List<LocationRecord>();
 
@@ -594,7 +593,9 @@ namespace Assign_2
             if (source == null) return;
 
             OverlayContentHost.Children.Clear();
+            
             OverlayContentHost.Children.Add(source.CreateEnlargedCopy());
+
             ChartOverlay.Visibility = Visibility.Visible;
         }
 
@@ -715,6 +716,8 @@ namespace Assign_2
             foreach (int location in locations)
             {
                 List<(DateTime Period, double Temperature)> readings;
+
+                bool isActive = SensorsDatabase.IsLocationActive(location);
                 try
                 {
                     readings = SensorsDatabase.GetChartReadings(location, granularity);
@@ -727,7 +730,9 @@ namespace Assign_2
 
                 if (readings.Count == 0) continue;
 
+
                 string granularityName = granularity.ToString();
+                
 
                 List<string> labels = readings.Select(reading => reading.Period.ToString(
                     granularityName == "Daily" ? "HH:mm" :
@@ -754,7 +759,9 @@ namespace Assign_2
                 // --- Column 0: Line Graph ---
                 if (settings.ShowTempReading)
                 {
+                    Debug.WriteLine(location);
                     topTile = new ChartTile();
+                    topTile.UpdateStatus(isActive);
                     topTile.ShowLine($"Floor {allLocations.First(l => l.Id == location).Floor}. Room {allLocations.First(l => l.Id == location).Room}", labels, temperatures, null, null);
                     topTile.Clicked += ChartTile_Clicked;
 
@@ -766,11 +773,11 @@ namespace Assign_2
                 if (settings.ShowCurrentTemp)
                 {
                     tile2 = new ChartTile2();
+                    tile2.UpdateStatus(isActive);
                     if (temperatures.Count > 0)
                     {
                         tile2.UpdateValue(temperatures.Last());
                     }
-
                     Grid.SetColumn(tile2, 1);
                     roomGrid.Children.Add(tile2);
                 }
@@ -779,8 +786,8 @@ namespace Assign_2
                 if (settings.ShowTempComparison)
                 {
                     boxPlotTile = new BoxPlot();
+                    boxPlotTile.UpdateStatus(isActive);
                     boxPlotTile.ShowBoxPlot(temperatures);
-
                     Grid.SetColumn(boxPlotTile, 2);
                     roomGrid.Children.Add(boxPlotTile);
                 }
@@ -934,8 +941,13 @@ namespace Assign_2
                 SensorsDatabase.UpdateActivity(newStatus, sensor.Id);
 
                 SensorsGrid.ItemsSource = SensorsDatabase.GetAllSensors();
+                
+                //updates the activty indicator on the graphs,
+                //this is to catch if all sensors are deactivated as then redraw wont be caleld.
+                RedrawChartTiles();
             }
         }
+        
         /// <summary>
         /// Redraws the graphs that are already generated.
         /// </summary>
@@ -952,12 +964,15 @@ namespace Assign_2
 
             List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
             DashboardSettings settings = SensorsDatabase.GetSettings();
-
             foreach (LocationRecord location in allLocations) {
 
                 List<(DateTime Period, double Temperature)> readings = SensorsDatabase.GetChartReadings(location.Id, granularity);
                 //Checks if a location has readings but no graph.
                 //if true then calls BuildChartTiles
+
+
+
+
                 if (!chartTiles.ContainsKey(location.Id) && readings.Count > 0) 
                 {
                     BuildChartTiles(locations, granularity);
@@ -967,19 +982,27 @@ namespace Assign_2
                 if (readings.Count == 0) { 
                     continue;
                 }
+    
+                bool isActive = SensorsDatabase.IsLocationActive(location.Id);
 
                 var tiles = chartTiles[location.Id];
+
+                tiles.Line?.UpdateStatus(isActive);
+                tiles.Bar?.UpdateStatus(isActive);
+                tiles.Box?.UpdateStatus(isActive);
+
                 List<string> labels = readings.Select(reading => reading.Period.ToString(
-                 granularity.ToString() == "Daily" ? "HH:mm" :
-                 granularity.ToString() == "Weekly" ? "dd MMM" :
-                 granularity.ToString() == "Monthly" ? "MMM yyyy" :
-                 "yyyy")).ToList();
+                    granularity.ToString() == "Daily" ? "HH:mm" :
+                    granularity.ToString() == "Weekly" ? "dd MMM" :
+                    granularity.ToString() == "Monthly" ? "MMM yyyy" :
+                    "yyyy")).ToList();
 
                 List<double> temperatures = readings.Select(reading => reading.Temperature).ToList();
 
                 if (tiles.Line != null && settings.ShowTempReading) { 
                     string Title = $"Floor {allLocations.First(l => l.Id == location.Id).Floor}." +
                                    $"Room {allLocations.First(l => l.Id == location.Id).Room}";
+                    
 
                     tiles.Line.ShowLine(Title, labels, temperatures, null, null);
                 }

@@ -39,6 +39,7 @@ namespace Assign_2
         {
             InitializeComponent();
             SparklineHost.SizeChanged += (s, e) => DrawSparkline();
+
         }
         /// <summary>
         /// 
@@ -270,6 +271,18 @@ namespace Assign_2
         private void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
             Clicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void UpdateStatus(bool isActive)
+        {
+            Activated.Visibility = System.Windows.Visibility.Visible;
+            Deactivated.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (!isActive)
+            {
+                Activated.Visibility = System.Windows.Visibility.Collapsed;
+                Deactivated.Visibility = System.Windows.Visibility.Visible;
+            }
         }
     }
 }
