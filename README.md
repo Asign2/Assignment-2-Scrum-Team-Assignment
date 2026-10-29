@@ -31,8 +31,8 @@ Admins have access to three screens:
 	- Delete users
 2. **Sensor Settings** screen (Sensor management)
 	- View sensor details
-	- ~~Update sensor details~~
-	- ~~Add new sensors~~
+	- Update sensor details
+	- Add new sensors
 	- Deactivate or reactivate sensors
 	- Change default interval of temperature reading graphs
 	- Toggle which graphs are viewable to users
@@ -54,15 +54,11 @@ Users can access a single screen: the **Temperature Dashboard**. They can perfor
 - Export all temperature readings: <kbd>Export Full Data</kbd>
 - <kbd>Logout</kbd>
 
-### Roadmap
-
-Functionality we wish to implement if possible before final release
-
-- Add new Sensors
-- Update existing Sensors
-
-
 ## Development
+
+### Software Requirements
+
+- Visual Studio 2022 or higher
 
 ### Dependencies
 
@@ -72,17 +68,28 @@ Functionality we wish to implement if possible before final release
 | `DaFoVectSharp.Raster.ImageSharp` | 2.3.0   |
 | `Microsoft.Data.SqlClient`        | 7.0.3   |
 | `Microsoft.Data.Sqlite`           | 10.0.11 |
+| `Microsoft.NET.Test.Sdk`          | 17.11.1 |
+| `Newtonsoft.Json`                 | 13.0.3  |
 | `VectSharp`                       | 2.6.1   |
 | `VectSharp.Plots`                 | 1.1.3   |
 | `VectSharp.Raster.ImageSharp`     | 2.1.0   |
-| `Newtonsoft.Json`                 | 13.0.3  |
+| `xunit`                           | 2.9.2   |
 | `xunit.assert`                    | 2.9.2   |
 | `xunit.extensibility.core`        | 2.9.2   |
+| `xunit.runner.visualstudio`       | 2.8.2   |
+
+### Opening/Building the Project
+
+Open `Assign2.sln`, then run **▶️ Assign 2**
 
 ### Commands
 
-- `dotnet test "./Assign2.sln" --logger "html;LogFileName=test-results.md"` (run tests and exports results through html as a .md)
+- `dotnet test "./Assign2.sln" --settings "./test.runsettings" --logger "html;LogFileName=test-results.md"` (run tests and exports results through html as a .md)
 - `mkdir ""` (create new folder)
 - `cd ""` (go to new folder)
 - `dotnet restore .\Assign2.sln --verbosity diagnostic` (Run this if api.nuget.org is unable to load)
 - `dotnet new xunit3` (create xnit 3 template)
+
+### Test Login Details
+- `admin` \| `admin123`
+- `alex` \| `user123`
