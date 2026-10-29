@@ -41,7 +41,6 @@ namespace Assign_2
                 connection,
                 "SELECT OBJECT_ID('dbo.Sensors', 'U');",
                 true);
-
             if (!sensorsExists)
             {
                 RunNonQuery(connection, @"
@@ -344,7 +343,7 @@ namespace Assign_2
                 SELECT s.Id, s.Make, s.Model, l.Floor, l.Room, s.Variance, s.Active
                     FROM dbo.Sensors s
                     INNER JOIN dbo.Locations l ON l.Id = s.Location_Id
-                    ORDER BY l.Floor, l.Room, s.Id;"
+                    ORDER BY s.Id;"
                 , connection);
 
             using SqlDataReader reader = command.ExecuteReader();
