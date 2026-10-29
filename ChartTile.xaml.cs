@@ -32,6 +32,7 @@ namespace Assign_2
         public string Title { get; private set; }
         public List<string> Labels { get; private set; }
         public List<double> Values { get; private set; }
+        public bool isActive { get; private set; }
         /// <summary>
         /// 
         /// </summary>
@@ -231,7 +232,9 @@ namespace Assign_2
         public ChartTile CreateEnlargedCopy(double width = 1100, double height = 550)
         {
             activeEnlargedCopy = new ChartTile { Width = width, Height = height };
+            activeEnlargedCopy.UpdateStatus(isActive);
             UpdateEnlargedCopy();
+            
             return activeEnlargedCopy;
         }
 
@@ -275,6 +278,7 @@ namespace Assign_2
 
         public void UpdateStatus(bool isActive)
         {
+            this.isActive = isActive;
             Activated.Visibility = System.Windows.Visibility.Visible;
             Deactivated.Visibility = System.Windows.Visibility.Collapsed;
 
