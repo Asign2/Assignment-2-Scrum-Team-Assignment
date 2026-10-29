@@ -152,17 +152,14 @@ namespace Assign_2
                 if (item.Content.ToString() == selectedUser.Role)
                 {
                     RoleBox.SelectedItem = item;
-                    break; // Optional: break once found for efficiency
+                    break; 
                 }
             }
         }
-        // Call this method when opening the Update Sensor screen or in Window_Loaded
         private void LoadSensorIds()
         {
-            // Fetch all sensors using your existing static database method
             List<SensorRecord> sensorList = SensorsDatabase.GetAllSensors();
 
-            // Bind the list to your ComboBox
             SensorIDComboBox.ItemsSource = sensorList;
             SensorIDComboBox.DisplayMemberPath = "Id";
             SensorIDComboBox.SelectedValuePath = "Id";
@@ -170,10 +167,8 @@ namespace Assign_2
 
         private void SensorIDComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Ensure an item is selected and cast it to your SensorRecord
             if (SensorIDComboBox.SelectedItem is SensorRecord selectedSensor)
             {
-                // Populate the fields with the selected sensor's data (matching your user form style)
                 UpdateMake.Text = selectedSensor.Make;
                 UpdateModel.Text = selectedSensor.Model;
                 UpdateFloor.Text = selectedSensor.Floor.ToString();
@@ -204,7 +199,6 @@ namespace Assign_2
 
             string newRole = chosenRole.Content.ToString();
 
-            // Pull remaining values directly from form controls or keep original values from selectedUser
             string newFirstName = EditFirstNameBox.Text.Trim(); // Replace with your actual TextBox name
             string newLastName = EditLastNameBox.Text.Trim();   // Replace with your actual TextBox name
             DateTime newDateCreated = selectedUser.date_created; // Preserves the original creation date
@@ -384,7 +378,6 @@ namespace Assign_2
 
         private void RegisterSensorUpdate_Click(object sender, RoutedEventArgs e)
         {
-            // Ensure a sensor is selected from your ComboBox
             if (SensorIDComboBox.SelectedValue == null)
             {
                 MessageBox.Show("Please select a sensor to update.");
@@ -811,7 +804,6 @@ namespace Assign_2
             }
             catch
             {
-                // Logging failure should not block the dashboard from showing.
             }
         }
 
@@ -867,7 +859,6 @@ namespace Assign_2
                 // 1. Add row to main host
                 ChartHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-                // 2. Create sub-grid with your 5* (Line), 1.5* (Bar), 1.5* (Box Plot) proportions
                 Grid roomGrid = new Grid();
                 roomGrid.Margin = new Thickness(0, 0, 0, 10);
                 roomGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) });   // Line (Wide)
