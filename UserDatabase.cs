@@ -123,6 +123,7 @@ namespace Assign_2
                 CreateUsersTable(connection);
                 SeedDefaultUsers(connection);
             }
+            SensorsDatabase.Initialize();
         }
 
         // =========================================================
@@ -418,7 +419,7 @@ namespace Assign_2
                 FROM dbo.Users u
                 INNER JOIN dbo.Roles r
                     ON u.RoleId = r.Id
-                ORDER BY u.Username;",
+                ORDER BY u.Id;",
                 connection);
 
             using var reader = command.ExecuteReader();

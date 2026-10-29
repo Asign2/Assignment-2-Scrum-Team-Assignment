@@ -334,7 +334,7 @@ namespace Assign_2
 
             if (!int.TryParse(floorStr, out int floor) || !int.TryParse(roomStr, out int room) || !int.TryParse(variance, out int Variance))
             {
-                MessageBox.Show("Floor and Room must be valid numbers.");
+                MessageBox.Show("Floor, Room And Variance must be valid numbers.");
                 return;
             }
             
