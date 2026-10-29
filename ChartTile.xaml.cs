@@ -11,17 +11,16 @@ using VectSharp.Plots;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Displays temperature readings as a chart tile.
     /// </summary>
     public partial class ChartTile : UserControl
     {
         private enum ChartKind { None, Line, Band, Bars }
         /// <summary>
-        /// 
+        /// Occurs when the chart tile is clicked.
         /// </summary>
         public event EventHandler Clicked;
-
-        private ChartKind kind = ChartKind.None;
+        private ChartKind kind = ChartKind.None; 
         private string chartTitle = "Bar Graph";
         private List<string> labels = new List<string>();
         private List<double> values = new List<double>();
@@ -29,12 +28,24 @@ namespace Assign_2
         private List<double> maxValues = new List<double>();
         // Track the active enlarged copy linked to this tile
         private ChartTile activeEnlargedCopy;
+        /// <summary>
+        /// Gets the current chart title.
+        /// </summary>
         public string Title { get; private set; }
+        /// <summary>
+        /// Gets the labels used by the current chart.
+        /// </summary>
         public List<string> Labels { get; private set; }
+        /// <summary>
+        /// Gets the values used by the current chart.
+        /// </summary>
         public List<double> Values { get; private set; }
+        /// <summary>
+        /// Gets whether the chart location is active.
+        /// </summary>
         public bool isActive { get; private set; }
         /// <summary>
-        /// 
+        /// Creates and sets up a new chart tile.
         /// </summary>
         public ChartTile()
         {
@@ -43,7 +54,7 @@ namespace Assign_2
 
         }
         /// <summary>
-        /// 
+        /// Displays temperature data as a line chart.
         /// </summary>
         /// <param name="title"></param>
         /// <param name="xLabels"></param>
@@ -69,7 +80,7 @@ namespace Assign_2
             UpdateEnlargedCopy();
         }
         /// <summary>
-        /// 
+        /// Displays the minimum, maximum and average values as a band chart.
         /// </summary>
         /// <param name="title"></param>
         /// <param name="xLabels"></param>
@@ -97,7 +108,7 @@ namespace Assign_2
             UpdateEnlargedCopy();
         }
         /// <summary>
-        /// 
+        /// Displays temperature values as a bar chart.
         /// </summary>
         /// <param name="title"></param>
         /// <param name="xLabels"></param>
@@ -119,7 +130,7 @@ namespace Assign_2
             UpdateEnlargedCopy();
         }
         /// <summary>
-        /// 
+        /// Displays a placeholder when chart data is unavailable.
         /// </summary>
         /// <param name="title"></param>
         public void ShowPlaceholder(string title)
@@ -224,7 +235,7 @@ namespace Assign_2
             Sparkline.Points = points;
         }
         /// <summary>
-        /// 
+        /// Creates a larger copy of the current chart.
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
@@ -275,7 +286,9 @@ namespace Assign_2
         {
             Clicked?.Invoke(this, EventArgs.Empty);
         }
-
+        /// <summary>
+        /// Updates the chart status to show whether its sensor is active.
+        /// </summary>
         public void UpdateStatus(bool isActive)
         {
             this.isActive = isActive;

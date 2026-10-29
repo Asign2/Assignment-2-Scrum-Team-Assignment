@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Generates sample temperatures for testing and graph displays.
     /// </summary>
     public class RandomTemp
     {
 
         /// <summary>
-        /// random temperature generator for testing the graphing functions.
+        /// Generates a temperature using the time value and variance.
         /// </summary>
         /// <param name="x">time frame for the temperatures.</param>
         /// <param name="n">additional parameter to modify the temperature.</param>

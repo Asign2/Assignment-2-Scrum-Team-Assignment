@@ -11,7 +11,7 @@ using VectSharp.Plots;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Displays temperature values as a box plot.
     /// </summary>
     public partial class BoxPlot : UserControl
     {
@@ -20,12 +20,12 @@ namespace Assign_2
         /// </summary>
         private List<double> values = new List<double>();
         /// <summary>
-        /// Gets the raw collection of temperature values currently populated in the box plot.
+        /// Gets the temperature values currently used in the box plot.
         /// </summary>
         public List<double> RawValues { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BoxPlot"/> class and wires up resize handling.
+        /// Creates and sets up a box plot.
         /// </summary>
         public BoxPlot()
         {
@@ -33,7 +33,7 @@ namespace Assign_2
             SizeChanged += (s, e) => DrawNativeBoxPlot();
         }
         /// <summary>
-        /// Populates the box plot with the specified collection of temperature values and triggers a redraw.
+        /// Loads temperature values and displays the box plot.
         /// </summary>
         /// <param name="temperatures">The collection of temperature data points to display.</param>
         public void ShowBoxPlot(List<double> temperatures)
@@ -42,7 +42,7 @@ namespace Assign_2
             Redraw();
         }
         /// <summary>
-        /// Clears the data values and displays the placeholder view for the box plot.
+        /// Displays a placeholder when no temperature data is available.
         /// </summary>
         /// <param name="title">The placeholder title text.</param>
         public void ShowPlaceholder(string title)
@@ -51,9 +51,8 @@ namespace Assign_2
             Redraw();
         }
         /// <summary>
-        /// Recalculates statistical bounds, updates text fields, and renders the box plot or placeholder state.
+        /// Refreshes the box plot display.
         /// </summary>
-
         public void Redraw()
         {   
             RawValues = values;
@@ -84,7 +83,7 @@ namespace Assign_2
             DrawNativeBoxPlot();
         }
         /// <summary>
-        /// Draws the visual box plot graphics including whiskers, interquartile range box, and median marker onto the canvas layer.
+        /// Draws the box plot using the current temperature values.
         /// </summary>
         public void DrawNativeBoxPlot()
         {
@@ -198,7 +197,9 @@ namespace Assign_2
             int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
             return sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];
         }
-
+        /// <summary>
+        /// Updates the box plot status based on sensor activity.
+        /// </summary>
         public void UpdateStatus(bool isActive)
         {
             Activated.Visibility = System.Windows.Visibility.Visible;

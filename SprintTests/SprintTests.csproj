@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MainWindowTest.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DaFoVectSharp.Raster.ImageSharp" Version="2.3.0" />

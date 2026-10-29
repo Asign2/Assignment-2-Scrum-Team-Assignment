@@ -9,18 +9,18 @@ using System.Xaml.Schema;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Handles sensor records, temperature readings and dashboard data.
     /// </summary>
     public static class SensorsDatabase
     {
         /// <summary>
-        /// 
+        /// Sets the number of minutes of sample data to generate.
         /// </summary>
         public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
-                                            // 60 = 1 hour
-                                            // 1440 = 1 day
+                                              // 60 = 1 hour
+                                              // 1440 = 1 day
         /// <summary>
-        /// 
+        /// Creates missing sensor tables and adds initial sample data.
         /// </summary>
         public static void Initialize()
         {
@@ -135,6 +135,9 @@ namespace Assign_2
 
             SeedSampleData(connection);
         }
+        /// <summary>
+        /// Adds a sensor and creates its location if needed.
+        /// </summary>
         public static bool Register(
      string make,
      string model,
@@ -323,7 +326,7 @@ namespace Assign_2
             }
         }//If you want to test new location just add more data after the final year stuff
         /// <summary>
-        /// 
+        /// Gets all available floor and room locations.
         /// </summary>
         /// <returns></returns>
         public static List<LocationRecord> GetAllLocations()
@@ -347,7 +350,7 @@ namespace Assign_2
             return locations;
         }
         /// <summary>
-        /// 
+        /// Gets all sensors along with their location details.
         /// </summary>
         /// <returns></returns>
         public static List<SensorRecord> GetAllSensors()
@@ -378,6 +381,9 @@ namespace Assign_2
             }
             return sensors;
         }
+        /// <summary>
+        /// Updates the make and model of an existing sensor.
+        /// </summary>
         public static void UpdateSensor(int sensorId, string make, string model)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -394,7 +400,9 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
-        
+        /// <summary>
+        /// Gets grouped temperature statistics for the selected locations.
+        /// </summary>
         public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
         {
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
@@ -456,7 +464,7 @@ namespace Assign_2
             };
         }
         /// <summary>
-        /// 
+        /// Gets the saved dashboard settings or the default values.
         /// </summary>
         /// <returns></returns>
         public static DashboardSettings GetSettings()
@@ -498,7 +506,7 @@ namespace Assign_2
             };
         }
         /// <summary>
-        /// 
+        /// Saves dashboard display settings and who updated them.
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="updatedBy"></param>
@@ -525,7 +533,7 @@ namespace Assign_2
             command.ExecuteNonQuery();
         }
         /// <summary>
-        /// 
+        /// Gets the latest recorded temperature for a location.
         /// </summary>
         /// <param name="locationId"></param>
         /// <returns></returns>
@@ -544,7 +552,7 @@ namespace Assign_2
             return result == null ? null : Convert.ToDouble(result);
         }
         /// <summary>
-        /// 
+        /// Adds a dashboard viewing record to the log.
         /// </summary>
         /// <param name="snapshot"></param>
         public static void RecordDashboard(DashboardSnapshot snapshot)
@@ -562,7 +570,7 @@ namespace Assign_2
             command.ExecuteNonQuery();
         }
         /// <summary>
-        /// 
+        /// Gets the most recent dashboard viewing records.
         /// </summary>
         /// <param name="take"></param>
         /// <returns></returns>
@@ -592,7 +600,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// 
+        /// Gets temperature readings for a location and time interval.
         /// </summary>
         /// <param name="location"></param>
         /// <param name="granularity"></param>
@@ -641,7 +649,7 @@ namespace Assign_2
             return readings;
         }
         /// <summary>
-        /// 
+        /// Updates the temperature generation interval setting.
         /// </summary>
         /// <param name="settings"></param>
         public static void UpdateSettings(DashboardSettings settings)
@@ -654,9 +662,9 @@ namespace Assign_2
                 WHERE Id = 1;", connection);
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
-        }   
+        }
         /// <summary>
-        /// 
+        /// Changes whether a sensor is active.
         /// </summary>
         /// <param name="newStatus"></param>
         /// <param name="sensorId"></param>
@@ -673,7 +681,9 @@ namespace Assign_2
             command.ExecuteNonQuery();
 
         }
-
+        /// <summary>
+        /// Checks whether a location has an active sensor.
+        /// </summary>
         public static bool IsLocationActive(int locationId)
         {
             using var connection = UserDatabase.OpenConnection();

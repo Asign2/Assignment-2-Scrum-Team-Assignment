@@ -6,7 +6,7 @@ using System.IO;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Handles user accounts and database connections.
     /// </summary>
     public static class UserDatabase
     {
@@ -243,11 +243,8 @@ namespace Assign_2
             }
         }
 
-        // =========================================================
-        // LOGIN
-        // =========================================================
         /// <summary>
-        /// 
+        /// Checks login details and returns the user role if valid.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
@@ -307,11 +304,8 @@ namespace Assign_2
             return true;
         }
 
-        // =========================================================
-        // REGISTER
-        // =========================================================
         /// <summary>
-        /// 
+        /// Registers a new user account with the selected role.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
@@ -417,11 +411,8 @@ namespace Assign_2
             }
         }
 
-        // =========================================================
-        // GET ALL USERS
-        // =========================================================
         /// <summary>
-        /// 
+        /// Gets all users and their account information.
         /// </summary>
         /// <returns></returns>
         public static List<UserRecord> GetAllUsers()
@@ -463,11 +454,8 @@ namespace Assign_2
             return users;
         }
 
-        // =========================================================
-        // UPDATE USER
-        // =========================================================
         /// <summary>
-        /// 
+        /// Updates an existing user account.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="newUsername"></param>
@@ -541,11 +529,8 @@ namespace Assign_2
             }
         }
 
-        // =========================================================
-        // UPDATE PASSWORD
-        // =========================================================
         /// <summary>
-        /// 
+        /// Changes the password for an existing user.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="newPassword"></param>
@@ -576,11 +561,8 @@ namespace Assign_2
             return command.ExecuteNonQuery() > 0;
         }
 
-        // =========================================================
-        // DELETE USER
-        // =========================================================
         /// <summary>
-        /// 
+        /// Deletes a user account by its ID.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -603,11 +585,8 @@ namespace Assign_2
             return command.ExecuteNonQuery() > 0;
         }
 
-        // =========================================================
-        // OPEN CONNECTION
-        // =========================================================
         /// <summary>
-        /// 
+        /// Opens and returns a connection to the application database.
         /// </summary>
         /// <returns></returns>
         public static SqlConnection OpenConnection()
@@ -658,11 +637,8 @@ namespace Assign_2
 
             return Convert.ToInt32(result) > 0;
         }
-        // =========================================================
-        // RESET DATABASE FOR TESTS
-        // =========================================================
         /// <summary>
-        /// 
+        /// Deletes all users and restores the default accounts. Use only for testing.
         /// </summary>
         public static void ResetDatabase()
         {

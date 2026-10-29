@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Generates periodic temperature readings for active sensors.
     /// </summary>
     public class Generation 
     {
 
         private readonly int delay;
         /// <summary>
-        /// 
+        /// Occurs after new temperature data has been generated.
         /// </summary>
         public event Action? DataGenerated;
         /// <summary>
-        /// 
+        /// Creates a temperature generator with the specified delay.
         /// </summary>
         /// <param name="delay"></param>
         public Generation(int delay = 60000)

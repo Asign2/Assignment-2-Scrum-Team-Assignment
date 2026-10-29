@@ -6,7 +6,7 @@ using System.Windows.Controls;
 namespace Assign_2
 {
     /// <summary>
-    /// 
+    /// Handles the main application screens and user interactions.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -15,16 +15,15 @@ namespace Assign_2
         private bool adminScreenReady;
         private bool userScreenReady;
         /// <summary>
-        /// 
+        /// Creates the main window and starts normal application setup.
         /// </summary>
         public MainWindow() : this(true)
         {
         }
 
         /// <summary>
-        /// Allows tests to create the window without starting
-        /// the database initialization and generation loop.
-        ///Means that Tests will still run fast and not require the database to be initialized.
+        /// <summary>
+        /// Creates the main window and optionally starts temperature generation.
         /// </summary>
         /// <param name="startGeneration"></param>
         public MainWindow(bool startGeneration)
@@ -737,8 +736,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// Loads the aggregated readings for the selected location/interval and
-        /// fills the chart tiles, sized by the admin's graph count setting.
+        /// Refreshes the dashboard charts using the selected locations and interval.
         /// </summary>
         public void RefreshDashboard()
         {
@@ -1016,7 +1014,7 @@ namespace Assign_2
         }
 
         /// <summary>
-        /// This will return a list for all the selected room location ints.
+        /// Returns the IDs of the rooms currently selected in the location tree.
         /// </summary>
         /// <returns> room int locations.</returns>
         public List<int> SelectedLocations()
@@ -1060,9 +1058,9 @@ namespace Assign_2
                 RedrawChartTiles();
             }
         }
-        
+
         /// <summary>
-        /// Redraws the graphs that are already generated.
+        /// Updates existing chart tiles with the latest sensor readings.
         /// </summary>
         public void RedrawChartTiles()
         {
@@ -1077,7 +1075,8 @@ namespace Assign_2
 
             List<LocationRecord> allLocations = SensorsDatabase.GetAllLocations();
             DashboardSettings settings = SensorsDatabase.GetSettings();
-            foreach (LocationRecord location in allLocations) {
+            foreach (LocationRecord location in allLocations.Where(l => locations.Contains(l.Id)))
+            {
 
                 List<(DateTime Period, double Temperature)> readings = SensorsDatabase.GetChartReadings(location.Id, granularity);
                 //Checks if a location has readings but no graph.
