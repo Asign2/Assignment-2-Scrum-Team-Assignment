@@ -6,7 +6,7 @@ Supplemental descriptions for our two Use Case Diagrams ([Link to Draw.io file](
 
 ## Diagram 1: User Management
 
-![User Management Use Case Diagram](docs/Use Case Diagram-User Management.jpg)
+![User Management Use Case Diagram](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Use%20Case%20Diagram-User%20Management.jpg)
 
 | **Use Case**       | ~~Update Personal Details~~ (dropped)                                                                        |
 | ------------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -73,7 +73,7 @@ Supplemental descriptions for our two Use Case Diagrams ([Link to Draw.io file](
 
 ## Diagram 2: Manage Sensors
 
-![Manage Sensors Use Case Diagram](docs/Use Case Diagram-Manage Sensors.jpg)
+![Manage Sensors Use Case Diagram](https://github.com/Asign2/Assignment-2-Scrum-Team-Assignment/blob/main/docs/Use%20Case%20Diagram-Manage%20Sensors.jpg)
 
 | **Use Case**       | **Monitor Sensor Readings**                                                                   |
 | ------------------ | --------------------------------------------------------------------------------------------- |

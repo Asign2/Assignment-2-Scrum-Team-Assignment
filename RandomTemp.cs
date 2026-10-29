@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class RandomTemp
     {
 

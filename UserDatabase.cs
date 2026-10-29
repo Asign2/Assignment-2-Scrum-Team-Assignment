@@ -5,6 +5,9 @@ using System.IO;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class UserDatabase
     {
         private static string ProjectRoot =
@@ -243,7 +246,13 @@ namespace Assign_2
         // =========================================================
         // LOGIN
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public static bool Login(
             string username,
             string password,
@@ -301,7 +310,17 @@ namespace Assign_2
         // =========================================================
         // REGISTER
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="role"></param>
+        /// <param name="firstname"></param>
+        /// <param name="lastname"></param>
+        /// <param name="datecreated"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static bool Register(
             string username,
             string password,
@@ -401,7 +420,10 @@ namespace Assign_2
         // =========================================================
         // GET ALL USERS
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static List<UserRecord> GetAllUsers()
         {
             var users = new List<UserRecord>();
@@ -444,7 +466,17 @@ namespace Assign_2
         // =========================================================
         // UPDATE USER
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newUsername"></param>
+        /// <param name="newRole"></param>
+        /// <param name="newFirstName"></param>
+        /// <param name="newLastName"></param>
+        /// <param name="newDateCreated"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static bool UpdateUser(
             int id,
             string newUsername,
@@ -512,7 +544,12 @@ namespace Assign_2
         // =========================================================
         // UPDATE PASSWORD
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
         public static bool UpdatePassword(
             int id,
             string newPassword)
@@ -542,7 +579,11 @@ namespace Assign_2
         // =========================================================
         // DELETE USER
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static bool DeleteUser(
             int id)
         {
@@ -565,7 +606,10 @@ namespace Assign_2
         // =========================================================
         // OPEN CONNECTION
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static SqlConnection OpenConnection()
         {
             var connection =
@@ -617,7 +661,9 @@ namespace Assign_2
         // =========================================================
         // RESET DATABASE FOR TESTS
         // =========================================================
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static void ResetDatabase()
         {
             using var connection = OpenConnection();

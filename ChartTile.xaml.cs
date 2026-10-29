@@ -10,10 +10,15 @@ using VectSharp.Plots;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class ChartTile : UserControl
     {
         private enum ChartKind { None, Line, Band, Bars }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public event EventHandler Clicked;
 
         private ChartKind kind = ChartKind.None;
@@ -27,13 +32,24 @@ namespace Assign_2
         public string Title { get; private set; }
         public List<string> Labels { get; private set; }
         public List<double> Values { get; private set; }
-
+        public bool isActive { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public ChartTile()
         {
             InitializeComponent();
             SparklineHost.SizeChanged += (s, e) => DrawSparkline();
-        }
 
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="xLabels"></param>
+        /// <param name="data"></param>
+        /// <param name="low"></param>
+        /// <param name="high"></param>
         public void ShowLine(string title, List<string> xLabels,
                              List<double> data, double? low, double? high)
         {
@@ -52,7 +68,16 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="xLabels"></param>
+        /// <param name="mins"></param>
+        /// <param name="maxs"></param>
+        /// <param name="avgs"></param>
+        /// <param name="low"></param>
+        /// <param name="high"></param>
         public void ShowBand(string title, List<string> xLabels,
                              List<double> mins, List<double> maxs, List<double> avgs,
                              double? low, double? high)
@@ -71,7 +96,12 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="xLabels"></param>
+        /// <param name="data"></param>
         public void ShowBars(string title, List<string> xLabels, List<double> data)
         {
             chartTitle = title;
@@ -88,7 +118,10 @@ namespace Assign_2
             Redraw();
             UpdateEnlargedCopy();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
         public void ShowPlaceholder(string title)
         {
             chartTitle = title;
@@ -190,11 +223,18 @@ namespace Assign_2
 
             Sparkline.Points = points;
         }
-        //Creates the parameters for the EnlargedCopy
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public ChartTile CreateEnlargedCopy(double width = 1100, double height = 550)
         {
             activeEnlargedCopy = new ChartTile { Width = width, Height = height };
+            activeEnlargedCopy.UpdateStatus(isActive);
             UpdateEnlargedCopy();
+            
             return activeEnlargedCopy;
         }
 
@@ -234,6 +274,19 @@ namespace Assign_2
         private void EnlargeChart(object sender, MouseButtonEventArgs e)
         {
             Clicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void UpdateStatus(bool isActive)
+        {
+            this.isActive = isActive;
+            Activated.Visibility = System.Windows.Visibility.Visible;
+            Deactivated.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (!isActive)
+            {
+                Activated.Visibility = System.Windows.Visibility.Collapsed;
+                Deactivated.Visibility = System.Windows.Visibility.Visible;
+            }
         }
     }
 }

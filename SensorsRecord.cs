@@ -2,6 +2,9 @@
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum Granularity
     {
         Daily,
@@ -10,7 +13,9 @@ namespace Assign_2
         Yearly
     }
 
-    /// <summary>A row from dbo.Locations, used by the user's location filter.</summary>
+    /// <summary>
+    /// A row from dbo.Locations, used by the user's location filter.
+    /// </summary>
     public class LocationRecord
     {
         public int Id { get; set; }
@@ -19,7 +24,9 @@ namespace Assign_2
         public string Display { get; set; }
     }
 
-    /// <summary>A row from dbo.Sensors joined to its location, for the admin sensor list.</summary>
+    /// <summary>
+    /// A row from dbo.Sensors joined to its location, for the admin sensor list.
+    /// </summary>
     public class SensorRecord
     {
         public int Id { get; set; }
@@ -31,7 +38,9 @@ namespace Assign_2
         public int Room { get; set; }
     }
 
-    /// <summary>One aggregated time bucket of temperature readings.</summary>
+    /// <summary>
+    /// One aggregated time bucket of temperature readings.
+    /// </summary>
     public class ReadingAggregate
     {
         public int Location {  get; set; }
@@ -43,7 +52,9 @@ namespace Assign_2
         public double Range => MaxTemp - MinTemp;
     }
 
-    /// <summary>Admin-controlled dashboard configuration (single row, Id = 1).</summary>
+    /// <summary>
+    /// Admin-controlled dashboard configuration (single row, Id = 1).
+    /// </summary>
     public class DashboardSettings
     {
         public int GraphCount { get; set; }
@@ -59,7 +70,9 @@ namespace Assign_2
         public int Tick { get; set; }
     }
 
-    /// <summary>A record of a dashboard that was actually displayed to a user.</summary>
+    /// <summary>
+    /// A record of a dashboard that was actually displayed to a user.
+    /// </summary>
     public class DashboardSnapshot
     {
         public string ViewedBy { get; set; }

@@ -8,11 +8,20 @@ using System.Xaml.Schema;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class SensorsDatabase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static int SeedMinutes = 1440; // number of minutes to pre-seed database.
                                             // 60 = 1 hour
                                             // 1440 = 1 day
+        /// <summary>
+        /// 
+        /// </summary>
         public static void Initialize()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -257,11 +266,11 @@ namespace Assign_2
                         (GETDATE(), 'Siemens', 'QAA2061', 1, 3, 1),
                         (GETDATE(), 'Bosch', 'BME280', 2, 5, 1),
                         (GETDATE(), 'Texas Instruments', 'TMP36', 3, 4, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 1),
-                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 1),
-                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 1),
-                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 1),
-                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 1),
+                        (GETDATE(), 'Siemens', 'QAA2061', 4, -5, 0),
+                        (GETDATE(), 'Bosch', 'BME280', 5, -7, 0),
+                        (GETDATE(), 'Siemens', 'QAA2061', 6, -8, 0),
+                        (GETDATE(), 'Texas Instruments', 'TMP36', 7, 9, 0),
+                        (GETDATE(), 'Sensirion', 'SHT31', 8, -10, 0),
                         (GETDATE(), 'Honeywell', 'HTP-1000', 9, 8, 0);
                 ");
             }
@@ -313,7 +322,10 @@ namespace Assign_2
                 }
             }
         }//If you want to test new location just add more data after the final year stuff
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static List<LocationRecord> GetAllLocations()
         {
             List<LocationRecord> locations = new List<LocationRecord>();
@@ -334,7 +346,10 @@ namespace Assign_2
             }
             return locations;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static List<SensorRecord> GetAllSensors()
         {
             List<SensorRecord> sensors = new List<SensorRecord>();
@@ -379,6 +394,7 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        
         public static List<ReadingAggregate> GetAggregates(List<int> locations, Granularity granularity)
         {
             List<ReadingAggregate> rows = new List<ReadingAggregate>();
@@ -439,7 +455,10 @@ namespace Assign_2
                 _ => start.ToString("yyyy")
             };
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static DashboardSettings GetSettings()
         {
             using var connection = UserDatabase.OpenConnection();
@@ -478,7 +497,11 @@ namespace Assign_2
 
             };
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="updatedBy"></param>
         public static void SaveSettings(DashboardSettings settings, string updatedBy)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -501,6 +524,11 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns></returns>
         public static double? GetLatestTemp(int locationId)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -515,6 +543,10 @@ namespace Assign_2
             object result = command.ExecuteScalar();
             return result == null ? null : Convert.ToDouble(result);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="snapshot"></param>
         public static void RecordDashboard(DashboardSnapshot snapshot)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -529,7 +561,11 @@ namespace Assign_2
 
             command.ExecuteNonQuery();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="take"></param>
+        /// <returns></returns>
         public static List<DashboardSnapshot> GetDashboardLog(int take = 200)
         {
             List<DashboardSnapshot> log = new List<DashboardSnapshot>();
@@ -555,8 +591,13 @@ namespace Assign_2
             return log;
         }
 
-        // Gets chart readings to populate ChartTile graph
-        // uses a switch for the granularity
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="granularity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static List<(DateTime Period, double Temperature)> GetChartReadings(
             int location,
             Granularity granularity)
@@ -599,6 +640,10 @@ namespace Assign_2
 
             return readings;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
         public static void UpdateSettings(DashboardSettings settings)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -610,7 +655,11 @@ namespace Assign_2
             command.Parameters.AddWithValue("@tick", settings.Tick);
             command.ExecuteNonQuery();
         }   
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newStatus"></param>
+        /// <param name="sensorId"></param>
         public static void UpdateActivity(bool newStatus, int sensorId)
         {
             using var connection = UserDatabase.OpenConnection();
@@ -623,6 +672,22 @@ namespace Assign_2
             command.Parameters.AddWithValue("@Id", sensorId);
             command.ExecuteNonQuery();
 
+        }
+
+        public static bool IsLocationActive(int locationId)
+        {
+            using var connection = UserDatabase.OpenConnection();
+            using var command = new SqlCommand(@"
+                SELECT  COUNT(*)
+                FROM dbo.Sensors
+                WHERE Location_Id = @Location_Id
+                AND Active = 1", connection);
+
+            command.Parameters.AddWithValue("@Location_Id", locationId);
+
+            int count = (int)command.ExecuteScalar();
+            
+            return count > 0;
         }
     }
 }

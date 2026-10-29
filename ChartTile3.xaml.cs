@@ -10,28 +10,49 @@ using VectSharp.Plots;
 
 namespace Assign_2
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class BoxPlot : UserControl
     {
+        /// <summary>
+        /// Gets the  collection of temperature values currently populated in the box plot.
+        /// </summary>
         private List<double> values = new List<double>();
+        /// <summary>
+        /// Gets the raw collection of temperature values currently populated in the box plot.
+        /// </summary>
         public List<double> RawValues { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoxPlot"/> class and wires up resize handling.
+        /// </summary>
         public BoxPlot()
         {
             InitializeComponent();
             SizeChanged += (s, e) => DrawNativeBoxPlot();
         }
-
+        /// <summary>
+        /// Populates the box plot with the specified collection of temperature values and triggers a redraw.
+        /// </summary>
+        /// <param name="temperatures">The collection of temperature data points to display.</param>
         public void ShowBoxPlot(List<double> temperatures)
         {
             values = temperatures ?? new List<double>();
             Redraw();
         }
-
+        /// <summary>
+        /// Clears the data values and displays the placeholder view for the box plot.
+        /// </summary>
+        /// <param name="title">The placeholder title text.</param>
         public void ShowPlaceholder(string title)
         {
             values = new List<double>();
             Redraw();
         }
+        /// <summary>
+        /// Recalculates statistical bounds, updates text fields, and renders the box plot or placeholder state.
+        /// </summary>
 
         public void Redraw()
         {   
@@ -62,7 +83,9 @@ namespace Assign_2
 
             DrawNativeBoxPlot();
         }
-
+        /// <summary>
+        /// Draws the visual box plot graphics including whiskers, interquartile range box, and median marker onto the canvas layer.
+        /// </summary>
         public void DrawNativeBoxPlot()
         {
             RawValues = values;
@@ -102,7 +125,7 @@ namespace Assign_2
             double yQ3 = scaleY(q3);
             double yMed = scaleY(median);
 
-            // 1. Draw Whiskers (Vertical line from min to max, horizontal caps)
+            // Draw Whiskers (Vertical line from min to max, horizontal caps)
             var verticalWhisker = new Line
             {
                 X1 = centerX,
@@ -133,7 +156,7 @@ namespace Assign_2
                 StrokeThickness = 1.5
             };
 
-            // 2. Draw Interquartile Box (Q1 to Q3)
+            // Draw Interquartile Box (Q1 to Q3)
             double boxHeight = Math.Abs(yQ1 - yQ3);
             var boxRect = new System.Windows.Shapes.Rectangle
             {
@@ -146,7 +169,7 @@ namespace Assign_2
             Canvas.SetLeft(boxRect, centerX - boxWidth / 2.0);
             Canvas.SetTop(boxRect, Math.Min(yQ1, yQ3));
 
-            // 3. Draw Median Line
+            //  Draw Median Line
             var medianLine = new Line
             {
                 X1 = centerX - boxWidth / 2.0,
@@ -164,11 +187,28 @@ namespace Assign_2
             LabelLayer.Children.Add(boxRect);
             LabelLayer.Children.Add(medianLine);
         }
-
+        /// <summary>
+        /// Calculates the specific percentile value from a sorted dataset.
+        /// </summary>
+        /// <param name="sortedData">The sorted collection of numeric data values.</param>
+        /// <param name="percentile">The target percentile to calculate (e.g., 25, 50, 75).</param>
+        /// <returns>The calculated percentile value.</returns>
         internal double GetPercentile(List<double> sortedData, double percentile)
         {
             int idx = (int)Math.Ceiling((percentile / 100.0) * sortedData.Count) - 1;
             return sortedData[Math.Max(0, Math.Min(idx, sortedData.Count - 1))];
+        }
+
+        public void UpdateStatus(bool isActive)
+        {
+            Activated.Visibility = System.Windows.Visibility.Visible;
+            Deactivated.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (!isActive)
+            {
+                Activated.Visibility = System.Windows.Visibility.Collapsed;
+                Deactivated.Visibility = System.Windows.Visibility.Visible;
+            }
         }
     }
 }
