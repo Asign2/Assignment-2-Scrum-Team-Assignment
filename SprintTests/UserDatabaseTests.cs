@@ -7,7 +7,7 @@ using Xunit;
 
 namespace SprintUnitTests;
 
-// Extra database integration tests. Keep all existing Sprint tests unchanged.
+// Extra database integration tests. Covers Mising UserDatabase Sprint tests.
 // Requires the same LocalDB setup as the existing tests.
 // Every inserted sensor/location and user is identified by a unique test marker.
 public class AdditionalUserDatabaseTests : IDisposable
