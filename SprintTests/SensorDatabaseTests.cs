@@ -11,7 +11,7 @@ using Xunit;
 
 namespace SensorDatabaseTests;
 
-// Add as a NEW file in SprintTests. It does not replace existing test classes.
+// Added to cover mising SensorDatabaseTests. It does not replace existing test classes.
 // These are database-backed integration tests. They READ from the existing database,
 // except the UI export test, which writes a JSON file in the test working directory.
 // No sensor/user/settings records are changed by these tests.
